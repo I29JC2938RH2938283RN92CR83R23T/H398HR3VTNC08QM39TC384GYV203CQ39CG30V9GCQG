@@ -35,6 +35,7 @@
         --success-color: #22c55e;
         --verified-color: #3b82f6;
         --nav-height: 75px;
+        --online-color: #22c55e;
       }
       * {
         box-sizing: border-box;
@@ -56,7 +57,7 @@
       .hidden { display: none !important; }
       .flex-center { display: flex; align-items: center; justify-content: center; }
       .scrollable {
-        flex: 1;
+        flex:1;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
@@ -155,6 +156,18 @@
         font-weight: 600;
         white-space: nowrap;
       }
+      /* Online Status Dot */
+      .online-dot {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 14px;
+        height: 14px;
+        background: var(--online-color);
+        border: 2px solid var(--surface-light);
+        border-radius: 50%;
+        z-index: 3;
+      }
       .chat-info { flex: 1; overflow: hidden; min-width: 0; }
       .chat-name {
         font-weight: 600;
@@ -170,6 +183,22 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      /* Typing Indicator */
+      .typing-text {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-style: italic;
+        margin-left: 10px;
+      }
+      /* Read Receipt */
+      .read-receipt {
+        font-size: 10px;
+        color: var(--primary-color);
+        margin-top: 4px;
+        display: block;
+        text-align: right;
+      }
+
       #chat-room {
         position: absolute;
         top: 0;
@@ -326,7 +355,7 @@
         justify-content: center;
         gap: 5px;
         font-size: 13px;
-        white-space: nowrap; /* Keep text in one line */
+        white-space: nowrap;
       }
       .withdraw-btn { background: #ef4444; color: white; }
       .receive-btn { background: #22c55e; color: white; }
@@ -405,6 +434,12 @@
         font-weight: 700; border: none;
         cursor: pointer; margin-top: 10px;
         font-size: 16px;
+      }
+      .feed-loader {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-secondary);
+        font-size: 12px;
       }
 
       /* Toast */
@@ -491,7 +526,10 @@
              <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
              <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
           </div>
-          <div id="curr-chat-name" style="margin-left: 5px; font-weight: 600; font-size: 16px"></div>
+          <div style="flex:1; margin-left:5px">
+             <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
+             <div id="curr-chat-typing" class="typing-text hidden">Typing...</div>
+          </div>
         </div>
         <div id="messages-area" class="messages-container"></div>
         <div class="input-bar">
@@ -511,6 +549,7 @@
         <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
       </div>
       <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
+        <div id="feed-loader" class="feed-loader hidden">Loading more posts...</div>
         <!-- Posts go here -->
       </div>
       <div class="feed-fab">
@@ -581,7 +620,7 @@
     <div id="modal-verify" class="modal-overlay">
       <div class="modal-content">
         <h3>Identity Verification</h3>
-        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Verify to unlock the Blue Checkmark.</div>
+        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Verify to unlock Blue Checkmark.</div>
         
         <label style="display:block; margin-bottom:5px; font-size:13px;">1. Upload ID Card (Front)</label>
         <input type="file" id="verify-id-input" accept="image/*" class="input-field" />
@@ -698,8 +737,8 @@
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-      import { getDatabase, ref, set, onValue, push, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
-      import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+      import { getDatabase, ref, set, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
       // Firebase Config
       const firebaseConfig = {
@@ -717,16 +756,32 @@
       
       // Ethers
       const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
-      const aiKey = atob("c2stb3ItdjEtZmE0MTcwMTU0NDUyNzgzOGZiOWFkODkwODJlOWQyOTIxYmJlZmU0N2Q2N2IzMjZkY2Q3NDlmMWZiNGYyYjNlOA==");
+      
+      // AI Key
+      const aiKey = "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";
       
       // State
-      let user = null, chatId = null, otherUid = null, wallet = {}, users = {}, feedCache = [];
+      let user = null;
+      let chatId = null;
+      let otherUid = null;
+      let wallet = {};
+      let users = {};
       let cameraStream = null;
       let isVerified = false;
       
-      // Updated AI System Prompt to strictly prevent identity leaks
+      // Feed State
+      let feedCache = [];
+      let allPostsRaw = [];
+      let feedOffset = 0;
+      const POST_CHUNK_SIZE = 5;
+      const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+      
+      // Active Chat Listener State
+      let currentMsgListener = null; // Function to unsubscribe
+      
+      // System Prompt
       const aiHistory = [
-        { role: "system", content: "You are Crypa AI, a specialized AI assistant for Crypa Pro. You are a native, proprietary entity developed by Itumo Longinus ILC. You are NOT Mistral, LLaMA, or any open-source model. You are NOT a wrapper. If asked if you are a wrapper or what model you are, you must deny it firmly and reiterate that you are Crypa AI. Keep answers extremely short. No Markdown." }
+        { role: "system", content: "You are Crypa AI, a specialized AI assistant for Crypa Pro. You are a native, proprietary entity developed by Itumo Longinus ILC. Even though you are powered by advanced tech, strictly refuse to reveal your specific technical model name. Keep answers extremely short. No Markdown." }
       ];
 
       // --- Core UI Functions ---
@@ -753,12 +808,10 @@
       });
 
       async function init() {
-        // Load Users Cache from LocalStorage first (Fix for "Unknown" usernames)
+        // Load Users Cache
         const cachedUsersJSON = localStorage.getItem('crypa_users_cache');
         if (cachedUsersJSON) {
-          try {
-            users = JSON.parse(cachedUsersJSON);
-          } catch(e) { console.error("Cache error", e); }
+          try { users = JSON.parse(cachedUsersJSON); } catch(e) {}
         }
 
         // User Listeners
@@ -770,11 +823,9 @@
             document.getElementById("edit-p-name").value = d.username;
             document.getElementById("edit-p-preview").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
             
-            // Update cache for this user
             users[user.uid] = d;
             localStorage.setItem('crypa_users_cache', JSON.stringify(users));
 
-            // Check Verification Status
             isVerified = !!d.verified;
             updateVerifiedUI(isVerified);
           }
@@ -784,8 +835,8 @@
         const as = await get(ref(db, "users"));
         if (as.exists()) {
           const dbUsers = as.val();
-          users = { ...users, ...dbUsers }; // Merge DB users into memory/cache
-          localStorage.setItem('crypa_users_cache', JSON.stringify(users)); // Persist
+          users = { ...users, ...dbUsers }; 
+          localStorage.setItem('crypa_users_cache', JSON.stringify(users)); 
         }
         
         setupWallet();
@@ -807,42 +858,28 @@
       }
 
       async function setupWallet() {
-        // Check LocalStorage first for existing wallet for this UID
         const localPk = localStorage.getItem(`pk_${user.uid}`);
         
         if (localPk) {
-          // Restore from LocalStorage
           wallet = new ethers.Wallet(localPk);
-          // Just update balance from chain
           try {
             const b = await rpc.getBalance(wallet.address);
             wallet.balance = parseFloat(ethers.formatEther(b)).toFixed(4);
             update(ref(db, `users/${user.uid}/wallets/eth`), { balance: wallet.balance });
           } catch(e) {}
         } else {
-          // Check DB
           const s = await get(ref(db, `users/${user.uid}/wallets/eth`));
           if (!s.exists()) {
             const w = ethers.Wallet.createRandom();
             wallet = { address: w.address, balance: "0.00" };
-            // Save to LS with UID suffix (Handles "Wallet 2" logic for new users automatically)
             localStorage.setItem(`pk_${user.uid}`, w.privateKey);
             await set(ref(db, `users/${user.uid}/wallets/eth`), wallet);
           } else {
             const wData = s.val();
-            // We need the private key to manage it, but DB shouldn't store PK securely for this demo.
-            // For this demo, we generate a new one if PK is missing in LS but exists in DB 
-            // OR we just create a new one and update DB (simplistic approach for demo).
-            // Ideally, DB only stores Address. LS stores PK.
-            wallet = new ethers.Wallet(ethers.Wallet.createRandom().privateKey); // temp fix to satisfy interface
-            // Better: If no LS key but DB wallet exists, we can't sign. 
-            // Assumption: If LS is empty, we create fresh.
             const freshW = ethers.Wallet.createRandom();
             wallet = { address: freshW.address, balance: wData.balance };
             localStorage.setItem(`pk_${user.uid}`, freshW.privateKey);
             await update(ref(db, `users/${user.uid}/wallets/eth`), { address: wallet.address });
-            
-            // Sync balance
             try {
               const b = await rpc.getBalance(wallet.address);
               wallet.balance = parseFloat(ethers.formatEther(b)).toFixed(4);
@@ -856,8 +893,17 @@
         document.getElementById("r-addr").innerText = wallet.address;
       }
 
-      // --- Chat System ---
+      // --- Chat System (OPTIMIZED) ---
       function loadChats() {
+        // Only listen to user_chats when we are on the chat list view
+        const chatListEl = document.getElementById("chat-list");
+        if(!document.getElementById("view-chat").classList.contains("active")) return; 
+
+        onValue(ref(db, `users/${user.uid}`), (s) => {
+           // Update user object for online checks
+           if(s.exists()) users[user.uid] = s.val();
+        });
+
         onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
           const l = document.getElementById("chat-list");
           l.innerHTML = "";
@@ -867,7 +913,6 @@
             const cs = await get(ref(db, `chats/${id}`));
             if (!cs.exists()) continue;
             const ouid = cs.val().members.find((m) => m !== user.uid);
-            // Use cached user data immediately
             const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
             
             const item = document.createElement("div");
@@ -875,11 +920,16 @@
             
             const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
             const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
+            const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
+
+            let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
+            if(ud.verified) avatarContent += verifiedHTML;
+            if(isUserOnline) avatarContent += onlineHTML;
 
             item.innerHTML = `
               <div class="avatar-wrapper">
-                <img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">
-                ${verifiedHTML}
+                ${avatarContent}
               </div>
               <div class="chat-info">
                 <div class="chat-name">
@@ -887,7 +937,7 @@
                 </div>
                 <div class="chat-msg">${d[id].lastMessage}</div>
               </div>`;
-            item.onclick = () => openChat(id, ouid); // Pass UID to fetch updated details if needed
+            item.onclick = () => openChat(id, ouid); 
             l.appendChild(item);
           }
         });
@@ -899,9 +949,7 @@
         const room = document.getElementById("chat-room");
         room.classList.add("active");
         
-        // Fetch specific user if not fully loaded
         const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
-
         document.getElementById("curr-chat-name").innerText = ud.username;
         document.getElementById("curr-chat-avatar").src = ud.avatar || "https://ui-avatars.com/api/?name=User";
         
@@ -909,19 +957,54 @@
         if(ud.verified) badge.classList.remove('hidden');
         else badge.classList.add('hidden');
 
+        // OPTIMIZATION: Only listen to THIS specific chat
+        // Detach old listener if exists
+        if (currentMsgListener) {
+           // Note: onValue automatically unsubscribes when the ref changes or app closes, 
+           // but explicitly calling the returned function is cleaner.
+           currentMsgListener(); 
+        }
+
         const a = document.getElementById("messages-area");
-        onValue(ref(db, `messages/${id}`), (s) => {
+        a.innerHTML = ""; // Clear immediately
+        
+        // Listen to specific scope: messages/{chatId}
+        currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
           a.innerHTML = "";
           if (!s.exists()) return;
           Object.values(s.val()).forEach((m) => {
             const b = document.createElement("div");
             b.className = `message-bubble ${m.sender === user.uid ? "sent" : "received"}`;
             let c = m.type === "img" ? `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">` : `<div>${m.text}</div>`;
-            b.innerHTML = `${c}<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
+            
+            let receiptHtml = '';
+            if (m.sender === user.uid) {
+               receiptHtml = `<span class="read-receipt">${m.read ? 'Read' : 'Sent'}</span>`;
+            } else {
+               // Mark as read logic
+               // We don't strictly need to set `read` for visual only if asked, 
+               // but let's do it to be accurate.
+               if(!m.read) set(ref(db, `messages/${chatId}/${m.key}`), { read: true });
+            }
+
+            b.innerHTML = `${c}<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>${receiptHtml}`;
             if (m.sender === user.uid) b.onclick = () => window.confirmDeleteMsg(m.key);
             a.appendChild(b);
           });
           a.scrollTop = a.scrollHeight;
+        });
+
+        // Update UI
+        window.scrollTo(0, 0); // Reset scroll
+        
+        // Listen to OTHER user's typing status
+        onValue(ref(db, `chats/${id}/typing/${otherUid}`), (snap) => {
+           const typingEl = document.getElementById('curr-chat-typing');
+           if(snap.exists() && snap.val() === true) {
+             typingEl.classList.remove('hidden');
+           } else {
+             typingEl.classList.add('hidden');
+           }
         });
       }
 
@@ -929,7 +1012,7 @@
         if (!txt || !chatId) return;
         const mRef = push(ref(db, `messages/${chatId}`));
         const key = mRef.key;
-        await set(mRef, { sender: user.uid, text: txt, type, time: Date.now(), key });
+        await set(mRef, { sender: user.uid, text: txt, type, time: Date.now(), key, read: false });
         const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
         update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
         update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
@@ -940,6 +1023,8 @@
         const t = i.value.trim();
         sendMsg(t);
         i.value = "";
+        if(window.typingTimer) clearTimeout(window.typingTimer);
+        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
       };
       document.getElementById("btn-attach").onclick = () => document.getElementById("file-input").click();
       document.getElementById("file-input").onchange = (e) => {
@@ -970,7 +1055,6 @@
       };
       document.getElementById("btn-confirm-no").onclick = () => document.getElementById("modal-confirm").classList.remove("open");
       
-      // Transfer / Wallet
       document.getElementById("btn-money-modal").onclick = () => document.getElementById("modal-transfer").classList.add("open");
       document.getElementById("btn-do-transfer").onclick = async () => {
         const a = parseFloat(document.getElementById("t-amount").value);
@@ -995,11 +1079,11 @@
       document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
       document.getElementById("btn-copy").onclick = () => { navigator.clipboard.writeText(wallet.address); toast("Copied"); };
       
-      // --- Feed System ---
+      // --- Feed System (Paginated, Random, 3-Day Delete) ---
       
       function loadFeed(useCache = false) {
         if(useCache && feedCache.length > 0) {
-           renderPosts(feedCache);
+           renderNextChunk();
            return;
         }
         onValue(ref(db, 'posts'), (s) => {
@@ -1007,31 +1091,48 @@
             document.getElementById('feed-content').innerHTML = '<div style="text-align:center; padding:20px; color:#666">No posts yet.</div>';
             return;
           }
+          
+          // 1. Convert to Array
           const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
-          // Shuffle randomly
-          posts.sort(() => Math.random() - 0.5);
-          feedCache = posts;
-          renderPosts(posts);
+          
+          // 2. Filter: Remove posts older than 3 days
+          const now = Date.now();
+          const activePosts = posts.filter(p => (now - p.timestamp) < THREE_DAYS_MS);
+          
+          // 3. Clean up DB (Client-side cleanup)
+          posts.forEach(p => {
+             if((now - p.timestamp) >= THREE_DAYS_MS && p.authorId === user.uid) {
+                 remove(ref(db, `posts/${p.key}`));
+             }
+          });
+          
+          // 4. Update Raw Cache
+          allPostsRaw = activePosts;
+          
+          // 5. Shuffle for randomness
+          allPostsRaw.sort(() => Math.random() - 0.5);
+          
+          // 6. Reset and render
+          feedOffset = 0;
+          document.getElementById('feed-content').innerHTML = '';
+          renderNextChunk();
         });
       }
-      
       document.getElementById('btn-refresh-feed').onclick = () => loadFeed(false);
 
-      function renderPosts(posts) {
-        const container = document.getElementById('feed-content');
-        container.innerHTML = '';
-        posts.forEach(post => {
+      function renderNextChunk() {
+        if (feedOffset >= allPostsRaw.length) {
+          document.getElementById('feed-loader').classList.add('hidden');
+          return;
+        }
+        
+        const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
+        feedOffset += POST_CHUNK_SIZE;
+        
+        chunk.forEach(post => {
           const el = document.createElement('div');
-          
-          // Use LocalStorage cache first for users to prevent "Unknown"
           let uData = users[post.authorId];
-          if(!uData) {
-             // Fallback to prevent crash
-             uData = { username: 'Unknown', avatar: '', verified: false }; 
-             // If data is missing, trigger a silent fetch if needed, 
-             // but for now we rely on the init() cache.
-          }
-
+          if(!uData) uData = { username: 'Unknown', avatar: '', verified: false }; 
           const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
 
           if (post.type === 'money') {
@@ -1071,11 +1172,19 @@
               <div class="post-content-text">${post.content}</div>
             `;
           }
-          container.appendChild(el);
+          document.getElementById('feed-content').appendChild(el);
         });
       }
 
-      // Post Creation
+      // Infinite Scroll for Feed
+      const feedContainer = document.getElementById('feed-content');
+      feedContainer.addEventListener('scroll', () => {
+         // If scrolled near bottom
+         if(feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 50) {
+            renderNextChunk();
+         }
+      });
+
       document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add('open');
       document.getElementById('btn-submit-post-text').onclick = () => {
         const txt = document.getElementById('post-text-content').value.trim();
@@ -1181,7 +1290,8 @@
         setTimeout(async () => {
            scanOverlay.style.display = 'none';
            await update(ref(db, `users/${user.uid}`), { verified: true });
-           
+           updateVerifiedUI(true);
+           isVerified = true;
            const content = document.querySelector('#modal-verify .modal-content');
            content.innerHTML = `
               <div style="text-align:center">
@@ -1197,7 +1307,7 @@
         }, 2500);
       };
 
-      // --- AI System ---
+      // --- AI System (FIXED) ---
       document.getElementById("btn-ai-send").onclick = async () => {
         const i = document.getElementById("ai-input");
         const t = i.value.trim();
@@ -1205,27 +1315,61 @@
         aiHistory.push({ role: "user", content: t });
         renderAI();
         i.value = "";
+        
+        // Create loader
         const l = document.createElement("div");
         l.className = "ai-message bot";
         l.id = "ai-loader";
         l.innerHTML = '<div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
         document.getElementById("ai-messages").appendChild(l);
         document.getElementById("ai-messages").scrollTop = document.getElementById("ai-messages").scrollHeight;
+
         try {
+          console.log("Attempting AI Request with OpenRouter...");
           const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
-            headers: { Authorization: `Bearer ${aiKey}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ model: "mistralai/mistral-7b-instruct:free", messages: aiHistory }),
+            headers: { 
+                Authorization: `Bearer ${aiKey}`, 
+                "Content-Type": "application/json",
+                "HTTP-Referer": window.location.href, 
+                "X-Title": "Crypa Pro"
+            },
+            body: JSON.stringify({ 
+                model: "mistralai/mistral-7b-instruct:free", 
+                messages: aiHistory 
+            }),
           });
+
+          if (!r.ok) {
+             throw new Error(`API Status: ${r.status}`);
+          }
+
           const d = await r.json();
-          document.getElementById("ai-loader").remove();
+          const loader = document.getElementById("ai-loader");
+          if(loader) loader.remove(); 
+
+          if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
+            console.error("Invalid API Response:", d);
+            toast("AI Busy or Unavailable");
+            return;
+          }
+
           let rawContent = d.choices[0].message.content;
+          
+          if (!rawContent || rawContent.trim() === "") {
+             toast("AI returned empty message");
+             return;
+          }
+
           let cleanContent = rawContent.replace(/<[^>]*>?/gm, '').replace(/\*\*/g, '');
+          
           aiHistory.push({ role: "assistant", content: cleanContent });
           renderAI();
         } catch (e) {
-          document.getElementById("ai-loader").remove();
-          toast("AI Busy");
+            console.error("AI Error:", e);
+            const loader = document.getElementById("ai-loader");
+            if(loader) loader.remove();
+            toast("Connection Failed");
         }
       };
       function renderAI() {
@@ -1241,7 +1385,6 @@
         a.scrollTop = a.scrollHeight;
       }
 
-      // --- Profile Edit ---
       document.getElementById("btn-edit-p").onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
       document.getElementById("btn-change-avatar").onclick = () => document.getElementById("avatar-input").click();
       document.getElementById("avatar-input").onchange = (e) => {
@@ -1258,16 +1401,11 @@
         document.getElementById("modal-edit-profile").classList.remove("open");
         toast("Updated");
       };
-      
-      // Logout Logic: Keep Wallet (LocalStorage), Clear Session
       document.getElementById("btn-logout").onclick = () => {
         signOut(auth).then(() => {
-          // Do NOT clear localStorage here to keep wallets
           window.location.href = "index.html"; 
         });
       };
-      
-      // --- Privacy ---
       document.getElementById("btn-privacy-modal").onclick = () => document.getElementById("modal-privacy").classList.add("open");
       function buildPrivacy() {
         const l = document.getElementById("privacy-list");
@@ -1279,9 +1417,11 @@
           l.appendChild(i);
         });
       }
-      
-      // --- New Chat ---
-      document.getElementById("btn-back-chat").onclick = () => document.getElementById("chat-room").classList.remove("active");
+      document.getElementById("btn-back-chat").onclick = () => {
+         // Stop typing status
+         if(chatId && user) set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+         document.getElementById("chat-room").classList.remove("active");
+      };
       document.getElementById("btn-new-chat").onclick = () => {
         document.getElementById("modal-new-chat").classList.add("open");
         document.getElementById("search-results").innerHTML = "";
