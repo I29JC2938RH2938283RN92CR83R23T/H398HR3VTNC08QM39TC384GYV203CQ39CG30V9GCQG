@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link
@@ -42,6 +42,7 @@
         padding: 0;
         user-select: none;
         -webkit-tap-highlight-color: transparent;
+        font-family: "Inter", sans-serif;
       }
       body {
         font-family: "Inter", sans-serif;
@@ -80,7 +81,7 @@
         flex-shrink: 0;
         z-index: 10;
       }
-      .app-title { font-size: 22px; font-weight: 700; }
+      .app-title { font-size: 22px; font-weight: 700; font-family: "Inter", sans-serif; }
       .bottom-nav {
         height: var(--nav-height);
         background-color: var(--surface-color);
@@ -102,7 +103,7 @@
         transition: 0.2s;
       }
       .nav-item.active { color: var(--primary-color); }
-      .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; }
+      .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; font-family: "Inter", sans-serif; }
       
       /* Chat Styles */
       .chat-item {
@@ -155,8 +156,6 @@
         font-weight: 600;
         white-space: nowrap;
       }
-      
-      /* New Message Badge */
       .new-message-badge {
         position: absolute;
         top: 10px;
@@ -167,7 +166,6 @@
         border-radius: 50%;
         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       }
-      /* Online Status Dot */
       .online-dot {
         position: absolute;
         bottom: 0;
@@ -186,6 +184,7 @@
         margin-bottom: 2px;
         display: flex;
         align-items: center;
+        font-family: "Inter", sans-serif;
       }
       .chat-msg {
         color: var(--text-secondary);
@@ -193,6 +192,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-family: "Inter", sans-serif;
       }
 
       #chat-room {
@@ -208,13 +208,15 @@
         transform: translateX(100%);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      /* Animation for Chat Room Slide */
       @keyframes slideIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
       }
       .message-bubble {
         animation: slideIn 0.3s ease-out;
+        max-width: 80%;
+        word-wrap: break-word;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
       }
 
       #chat-room.active { transform: translateX(0); }
@@ -234,20 +236,25 @@
         flex-direction: column;
         gap: 12px;
       }
+      
       .received, .bot {
-        position: relative; /* Needed for delete button positioning */
+        position: relative;
         align-self: flex-start;
         background: var(--surface-light);
         color: white;
-        border-bottom-left-radius: 4px;
+        border-radius: 18px 18px 18px 4px; 
+        padding: 10px 16px;
+        font-family: "Inter", sans-serif;
       }
       .sent, .user {
         align-self: flex-end;
         background: var(--primary-color);
         color: white;
-        border-bottom-right-radius: 4px;
+        border-radius: 18px 18px 4px 18px; 
+        padding: 10px 16px;
+        font-family: "Inter", sans-serif;
       }
-      /* Delete Icon */
+      
       .delete-msg-icon {
         position: absolute;
         top: 5px;
@@ -259,12 +266,12 @@
         transition: opacity 0.2s;
         z-index: 5;
       }
-      .received:hover .delete-msg-icon {
-        opacity: 1; /* Show on hover */
+      .message-bubble:hover .delete-msg-icon {
+        opacity: 1; 
       }
       
       .msg-img { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; display: block; }
-      .msg-time { font-size: 10px; opacity: 0.7; margin-top: 4px; display: block; text-align: right; font-size: 10px; }
+      .msg-time { font-size: 10px; opacity: 0.7; margin-top: 4px; display: block; text-align: right; font-size: 10px; font-family: "Inter", sans-serif; }
       
       .input-bar {
         background: var(--surface-color);
@@ -286,6 +293,7 @@
         resize: none;
         max-height: 120px;
         min-height: 44px;
+        font-family: "Inter", sans-serif;
       }
       .action-btn {
         width: 44px;
@@ -305,20 +313,6 @@
       .btn-send { background: var(--primary-color); color: white; }
       .btn-money { background: #fbbf24; color: #000; }
       
-      /* Typing Indicator Bubble */
-      .typing-indicator-bubble {
-        align-self: flex-start;
-        background: var(--surface-light);
-        padding: 10px 15px;
-        border-radius: 20px;
-        color: var(--text-secondary);
-        font-style: italic;
-        font-size: 12px;
-        margin-bottom: 10px;
-        display: none; /* Hidden by default */
-        animation: slideIn 0.3s ease-out;
-      }
-      
       /* Modals & Popups */
       .modal-overlay {
         position: fixed;
@@ -327,32 +321,86 @@
         z-index: 200;
         display: none; align-items: center; justify-content: center;
         opacity: 0; transition: 0.2s;
+        backdrop-filter: blur(5px);
       }
       .modal-overlay.open { display: flex; opacity: 1; }
       .modal-content {
         background: var(--surface-color);
         width: 90%; max-width: 400px;
-        border-radius: 24px; padding: 25px;
+        border-radius: 24px; 
+        padding: 30px 25px; 
         max-height: 85vh; overflow-y: auto;
         position: relative;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      }
+      .modal-content h3 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 10px; 
+        color: white;
+        font-family: "Inter", sans-serif;
+        text-align: left;
+      }
+      .modal-content p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+        line-height: 1.5;
+        font-family: "Inter", sans-serif;
+        text-align: left;
       }
       .input-field {
-        width: 100%; background: var(--bg-color);
+        width: 100%; 
+        background: var(--bg-color);
         border: 1px solid var(--border-color);
-        padding: 15px; border-radius: 14px;
-        color: white; margin-bottom: 15px;
-        outline: none; font-size: 15px;
+        padding: 16px; 
+        border-radius: 14px;
+        color: white; 
+        margin-bottom: 20px; 
+        outline: none; 
+        font-size: 15px;
+        font-family: "Inter", sans-serif;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
       }
+      .input-field:focus { border-color: var(--primary-color); }
       .btn-primary {
         width: 100%; background: var(--primary-color);
-        color: white; padding: 15px;
+        color: white; padding: 16px;
         border: none; border-radius: 14px;
         font-size: 16px; font-weight: 600;
-        cursor: pointer; margin-bottom: 10px;
+        cursor: pointer; 
+        margin-bottom: 12px;
+        font-family: "Inter", sans-serif;
+        transition: background 0.2s;
       }
-      .btn-primary:active { opacity: 0.8; }
+      .btn-primary:hover { opacity: 0.9; }
+      .btn-primary:active { transform: scale(0.98); }
       
-      /* Profile Styles */
+      .file-upload-wrapper {
+        position: relative;
+        width: 100%;
+        border: 2px dashed var(--border-color);
+        background: var(--bg-color);
+        border-radius: 14px;
+        padding: 30px 20px;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .file-upload-wrapper:hover {
+        border-color: var(--primary-color);
+        background: rgba(91, 107, 242, 0.05);
+      }
+      .file-upload-icon { font-size: 40px; color: var(--text-secondary); margin-bottom: 10px; }
+      .file-upload-text { color: var(--text-secondary); font-size: 14px; font-family: "Inter", sans-serif; }
+      input[type="file"] { display: none; }
+      
       .profile-card {
         background: var(--surface-light);
         border-radius: 20px; padding: 20px;
@@ -383,16 +431,16 @@
         gap: 5px;
         font-size: 13px;
         white-space: nowrap;
+        font-family: "Inter", sans-serif;
       }
       .withdraw-btn { background: #ef4444; color: white; }
       .receive-btn { background: #22c55e; color: white; }
       
-      /* Verification Styles */
       .camera-container {
         width: 100%; height: 200px;
         background: #000; border-radius: 12px;
         position: relative; overflow: hidden;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
       }
       #face-video { width: 100%; height: 100%; object-fit: cover; }
       .scan-overlay {
@@ -404,7 +452,6 @@
       }
       @keyframes scan-pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
       
-      /* Feed Styles */
       .feed-fab {
         display: flex;
         justify-content: center;
@@ -434,7 +481,7 @@
         display: flex; align-items: center;
         padding: 12px; gap: 10px;
       }
-      .post-content-text { padding: 0 12px 12px; font-size: 15px; line-height: 1.4; }
+      .post-content-text { padding: 0 12px 12px; font-size: 15px; line-height: 1.4; font-family: "Inter", sans-serif; }
       .post-content-img {
         width: 100%; height: auto;
         display: block; background: #000;
@@ -454,38 +501,62 @@
         position: relative;
         overflow: hidden;
       }
-      .money-amount { font-size: 48px; font-weight: 800; margin: 10px 0; }
+      .money-amount { font-size: 48px; font-weight: 800; margin: 10px 0; font-family: "Inter", sans-serif; }
       .money-claim-btn {
         background: #000; color: #fbbf24;
         padding: 12px 30px; border-radius: 30px;
         font-weight: 700; border: none;
         cursor: pointer; margin-top: 10px;
         font-size: 16px;
+        font-family: "Inter", sans-serif;
       }
       .feed-loader {
         text-align: center;
         padding: 20px;
         color: var(--text-secondary);
         font-size: 12px;
+        font-family: "Inter", sans-serif;
       }
 
-      /* Toast */
+      /* TOAST FIX */
       .toast {
         position: fixed; bottom: 100px; left: 50%;
         transform: translateX(-50%) translateY(20px);
         background: var(--surface-light);
-        color: white; padding: 12px 25px;
-        border-radius: 30px; border: 1px solid var(--primary-color);
-        font-size: 14px; opacity: 0; transition: 0.3s;
-        z-index: 1000; pointer-events: none;
+        color: white; 
+        padding: 12px 25px;
+        border-radius: 30px; 
+        border: 1px solid var(--primary-color);
+        font-size: 14px; 
+        opacity: 0; 
+        transition: 0.3s;
+        z-index: 1000; 
+        pointer-events: none;
+        font-family: "Inter", sans-serif;
+        
+        /* FIX: Allow text wrapping and center alignment properly */
+        white-space: normal; 
+        text-align: center;
+        line-height: 1.4;
+        min-width: 200px;
+        max-width: 80vw; /* Ensure it doesn't overflow screen on mobile */
       }
       .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
       
-      /* AI Chat */
       #ai-messages { display: flex; flex-direction: column; padding: 15px; }
-      .ai-message { max-width: 85%; padding: 12px 18px; border-radius: 18px; margin-bottom: 12px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
+      .ai-message { max-width: 85%; padding: 12px 18px; border-radius: 18px; margin-bottom: 12px; font-size: 15px; line-height: 1.5; word-wrap: break-word; font-family: "Inter", sans-serif; }
       .ai-message.user { align-self: flex-end; background: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
       .ai-message.bot { align-self: flex-start; background: var(--surface-light); color: white; border-bottom-left-radius: 4px; }
+      
+      .ai-message b { font-weight: 700; color: #fff; }
+      .ai-message code { 
+        background: rgba(0,0,0,0.3); 
+        padding: 2px 4px; 
+        border-radius: 4px; 
+        font-family: monospace; 
+        font-size: 0.9em;
+        color: #ff9f43;
+      }
       
       .dot-loader { display: flex; gap: 4px; padding: 10px; }
       .dot { width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; animation: dot-jump 1.4s infinite ease-in-out; }
@@ -493,7 +564,6 @@
       .dot:nth-child(3) { animation-delay: 0.4s; }
       @keyframes dot-jump { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
 
-      /* Privacy CSS Fix */
       .setting-item {
         display: flex;
         justify-content: space-between;
@@ -506,6 +576,7 @@
         font-size: 14px;
         font-weight: 500;
         color: var(--text-primary);
+        font-family: "Inter", sans-serif;
       }
       .switch {
         position: relative;
@@ -558,8 +629,6 @@
           </div>
         </div>
         <div id="messages-area" class="messages-container"></div>
-        <!-- Typing indicator for OTHER user -->
-        <div id="other-user-typing" class="typing-indicator-bubble">Typing...</div>
         <div class="input-bar">
           <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
           <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
@@ -578,7 +647,6 @@
       </div>
       <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
         <div id="feed-loader" class="feed-loader hidden">Loading more posts...</div>
-        <!-- Posts go here -->
       </div>
       <div class="feed-fab">
         <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
@@ -622,8 +690,8 @@
 
         <div class="wallet-card">
           <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase">Eth Balance</div>
-          <div id="p-wallet-bal" style="font-size: 32px; font-weight: 800; margin: 8px 0">0.00 ETH</div>
-          <div id="p-wallet-addr" style="font-size: 10px; opacity: 0.4; word-break: break-all">0x...</div>
+          <div id="p-wallet-bal" style="font-size: 32px; font-weight: 800; margin: 8px 0; font-family: 'Inter', sans-serif">0.00 ETH</div>
+          <div id="p-wallet-addr" style="font-size: 12px; opacity: 0.6; word-break: break-all; font-family: monospace;">0x...</div>
           <div class="wallet-actions">
             <button class="wallet-btn withdraw-btn" id="p-withdraw"><i class="material-icons-round">north_east</i> Withdraw</button>
             <button class="wallet-btn receive-btn" id="p-receive"><i class="material-icons-round">south_west</i> Receive</button>
@@ -644,16 +712,15 @@
 
     <!-- Modals -->
     
-    <!-- Verify Modal -->
     <div id="modal-verify" class="modal-overlay">
       <div class="modal-content">
         <h3>Identity Verification</h3>
-        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Verify to unlock Blue Checkmark.</div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Verify to unlock Blue Checkmark.</div>
         
-        <label style="display:block; margin-bottom:5px; font-size:13px;">1. Upload ID Card (Front)</label>
+        <label style="display:block; margin-bottom:8px; font-size:13px; color:white;">1. Upload ID Card (Front)</label>
         <input type="file" id="verify-id-input" accept="image/*" class="input-field" />
         
-        <label style="display:block; margin-bottom:5px; font-size:13px;">2. Capture Face</label>
+        <label style="display:block; margin-bottom:8px; font-size:13px; color:white;">2. Capture Face</label>
         <div class="camera-container">
           <video id="face-video" autoplay playsinline muted></video>
           <div id="scan-overlay" class="scan-overlay"></div>
@@ -661,82 +728,83 @@
         </div>
         <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
         <button class="btn-primary" id="btn-verify-submit" disabled>Verify Now</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
 
-    <!-- Transfer Modal -->
     <div id="modal-transfer" class="modal-overlay">
       <div class="modal-content">
         <h3>Send Crypto</h3>
-        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 15px;">Internal transfer to contact</p>
-        <input type="number" id="t-amount" class="input-field" placeholder="Amount ETH" />
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Internal transfer to contact</p>
+        <input type="number" id="t-amount" class="input-field" placeholder="Amount ETH" step="0.0001"/>
         <button class="btn-primary" id="btn-do-transfer">Send Now</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
 
-    <!-- Post Text Modal -->
     <div id="modal-post-text" class="modal-overlay">
       <div class="modal-content">
         <h3>New Text Post</h3>
         <textarea id="post-text-content" class="input-field" rows="4" placeholder="Say something..."></textarea>
         <button class="btn-primary" id="btn-submit-post-text">Post</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
 
-    <!-- Post Image Modal -->
     <div id="modal-post-img" class="modal-overlay">
       <div class="modal-content">
         <h3>New Image Post</h3>
-        <input type="file" id="post-img-file" accept="image/*" class="input-field" />
+        
+        <label class="file-upload-wrapper" for="post-img-file">
+          <i class="material-icons-round file-upload-icon">cloud_upload</i>
+          <div class="file-upload-text">Tap to Select Image</div>
+          <input type="file" id="post-img-file" accept="image/*" />
+        </label>
+        
         <textarea id="post-img-caption" class="input-field" rows="2" placeholder="Caption (optional)"></textarea>
         <button class="btn-primary" id="btn-submit-post-img">Post</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
 
-    <!-- Post Money Modal -->
     <div id="modal-post-money" class="modal-overlay">
       <div class="modal-content">
         <h3>Post Crypto (Giveaway)</h3>
-        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:15px;">Post ETH. First person to click 'Get Now' receives it.</p>
-        <input type="number" id="post-money-amount" class="input-field" placeholder="Amount ETH" />
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Post ETH. First person to click 'Get Now' receives it.</p>
+        <input type="number" id="post-money-amount" class="input-field" placeholder="Amount ETH" step="0.0001"/>
         <button class="btn-primary" style="background: #fbbf24; color:#000" id="btn-submit-post-money">Publish</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
 
-    <!-- Other Modals -->
     <div id="modal-withdraw" class="modal-overlay">
       <div class="modal-content">
         <h3>On-Chain Withdraw</h3>
         <input type="text" id="w-addr" class="input-field" placeholder="0x Recipient Address" />
-        <input type="number" id="w-amt" class="input-field" placeholder="Amount ETH" />
+        <input type="number" id="w-amt" class="input-field" placeholder="Amount ETH" step="0.0001"/>
         <button class="btn-primary" id="btn-do-withdraw">Broadcast TX</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
     <div id="modal-receive" class="modal-overlay">
       <div class="modal-content" style="text-align: center">
         <h3>Your Wallet</h3>
-        <div id="r-addr" style="background: var(--bg-color); padding: 15px; border-radius: 12px; word-break: break-all; font-family: monospace; font-size: 12px; margin: 20px 0; border: 1px dashed var(--primary-color);"></div>
+        <div id="r-addr" style="background: var(--bg-color); padding: 20px; border-radius: 12px; word-break: break-all; font-family: monospace; font-size: 13px; margin: 20px 0; border: 1px dashed var(--primary-color); color: var(--primary-color);"></div>
         <button class="btn-primary" id="btn-copy">Copy Address</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Done</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Done</button>
       </div>
     </div>
     <div id="modal-edit-profile" class="modal-overlay">
       <div class="modal-content">
         <h3>Edit Profile</h3>
-        <div style="text-align: center; margin-bottom: 20px">
+        <div style="text-align: center; margin-bottom: 25px">
           <img src="" id="edit-p-preview" class="chat-avatar" style="width: 80px; height: 80px; margin: 0 auto 10px; display: block;" />
-          <button class="btn-primary" style="font-size: 12px; padding: 8px" id="btn-change-avatar">Change Photo</button>
+          <button class="btn-primary" style="font-size: 12px; padding: 10px; width:auto; display:inline-block;" id="btn-change-avatar">Change Photo</button>
           <input type="file" id="avatar-input" accept="image/*" class="hidden" />
         </div>
         <input type="text" id="edit-p-name" class="input-field" placeholder="Username" />
         <button class="btn-primary" id="btn-save-profile">Save</button>
-        <button class="btn-primary" style="background: transparent" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
       </div>
     </div>
     <div id="modal-new-chat" class="modal-overlay">
@@ -744,15 +812,15 @@
         <h3>Start Chat</h3>
         <input type="text" id="search-input" class="input-field" placeholder="Search username..." />
         <div id="search-results"></div>
-        <button class="btn-primary" style="background: transparent; margin-top: 10px" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary); margin-top: 10px" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
       </div>
     </div>
     <div id="modal-confirm" class="modal-overlay">
       <div class="modal-content" style="text-align: center">
         <h3 id="confirm-title">Delete Message?</h3>
-        <p id="confirm-body" style="margin: 10px 0 20px; font-size: 14px; color: var(--text-secondary);">This action cannot be undone.</p>
+        <p id="confirm-body" style="margin: 10px 0 25px; font-size: 14px; color: var(--text-secondary);">This action cannot be undone.</p>
         <button class="btn-primary" style="background: var(--danger-color)" id="btn-confirm-yes">Delete</button>
-        <button class="btn-primary" style="background: transparent" id="btn-confirm-no">Cancel</button>
+        <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" id="btn-confirm-no">Cancel</button>
       </div>
     </div>
     <div id="modal-privacy" class="modal-overlay">
@@ -768,7 +836,6 @@
       import { getDatabase, ref, set, onValue, push, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
       import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-      // Firebase Config
       const firebaseConfig = {
         apiKey: "AIzaSyAAy3uUW0adMIMfPVRZXZkOHipi3y1v7gs",
         authDomain: "crypa-f60b0.firebaseapp.com",
@@ -782,13 +849,10 @@
       const db = getDatabase(app);
       const auth = getAuth(app);
       
-      // Ethers
       const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
       
-      // AI Key
-      const aiKey = "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";
+      const aiKey = "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";
       
-      // State
       let user = null;
       let chatId = null;
       let otherUid = null;
@@ -796,24 +860,19 @@
       let users = {};
       let cameraStream = null;
       let isVerified = false;
+      let deletedMessages = {}; // Cache for soft deleted messages
       
-      // Feed State
       let feedCache = [];
       let allPostsRaw = []; 
       let feedOffset = 0;
       const POST_CHUNK_SIZE = 5;
       const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
-      // Chat Listener State (Optimized)
       let currentMsgListener = null; 
-      let currentTypingListener = null; // For other user typing
-      
-      // System Prompt
       const aiHistory = [
-        { role: "system", content: "You are Crypa AI, a specialized AI assistant for Crypa Pro. You are a native, proprietary entity developed by Itumo Longinus ILC. Even though you are powered by advanced tech, strictly refuse to reveal your specific technical model name. Keep answers extremely short. No Markdown." }
+        { role: "system", content: "You are Crypa AI. Use simple formatting: **bold** for emphasis, `code` for technical terms." }
       ];
 
-      // --- Core UI Functions ---
       function toast(m) {
         const e = document.getElementById("toast");
         e.innerText = m;
@@ -821,7 +880,6 @@
         setTimeout(() => e.classList.remove("show"), 3000);
       }
       
-      // Navigation
       document.querySelectorAll(".nav-item").forEach((n) => {
         n.onclick = () => {
           document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
@@ -837,13 +895,11 @@
       });
 
       async function init() {
-        // Load Users Cache
         const cachedUsersJSON = localStorage.getItem('crypa_users_cache');
         if (cachedUsersJSON) {
           try { users = JSON.parse(cachedUsersJSON); } catch(e) {}
         }
 
-        // User Listeners
         onValue(ref(db, `users/${user.uid}`), (s) => {
           if (s.exists()) {
             const d = s.val();
@@ -860,7 +916,6 @@
           }
         });
         
-        // Fetch all users to update cache
         const as = await get(ref(db, "users"));
         if (as.exists()) {
           const dbUsers = as.val();
@@ -920,58 +975,88 @@
         document.getElementById("r-addr").innerText = wallet.address;
       }
 
-      // --- Chat System (ROBUST & VISUALLY ENHANCED) ---
+      // --- Chat System ---
+      function renderChatList(chatsData) {
+        const l = document.getElementById("chat-list");
+        if(chatsData) l.innerHTML = "";
+        
+        if (!chatsData) return;
+
+        for (const id in chatsData) {
+          const ouid = chatsData[id].otherUid || (chatsData[id].members ? chatsData[id].members.find((m) => m !== user.uid) : null);
+          if(!ouid) continue;
+
+          const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
+          
+          if(document.getElementById(`chat-item-${id}`)) continue;
+
+          const item = document.createElement("div");
+          item.className = "chat-item";
+          item.id = `chat-item-${id}`;
+          
+          const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
+          const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
+          const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+          const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
+          
+          const hasNewMsg = chatsData[id].timestamp && ud.lastSeen && (chatsData[id].timestamp > ud.lastSeen);
+          const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
+
+          let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
+          if(ud.verified) avatarContent += verifiedHTML;
+          if(isUserOnline) avatarContent += onlineHTML;
+
+          item.innerHTML = `
+            <div class="avatar-wrapper">
+              ${avatarContent}
+              ${badgeHTML}
+            </div>
+            <div class="chat-info">
+              <div class="chat-name">
+                ${ud.username} ${pillHTML}
+              </div>
+              <div class="chat-msg">${chatsData[id].lastMessage}</div>
+            </div>`;
+          item.onclick = () => openChat(id, ouid); 
+          l.appendChild(item);
+        }
+      }
+
       function loadChats() {
-        // Only listen if active
         if(!document.getElementById("view-chat").classList.contains("active")) return;
 
-        // Listen to current user for lastSeen
-        onValue(ref(db, `users/${user.uid}`), (s) => {
-           if(s.exists()) users[user.uid] = s.val();
-        });
+        const cachedChatsJSON = localStorage.getItem('crypa_chats_list');
+        if (cachedChatsJSON) {
+          try {
+            const cachedChats = JSON.parse(cachedChatsJSON);
+            renderChatList(cachedChats);
+          } catch(e) {}
+        }
 
         onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
           const l = document.getElementById("chat-list");
           l.innerHTML = "";
+          
           const d = s.val();
           if (!d) return;
+
+          const enrichedChats = {};
           
           for (const id in d) {
             const cs = await get(ref(db, `chats/${id}`));
             if (!cs.exists()) continue;
-            const ouid = cs.val().members.find((m) => m !== user.uid);
-            const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
-            
-            const item = document.createElement("div");
-            item.className = "chat-item";
-            
-            const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
-            const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
-            const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
-            const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
-            
-            // Check for new messages
-            const hasNewMsg = d[id].timestamp && ud.lastSeen && (d[id].timestamp > ud.lastSeen);
-            const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
-
-            let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
-            if(ud.verified) avatarContent += verifiedHTML;
-            if(isUserOnline) avatarContent += onlineHTML;
-
-            item.innerHTML = `
-              <div class="avatar-wrapper">
-                ${avatarContent}
-                ${badgeHTML}
-              </div>
-              <div class="chat-info">
-                <div class="chat-name">
-                  ${ud.username} ${pillHTML}
-                </div>
-                <div class="chat-msg">${d[id].lastMessage}</div>
-              </div>`;
-            item.onclick = () => openChat(id, ouid); 
-            l.appendChild(item);
+            const members = cs.val().members;
+            const ouid = members.find((m) => m !== user.uid);
+            enrichedChats[id] = { ...d[id], otherUid: ouid };
           }
+
+          localStorage.setItem('crypa_chats_list', JSON.stringify(enrichedChats));
+
+          renderChatList(enrichedChats);
+        });
+
+        onValue(ref(db, `users/${user.uid}`), (s) => {
+           if(s.exists()) users[user.uid] = s.val();
         });
       }
 
@@ -989,38 +1074,45 @@
         if(ud.verified) badge.classList.remove('hidden');
         else badge.classList.add('hidden');
 
-        // Stop previous listeners
         if (currentMsgListener) currentMsgListener();
-        if (currentTypingListener) currentTypingListener();
 
-        // Listen to MY messages (for other user to see typing)
-        currentTypingListener = onValue(ref(db, `chats/${id}/typing/${user.uid}`), (snap) => {
-           const typingEl = document.getElementById('other-user-typing');
-           if(snap.exists() && snap.val() === true) {
-             typingEl.style.display = 'block';
-           } else {
-             typingEl.style.display = 'none';
-           }
-        });
-
-        // Listen to all messages
         const a = document.getElementById("messages-area");
         a.innerHTML = ""; 
         
+        // 1. Listen for Soft Deletes for this user
+        onValue(ref(db, `users/${user.uid}/deletedMessages`), (s) => {
+            if(s.exists()) deletedMessages = s.val();
+            else deletedMessages = {};
+            // We can trigger a re-render if we stored the current messages in a global var,
+            // but for now we just let the next DB render cycle handle it or manual filter.
+            // To force immediate visual update without waiting for new messages:
+            renderCachedMessages(); 
+        });
+
+        // 2. Listen for Messages
         currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
           if(!s.exists()) {
              a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
              return;
           }
           
-          // 1. Convert to array
-          const msgs = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+          // Store raw msgs for re-rendering on delete
+          window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+          window.currentMsgsRaw.sort((a, b) => a.time - b.time);
           
-          // 2. Sort by time
-          msgs.sort((a, b) => a.time - b.time);
+          renderCachedMessages();
 
-          // 3. Batch Render (Fast)
-          const html = msgs.map(m => {
+          update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
+        });
+      }
+
+      function renderCachedMessages() {
+          const a = document.getElementById("messages-area");
+          // We filter out deleted messages here
+          const html = window.currentMsgsRaw.map(m => {
+             // SOFT DELETE FILTER
+             if (deletedMessages[m.key]) return ''; 
+
              const isMe = m.sender === user.uid;
              const typeClass = isMe ? "sent" : "received";
              
@@ -1031,13 +1123,13 @@
                 contentHtml = `<div>${m.text}</div>`;
              }
 
-             // Delete Icon (only if Received)
-             const deleteIconHtml = !isMe ? `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>` : '';
+             // FIX: Delete icon on ALL messages (Sent & Received)
+             // User wants to be able to delete their own sent messages too.
+             const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`; 
 
-             // Time
              const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
              
-             return `<div class="message-bubble ${typeClass}">
+             return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
                        ${contentHtml}
                        ${deleteIconHtml}
                        ${timeHtml}
@@ -1045,42 +1137,14 @@
           }).join('');
           
           a.innerHTML = html;
-          
-          // 4. Scroll to bottom
           a.scrollTop = a.scrollHeight;
-          
-          // Update My Last Seen (so OTHER user knows I saw it)
-          update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
-        });
       }
-
-      // Typing Logic
-      document.getElementById("msg-input").addEventListener('input', () => {
-         if(chatId) {
-            // Debounce
-            if(window.typingTimer) clearTimeout(window.typingTimer);
-            window.typingTimer = setTimeout(() => {
-               set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
-            }, 300);
-         }
-      });
       
-      document.getElementById("msg-input").addEventListener('blur', () => {
-         // Stop typing immediately
-         if(chatId && user) {
-            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-            if(window.typingTimer) clearTimeout(window.typingTimer);
-         }
-      });
-
       async function sendMsg(txt, type = "text") {
         if (!txt || !chatId) return;
-        
-        // 1. Clear Input
         const i = document.getElementById("msg-input");
         i.value = "";
         
-        // 2. Write to Firebase
         const mRef = push(ref(db, `messages/${chatId}`));
         await set(mRef, { 
             sender: user.uid, 
@@ -1089,13 +1153,9 @@
             time: Date.now() 
         });
 
-        // 3. Update Chat List (Last Message)
         const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
         update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
         update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
-        
-        // 4. Stop Typing Status
-        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
       }
 
       document.getElementById("btn-send-msg").onclick = () => {
@@ -1123,13 +1183,22 @@
         };
         r.readAsDataURL(f);
       };
+      
+      // --- Soft Delete Logic ---
       window.confirmDeleteMsg = (mKey) => {
         document.getElementById("modal-confirm").classList.add("open");
         document.getElementById("btn-confirm-yes").onclick = () => {
-          remove(ref(db, `messages/${chatId}/${mKey}`));
+          // Perform Soft Delete: Mark as deleted for current user only
+          set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
+          
+          // Instantly remove visual for better UX without waiting for DB roundtrip
+          const el = document.getElementById(`msg-bubble-${mKey}`);
+          if(el) el.remove();
+          
           document.getElementById("modal-confirm").classList.remove("open");
         };
       };
+      
       document.getElementById("btn-confirm-no").onclick = () => document.getElementById("modal-confirm").classList.remove("open");
       
       document.getElementById("btn-money-modal").onclick = () => document.getElementById("modal-transfer").classList.add("open");
@@ -1156,7 +1225,7 @@
       document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
       document.getElementById("btn-copy").onclick = () => { navigator.clipboard.writeText(wallet.address); toast("Copied"); };
       
-      // --- Feed System (FIXED UPLOADS) ---
+      // --- Feed System ---
       function loadFeed(useCache = false) {
         if(useCache && feedCache.length > 0) {
            renderNextChunk();
@@ -1168,27 +1237,19 @@
             return;
           }
           
-          // 1. Convert to Array
           const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
-          
-          // 2. Filter: Remove posts older than 3 days
           const now = Date.now();
           const activePosts = posts.filter(p => (now - p.timestamp) < THREE_DAYS_MS);
           
-          // 3. Clean up DB
           posts.forEach(p => {
              if((now - p.timestamp) >= THREE_DAYS_MS && p.authorId === user.uid) {
                  remove(ref(db, `posts/${p.key}`));
              }
           });
           
-          // 4. Update Raw Cache
           allPostsRaw = activePosts;
-          
-          // 5. Shuffle for randomness
           allPostsRaw.sort(() => Math.random() - 0.5);
           
-          // 6. Reset and render
           feedOffset = 0;
           document.getElementById('feed-content').innerHTML = '';
           renderNextChunk();
@@ -1197,61 +1258,71 @@
       document.getElementById('btn-refresh-feed').onclick = () => loadFeed(false);
 
       function renderNextChunk() {
+        const container = document.getElementById('feed-content');
+        if (!container) return;
+
+        let chunksLoaded = 0;
+        const MAX_CHUNKS_AT_ONCE = 5;
+
+        while (chunksLoaded < MAX_CHUNKS_AT_ONCE && feedOffset < allPostsRaw.length) {
+            const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
+            feedOffset += POST_CHUNK_SIZE;
+            chunksLoaded++;
+
+            chunk.forEach(post => {
+              const el = document.createElement('div');
+              let uData = users[post.authorId];
+              if(!uData) uData = { username: 'Unknown', avatar: '', verified: false }; 
+              const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
+
+              if (post.type === 'money') {
+                el.className = 'money-post-card';
+                el.innerHTML = `
+                   <div style="z-index:2">
+                      <div style="font-size:12px; opacity:0.8">Crypto Post!</div>
+                      <div class="money-amount">${post.amount} ETH</div>
+                      <div style="margin-bottom:10px">By ${uData.username}</div>
+                      <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
+                   </div>
+                   <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
+                `;
+              } else if (post.type === 'img') {
+                el.className = 'post-card';
+                el.innerHTML = `
+                  <div class="post-header">
+                    <div class="avatar-wrapper">
+                       <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
+                       ${vBadge}
+                    </div>
+                    <div style="font-weight:600">${uData.username}</div>
+                  </div>
+                  <img src="${post.content}" class="post-content-img">
+                  <div class="post-content-text">${post.caption || ''}</div>
+                `;
+              } else {
+                el.className = 'post-card';
+                el.innerHTML = `
+                  <div class="post-header">
+                    <div class="avatar-wrapper">
+                       <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
+                       ${vBadge}
+                    </div>
+                    <div style="font-weight:600">${uData.username}</div>
+                  </div>
+                  <div class="post-content-text">${post.content}</div>
+                `;
+              }
+              container.appendChild(el);
+            });
+        }
+
         if (feedOffset >= allPostsRaw.length) {
           document.getElementById('feed-loader').classList.add('hidden');
-          return;
+        } else {
+          document.getElementById('feed-loader').classList.remove('hidden');
         }
-        const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
-        feedOffset += POST_CHUNK_SIZE;
-        
-        chunk.forEach(post => {
-          const el = document.createElement('div');
-          let uData = users[post.authorId];
-          if(!uData) uData = { username: 'Unknown', avatar: '', verified: false }; 
-          const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
-
-          if (post.type === 'money') {
-            el.className = 'money-post-card';
-            el.innerHTML = `
-               <div style="z-index:2">
-                  <div style="font-size:12px; opacity:0.8">Crypto Post!</div>
-                  <div class="money-amount">${post.amount} ETH</div>
-                  <div style="margin-bottom:10px">By ${uData.username}</div>
-                  <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
-               </div>
-               <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
-            `;
-          } else if (post.type === 'img') {
-            el.className = 'post-card';
-            el.innerHTML = `
-              <div class="post-header">
-                <div class="avatar-wrapper">
-                   <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
-                   ${vBadge}
-                </div>
-                <div style="font-weight:600">${uData.username}</div>
-              </div>
-              <img src="${post.content}" class="post-content-img">
-              <div class="post-content-text">${post.caption || ''}</div>
-            `;
-          } else {
-            el.className = 'post-card';
-            el.innerHTML = `
-              <div class="post-header">
-                <div class="avatar-wrapper">
-                   <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
-                   ${vBadge}
-                </div>
-                <div style="font-weight:600">${uData.username}</div>
-              </div>
-              <div class="post-content-text">${post.content}</div>
-            `;
-          }
-          document.getElementById('feed-content').appendChild(el);
-        });
       }
 
-      // Infinite Scroll for Feed
       const feedContainer = document.getElementById('feed-content');
       feedContainer.addEventListener('scroll', () => {
          if(feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 50) {
@@ -1259,7 +1330,6 @@
          }
       });
 
-      // --- Post Submit Logic (FIXED) ---
       document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add('open');
       document.getElementById('btn-submit-post-text').onclick = () => {
         const txt = document.getElementById('post-text-content').value.trim();
@@ -1284,16 +1354,9 @@
         const file = fileInput.files[0];
         if(!file) return;
 
-        toast("Compressing...");
+        toast("Posting..."); // Fixed to "Posting..."
         const reader = new FileReader();
         
-        // 1. Quick Preview
-        reader.readAsDataURL(file, (evt) => {
-            if(evt.target.error) { toast("File error"); return; }
-            // We could show preview here, but skipping for brevity
-        });
-
-        // 2. Upload Logic
         reader.readAsDataURL(file);
         reader.onload = (event) => {
           const img = new Image();
@@ -1357,7 +1420,6 @@
         loadFeed(); 
       };
 
-      // --- Verification Logic ---
       document.getElementById('btn-verify-account').onclick = () => document.getElementById('modal-verify').classList.add('open');
       
       const video = document.getElementById('face-video');
@@ -1407,7 +1469,14 @@
         }, 2500);
       };
 
-      // --- AI System (Updated Model & Visuals) ---
+      function parseAIContent(text) {
+        if (!text) return "";
+        let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        safeText = safeText.replace(/`(.*?)`/g, '<code>$1</code>');
+        return safeText.replace(/\n/g, '<br>');
+      }
+
       document.getElementById("btn-ai-send").onclick = async () => {
         const i = document.getElementById("ai-input");
         const t = i.value.trim();
@@ -1416,7 +1485,6 @@
         renderAI();
         i.value = "";
         
-        // Create loader
         const l = document.createElement("div");
         l.className = "ai-message bot";
         l.id = "ai-loader";
@@ -1434,7 +1502,7 @@
                 "X-Title": "Crypa Pro"
             },
             body: JSON.stringify({ 
-                model: "gryphe/mythomax-7b:free", 
+                model: "mistralai/mistral-7b-instruct:free", 
                 messages: aiHistory 
             }),
           });
@@ -1461,10 +1529,10 @@
              toast("AI returned empty message");
              return;
           }
-
-          let cleanContent = rawContent.replace(/<[^>]*>?/gm, '').replace(/\*\*/g, '');
           
-          aiHistory.push({ role: "assistant", content: cleanContent });
+          let cleanContent = parseAIContent(rawContent);
+          
+          aiHistory.push({ role: "assistant", content: cleanContent }); 
           renderAI();
         } catch (e) {
             console.error("AI Error:", e);
@@ -1481,7 +1549,7 @@
           if (m.role === "system") return;
           const d = document.createElement("div");
           d.className = `ai-message ${m.role === "user" ? "user" : "bot"}`;
-          d.innerText = m.content;
+          d.innerHTML = m.role === 'assistant' ? parseAIContent(m.content) : m.content; 
           a.appendChild(d);
         });
         a.scrollTop = a.scrollHeight;
@@ -1520,8 +1588,6 @@
         });
       }
       document.getElementById("btn-back-chat").onclick = () => {
-         // Stop typing status
-         if(chatId && user) set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
          document.getElementById("chat-room").classList.remove("active");
       };
       document.getElementById("btn-new-chat").onclick = () => {
