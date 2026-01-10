@@ -104,7 +104,7 @@
       .nav-item.active { color: var(--primary-color); }
       .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; }
       
-      /* Chat Styles (Simplified & Fast) */
+      /* Chat Styles */
       .chat-item {
         display: flex;
         align-items: center;
@@ -155,6 +155,30 @@
         font-weight: 600;
         white-space: nowrap;
       }
+      
+      /* New Message Badge */
+      .new-message-badge {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        width: 10px;
+        height: 10px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      }
+      /* Online Status Dot */
+      .online-dot {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 14px;
+        height: 14px;
+        background: var(--success-color);
+        border: 2px solid var(--surface-light);
+        border-radius: 50%;
+        z-index: 3;
+      }
       .chat-info { flex: 1; overflow: hidden; min-width: 0; }
       .chat-name {
         font-weight: 600;
@@ -184,6 +208,15 @@
         transform: translateX(100%);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
+      /* Animation for Chat Room Slide */
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .message-bubble {
+        animation: slideIn 0.3s ease-out;
+      }
+
       #chat-room.active { transform: translateX(0); }
       .chat-room-header {
         height: 65px;
@@ -201,15 +234,12 @@
         flex-direction: column;
         gap: 12px;
       }
-      .message-bubble, .ai-message {
-        max-width: 80%;
-        width: fit-content;
-        padding: 12px 16px;
-        border-radius: 18px;
-        font-size: 15px;
-        line-height: 1.4;
-        word-wrap: break-word;
-        position: relative;
+      .received, .bot {
+        position: relative; /* Needed for delete button positioning */
+        align-self: flex-start;
+        background: var(--surface-light);
+        color: white;
+        border-bottom-left-radius: 4px;
       }
       .sent, .user {
         align-self: flex-end;
@@ -217,14 +247,25 @@
         color: white;
         border-bottom-right-radius: 4px;
       }
-      .received, .bot {
-        align-self: flex-start;
-        background: var(--surface-light);
-        color: white;
-        border-bottom-left-radius: 4px;
+      /* Delete Icon */
+      .delete-msg-icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        color: rgba(255,255,255,0.5);
+        font-size: 16px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 5;
       }
+      .received:hover .delete-msg-icon {
+        opacity: 1; /* Show on hover */
+      }
+      
       .msg-img { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; display: block; }
-      .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; display: block; text-align: right; }
+      .msg-time { font-size: 10px; opacity: 0.7; margin-top: 4px; display: block; text-align: right; font-size: 10px; }
+      
       .input-bar {
         background: var(--surface-color);
         padding: 12px 15px;
@@ -263,6 +304,20 @@
       .action-btn:active { transform: scale(0.9); }
       .btn-send { background: var(--primary-color); color: white; }
       .btn-money { background: #fbbf24; color: #000; }
+      
+      /* Typing Indicator Bubble */
+      .typing-indicator-bubble {
+        align-self: flex-start;
+        background: var(--surface-light);
+        padding: 10px 15px;
+        border-radius: 20px;
+        color: var(--text-secondary);
+        font-style: italic;
+        font-size: 12px;
+        margin-bottom: 10px;
+        display: none; /* Hidden by default */
+        animation: slideIn 0.3s ease-out;
+      }
       
       /* Modals & Popups */
       .modal-overlay {
@@ -498,9 +553,13 @@
              <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
              <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
           </div>
-          <div id="curr-chat-name" style="margin-left:5px; font-weight: 600; font-size: 16px"></div>
+          <div style="flex:1; margin-left:5px">
+             <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
+          </div>
         </div>
         <div id="messages-area" class="messages-container"></div>
+        <!-- Typing indicator for OTHER user -->
+        <div id="other-user-typing" class="typing-indicator-bubble">Typing...</div>
         <div class="input-bar">
           <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
           <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
@@ -706,8 +765,8 @@
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-      import { getDatabase, ref, set, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
-      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+      import { getDatabase, ref, set, onValue, push, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+      import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
       // Firebase Config
       const firebaseConfig = {
@@ -725,6 +784,8 @@
       
       // Ethers
       const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
+      
+      // AI Key
       const aiKey = "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";
       
       // State
@@ -745,6 +806,7 @@
 
       // Chat Listener State (Optimized)
       let currentMsgListener = null; 
+      let currentTypingListener = null; // For other user typing
       
       // System Prompt
       const aiHistory = [
@@ -826,7 +888,6 @@
 
       async function setupWallet() {
         const localPk = localStorage.getItem(`pk_${user.uid}`);
-        
         if (localPk) {
           wallet = new ethers.Wallet(localPk);
           try {
@@ -859,11 +920,12 @@
         document.getElementById("r-addr").innerText = wallet.address;
       }
 
-      // --- Chat System (ROBUST & DB-ONLY) ---
+      // --- Chat System (ROBUST & VISUALLY ENHANCED) ---
       function loadChats() {
         // Only listen if active
         if(!document.getElementById("view-chat").classList.contains("active")) return;
 
+        // Listen to current user for lastSeen
         onValue(ref(db, `users/${user.uid}`), (s) => {
            if(s.exists()) users[user.uid] = s.val();
         });
@@ -873,6 +935,7 @@
           l.innerHTML = "";
           const d = s.val();
           if (!d) return;
+          
           for (const id in d) {
             const cs = await get(ref(db, `chats/${id}`));
             if (!cs.exists()) continue;
@@ -884,11 +947,21 @@
             
             const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
             const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
+            const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
+            
+            // Check for new messages
+            const hasNewMsg = d[id].timestamp && ud.lastSeen && (d[id].timestamp > ud.lastSeen);
+            const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
+
+            let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
+            if(ud.verified) avatarContent += verifiedHTML;
+            if(isUserOnline) avatarContent += onlineHTML;
 
             item.innerHTML = `
               <div class="avatar-wrapper">
-                <img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">
-                ${verifiedHTML}
+                ${avatarContent}
+                ${badgeHTML}
               </div>
               <div class="chat-info">
                 <div class="chat-name">
@@ -916,64 +989,98 @@
         if(ud.verified) badge.classList.remove('hidden');
         else badge.classList.add('hidden');
 
-        // Detach previous listener to prevent memory leaks and race conditions
-        if (currentMsgListener) {
-           // Detach manually if possible, or just overwrite variable. 
-           // onValue returns an unsubscribe function.
-           currentMsgListener();
-        }
+        // Stop previous listeners
+        if (currentMsgListener) currentMsgListener();
+        if (currentTypingListener) currentTypingListener();
 
-        // CRITICAL: Only listen to this specific chat ID.
-        // This ensures we are 100% data-driven and not trying to sync manually.
+        // Listen to MY messages (for other user to see typing)
+        currentTypingListener = onValue(ref(db, `chats/${id}/typing/${user.uid}`), (snap) => {
+           const typingEl = document.getElementById('other-user-typing');
+           if(snap.exists() && snap.val() === true) {
+             typingEl.style.display = 'block';
+           } else {
+             typingEl.style.display = 'none';
+           }
+        });
+
+        // Listen to all messages
+        const a = document.getElementById("messages-area");
+        a.innerHTML = ""; 
+        
         currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
-          const a = document.getElementById("messages-area");
-          
           if(!s.exists()) {
              a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
              return;
           }
-
-          // 1. Convert to array and sort by time
+          
+          // 1. Convert to array
           const msgs = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+          
+          // 2. Sort by time
           msgs.sort((a, b) => a.time - b.time);
 
-          // 2. Batch Render (Optimized)
-          // We use .join() for one single DOM update, which is faster than many .appendChild()
+          // 3. Batch Render (Fast)
           const html = msgs.map(m => {
              const isMe = m.sender === user.uid;
              const typeClass = isMe ? "sent" : "received";
              
-             // Handle Content
              let contentHtml = "";
              if (m.type === 'img') {
-                 contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
+                contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
              } else if (m.text) {
-                 contentHtml = `<div>${m.text}</div>`;
+                contentHtml = `<div>${m.text}</div>`;
              }
+
+             // Delete Icon (only if Received)
+             const deleteIconHtml = !isMe ? `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>` : '';
+
+             // Time
+             const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
              
-             // Removed Read Receipts and Time to clean up as requested
-             // We keep time for sorting, but hide UI element to simplify.
              return `<div class="message-bubble ${typeClass}">
                        ${contentHtml}
+                       ${deleteIconHtml}
+                       ${timeHtml}
                     </div>`;
           }).join('');
           
           a.innerHTML = html;
           
-          // Scroll to bottom
+          // 4. Scroll to bottom
           a.scrollTop = a.scrollHeight;
+          
+          // Update My Last Seen (so OTHER user knows I saw it)
+          update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
         });
       }
+
+      // Typing Logic
+      document.getElementById("msg-input").addEventListener('input', () => {
+         if(chatId) {
+            // Debounce
+            if(window.typingTimer) clearTimeout(window.typingTimer);
+            window.typingTimer = setTimeout(() => {
+               set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
+            }, 300);
+         }
+      });
+      
+      document.getElementById("msg-input").addEventListener('blur', () => {
+         // Stop typing immediately
+         if(chatId && user) {
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+            if(window.typingTimer) clearTimeout(window.typingTimer);
+         }
+      });
 
       async function sendMsg(txt, type = "text") {
         if (!txt || !chatId) return;
         
-        // 1. Optimistic UX: Just clear input immediately
+        // 1. Clear Input
         const i = document.getElementById("msg-input");
         i.value = "";
         
         // 2. Write to Firebase
-        // We DO NOT use 'key' in the payload to prevent data corruption.
         const mRef = push(ref(db, `messages/${chatId}`));
         await set(mRef, { 
             sender: user.uid, 
@@ -983,21 +1090,19 @@
         });
 
         // 3. Update Chat List (Last Message)
-        // We use .then() to ensure DB write completed before updating chat list
-        // But to ensure it feels instant, we fire this immediately.
-        // The Chat List listener will pick up this change.
         const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
         update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
         update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
+        
+        // 4. Stop Typing Status
+        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
       }
 
-      // Event Listeners
       document.getElementById("btn-send-msg").onclick = () => {
         const i = document.getElementById("msg-input");
         const t = i.value.trim();
-        if(t) sendMsg(t);
+        sendMsg(t);
       };
-      
       document.getElementById("btn-attach").onclick = () => document.getElementById("file-input").click();
       document.getElementById("file-input").onchange = (e) => {
         const f = e.target.files[0];
@@ -1018,7 +1123,6 @@
         };
         r.readAsDataURL(f);
       };
-      
       window.confirmDeleteMsg = (mKey) => {
         document.getElementById("modal-confirm").classList.add("open");
         document.getElementById("btn-confirm-yes").onclick = () => {
@@ -1052,8 +1156,7 @@
       document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
       document.getElementById("btn-copy").onclick = () => { navigator.clipboard.writeText(wallet.address); toast("Copied"); };
       
-      // --- Feed System (Paginated, Random, 3-Day Delete) ---
-      
+      // --- Feed System (FIXED UPLOADS) ---
       function loadFeed(useCache = false) {
         if(useCache && feedCache.length > 0) {
            renderNextChunk();
@@ -1098,7 +1201,6 @@
           document.getElementById('feed-loader').classList.add('hidden');
           return;
         }
-        
         const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
         feedOffset += POST_CHUNK_SIZE;
         
@@ -1152,11 +1254,108 @@
       // Infinite Scroll for Feed
       const feedContainer = document.getElementById('feed-content');
       feedContainer.addEventListener('scroll', () => {
-         // If scrolled near bottom
          if(feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 50) {
             renderNextChunk();
          }
       });
+
+      // --- Post Submit Logic (FIXED) ---
+      document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add('open');
+      document.getElementById('btn-submit-post-text').onclick = () => {
+        const txt = document.getElementById('post-text-content').value.trim();
+        if(!txt) return;
+        
+        toast("Posting...");
+        push(ref(db, 'posts'), { type: 'text', content: txt, authorId: user.uid, timestamp: Date.now() })
+        .then(() => {
+            document.getElementById('modal-post-text').classList.remove('open');
+            document.getElementById('post-text-content').value = '';
+            toast("Posted");
+        }).catch(e => {
+            console.error(e);
+            toast("Failed to post");
+        });
+      };
+
+      document.getElementById('btn-post-img').onclick = () => document.getElementById('modal-post-img').classList.add('open');
+      document.getElementById('btn-submit-post-img').onclick = async () => {
+        const fileInput = document.getElementById('post-img-file');
+        const caption = document.getElementById('post-img-caption').value.trim();
+        const file = fileInput.files[0];
+        if(!file) return;
+
+        toast("Compressing...");
+        const reader = new FileReader();
+        
+        // 1. Quick Preview
+        reader.readAsDataURL(file, (evt) => {
+            if(evt.target.error) { toast("File error"); return; }
+            // We could show preview here, but skipping for brevity
+        });
+
+        // 2. Upload Logic
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            let quality = 0.5;
+            let res = img.src;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 500; 
+            canvas.height = (canvas.width / img.width) * img.height;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            res = canvas.toDataURL('image/jpeg', quality);
+            while(res.length > 50000 && quality > 0.1) {
+               quality -= 0.1;
+               res = canvas.toDataURL('image/jpeg', quality);
+            }
+            
+            push(ref(db, 'posts'), { type: 'img', content: res, caption, authorId: user.uid, timestamp: Date.now() })
+            .then(() => {
+                document.getElementById('modal-post-img').classList.remove('open');
+                toast("Posted");
+            }).catch(e => {
+                console.error(e);
+                toast("Upload Failed");
+            });
+          };
+        };
+      };
+
+      document.getElementById('btn-post-money').onclick = () => document.getElementById('modal-post-money').classList.add('open');
+      document.getElementById('btn-submit-post-money').onclick = async () => {
+        const amt = parseFloat(document.getElementById('post-money-amount').value);
+        if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
+        
+        const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
+        await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
+        setupWallet(); 
+
+        await push(ref(db, 'posts'), { type: 'money', amount: amt, authorId: user.uid, timestamp: Date.now() })
+          .then(() => {
+            document.getElementById('modal-post-money').classList.remove('open');
+            toast('Crypto Posted!');
+          }).catch(e => {
+             toast("Failed");
+          });
+      };
+
+      window.claimMoney = async (postKey, amount, authorId) => {
+        const snap = await get(ref(db, `posts/${postKey}`));
+        if(!snap.exists()) { toast('Already claimed'); loadFeed(); return; }
+        
+        const rSnap = await get(ref(db, `users/${user.uid}/wallets/eth`));
+        const newBal = (parseFloat(rSnap.val().balance || 0) + parseFloat(amount)).toFixed(4);
+        await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
+        await remove(ref(db, `posts/${postKey}`));
+        
+        toast(`You got ${amount} ETH!`);
+        setupWallet();
+        loadFeed(); 
+      };
 
       // --- Verification Logic ---
       document.getElementById('btn-verify-account').onclick = () => document.getElementById('modal-verify').classList.add('open');
@@ -1208,7 +1407,7 @@
         }, 2500);
       };
 
-      // --- AI System ---
+      // --- AI System (Updated Model & Visuals) ---
       document.getElementById("btn-ai-send").onclick = async () => {
         const i = document.getElementById("ai-input");
         const t = i.value.trim();
@@ -1226,7 +1425,6 @@
         document.getElementById("ai-messages").scrollTop = document.getElementById("ai-messages").scrollHeight;
 
         try {
-          console.log("Attempting AI Request...");
           const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: { 
@@ -1236,13 +1434,15 @@
                 "X-Title": "Crypa Pro"
             },
             body: JSON.stringify({ 
-                model: "mistralai/mistral-7b-instruct:free", 
+                model: "gryphe/mythomax-7b:free", 
                 messages: aiHistory 
             }),
           });
 
           if (!r.ok) {
-             throw new Error(`API Status: ${r.status}`);
+             const errText = await r.text();
+             console.error("AI Error Details:", errText);
+             throw new Error(`API Error: ${r.status}`);
           }
 
           const d = await r.json();
@@ -1273,6 +1473,7 @@
             toast("Connection Failed");
         }
       };
+      
       function renderAI() {
         const a = document.getElementById("ai-messages");
         a.innerHTML = "";
@@ -1318,7 +1519,11 @@
           l.appendChild(i);
         });
       }
-      document.getElementById("btn-back-chat").onclick = () => document.getElementById("chat-room").classList.remove("active");
+      document.getElementById("btn-back-chat").onclick = () => {
+         // Stop typing status
+         if(chatId && user) set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+         document.getElementById("chat-room").classList.remove("active");
+      };
       document.getElementById("btn-new-chat").onclick = () => {
         document.getElementById("modal-new-chat").classList.add("open");
         document.getElementById("search-results").innerHTML = "";
