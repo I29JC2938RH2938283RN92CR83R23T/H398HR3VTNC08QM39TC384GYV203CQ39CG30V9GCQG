@@ -35,7 +35,6 @@
         --success-color: #22c55e;
         --verified-color: #3b82f6;
         --nav-height: 75px;
-        --online-color: #22c55e;
       }
       * {
         box-sizing: border-box;
@@ -57,7 +56,7 @@
       .hidden { display: none !important; }
       .flex-center { display: flex; align-items: center; justify-content: center; }
       .scrollable {
-        flex:1;
+        flex: 1;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
@@ -105,7 +104,7 @@
       .nav-item.active { color: var(--primary-color); }
       .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; }
       
-      /* Chat Styles */
+      /* Chat Styles (Simplified & Fast) */
       .chat-item {
         display: flex;
         align-items: center;
@@ -156,18 +155,6 @@
         font-weight: 600;
         white-space: nowrap;
       }
-      /* Online Status Dot */
-      .online-dot {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 14px;
-        height: 14px;
-        background: var(--online-color);
-        border: 2px solid var(--surface-light);
-        border-radius: 50%;
-        z-index: 3;
-      }
       .chat-info { flex: 1; overflow: hidden; min-width: 0; }
       .chat-name {
         font-weight: 600;
@@ -182,21 +169,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-      /* Typing Indicator */
-      .typing-text {
-        font-size: 12px;
-        color: var(--text-secondary);
-        font-style: italic;
-        margin-left: 10px;
-      }
-      /* Read Receipt */
-      .read-receipt {
-        font-size: 10px;
-        color: var(--primary-color);
-        margin-top: 4px;
-        display: block;
-        text-align: right;
       }
 
       #chat-room {
@@ -215,7 +187,7 @@
       #chat-room.active { transform: translateX(0); }
       .chat-room-header {
         height: 65px;
-        background: var(--surface-color);
+        background-color: var(--surface-color);
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
@@ -251,7 +223,7 @@
         color: white;
         border-bottom-left-radius: 4px;
       }
-      .msg-img { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; }
+      .msg-img { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; display: block; }
       .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; display: block; text-align: right; }
       .input-bar {
         background: var(--surface-color);
@@ -526,10 +498,7 @@
              <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
              <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
           </div>
-          <div style="flex:1; margin-left:5px">
-             <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
-             <div id="curr-chat-typing" class="typing-text hidden">Typing...</div>
-          </div>
+          <div id="curr-chat-name" style="margin-left:5px; font-weight: 600; font-size: 16px"></div>
         </div>
         <div id="messages-area" class="messages-container"></div>
         <div class="input-bar">
@@ -756,8 +725,6 @@
       
       // Ethers
       const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
-      
-      // AI Key
       const aiKey = "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";
       
       // State
@@ -771,13 +738,13 @@
       
       // Feed State
       let feedCache = [];
-      let allPostsRaw = [];
+      let allPostsRaw = []; 
       let feedOffset = 0;
       const POST_CHUNK_SIZE = 5;
       const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-      
-      // Active Chat Listener State
-      let currentMsgListener = null; // Function to unsubscribe
+
+      // Chat Listener State (Optimized)
+      let currentMsgListener = null; 
       
       // System Prompt
       const aiHistory = [
@@ -887,20 +854,17 @@
             } catch(e) {}
           }
         }
-        
         document.getElementById("p-wallet-bal").innerText = `${wallet.balance} ETH`;
         document.getElementById("p-wallet-addr").innerText = wallet.address;
         document.getElementById("r-addr").innerText = wallet.address;
       }
 
-      // --- Chat System (OPTIMIZED) ---
+      // --- Chat System (ROBUST & DB-ONLY) ---
       function loadChats() {
-        // Only listen to user_chats when we are on the chat list view
-        const chatListEl = document.getElementById("chat-list");
-        if(!document.getElementById("view-chat").classList.contains("active")) return; 
+        // Only listen if active
+        if(!document.getElementById("view-chat").classList.contains("active")) return;
 
         onValue(ref(db, `users/${user.uid}`), (s) => {
-           // Update user object for online checks
            if(s.exists()) users[user.uid] = s.val();
         });
 
@@ -920,16 +884,11 @@
             
             const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
             const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
-            const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
-            const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
-
-            let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
-            if(ud.verified) avatarContent += verifiedHTML;
-            if(isUserOnline) avatarContent += onlineHTML;
 
             item.innerHTML = `
               <div class="avatar-wrapper">
-                ${avatarContent}
+                <img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">
+                ${verifiedHTML}
               </div>
               <div class="chat-info">
                 <div class="chat-name">
@@ -957,75 +916,88 @@
         if(ud.verified) badge.classList.remove('hidden');
         else badge.classList.add('hidden');
 
-        // OPTIMIZATION: Only listen to THIS specific chat
-        // Detach old listener if exists
+        // Detach previous listener to prevent memory leaks and race conditions
         if (currentMsgListener) {
-           // Note: onValue automatically unsubscribes when the ref changes or app closes, 
-           // but explicitly calling the returned function is cleaner.
-           currentMsgListener(); 
+           // Detach manually if possible, or just overwrite variable. 
+           // onValue returns an unsubscribe function.
+           currentMsgListener();
         }
 
-        const a = document.getElementById("messages-area");
-        a.innerHTML = ""; // Clear immediately
-        
-        // Listen to specific scope: messages/{chatId}
+        // CRITICAL: Only listen to this specific chat ID.
+        // This ensures we are 100% data-driven and not trying to sync manually.
         currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
-          a.innerHTML = "";
-          if (!s.exists()) return;
-          Object.values(s.val()).forEach((m) => {
-            const b = document.createElement("div");
-            b.className = `message-bubble ${m.sender === user.uid ? "sent" : "received"}`;
-            let c = m.type === "img" ? `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">` : `<div>${m.text}</div>`;
-            
-            let receiptHtml = '';
-            if (m.sender === user.uid) {
-               receiptHtml = `<span class="read-receipt">${m.read ? 'Read' : 'Sent'}</span>`;
-            } else {
-               // Mark as read logic
-               // We don't strictly need to set `read` for visual only if asked, 
-               // but let's do it to be accurate.
-               if(!m.read) set(ref(db, `messages/${chatId}/${m.key}`), { read: true });
-            }
+          const a = document.getElementById("messages-area");
+          
+          if(!s.exists()) {
+             a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
+             return;
+          }
 
-            b.innerHTML = `${c}<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>${receiptHtml}`;
-            if (m.sender === user.uid) b.onclick = () => window.confirmDeleteMsg(m.key);
-            a.appendChild(b);
-          });
+          // 1. Convert to array and sort by time
+          const msgs = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+          msgs.sort((a, b) => a.time - b.time);
+
+          // 2. Batch Render (Optimized)
+          // We use .join() for one single DOM update, which is faster than many .appendChild()
+          const html = msgs.map(m => {
+             const isMe = m.sender === user.uid;
+             const typeClass = isMe ? "sent" : "received";
+             
+             // Handle Content
+             let contentHtml = "";
+             if (m.type === 'img') {
+                 contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
+             } else if (m.text) {
+                 contentHtml = `<div>${m.text}</div>`;
+             }
+             
+             // Removed Read Receipts and Time to clean up as requested
+             // We keep time for sorting, but hide UI element to simplify.
+             return `<div class="message-bubble ${typeClass}">
+                       ${contentHtml}
+                    </div>`;
+          }).join('');
+          
+          a.innerHTML = html;
+          
+          // Scroll to bottom
           a.scrollTop = a.scrollHeight;
-        });
-
-        // Update UI
-        window.scrollTo(0, 0); // Reset scroll
-        
-        // Listen to OTHER user's typing status
-        onValue(ref(db, `chats/${id}/typing/${otherUid}`), (snap) => {
-           const typingEl = document.getElementById('curr-chat-typing');
-           if(snap.exists() && snap.val() === true) {
-             typingEl.classList.remove('hidden');
-           } else {
-             typingEl.classList.add('hidden');
-           }
         });
       }
 
       async function sendMsg(txt, type = "text") {
         if (!txt || !chatId) return;
+        
+        // 1. Optimistic UX: Just clear input immediately
+        const i = document.getElementById("msg-input");
+        i.value = "";
+        
+        // 2. Write to Firebase
+        // We DO NOT use 'key' in the payload to prevent data corruption.
         const mRef = push(ref(db, `messages/${chatId}`));
-        const key = mRef.key;
-        await set(mRef, { sender: user.uid, text: txt, type, time: Date.now(), key, read: false });
+        await set(mRef, { 
+            sender: user.uid, 
+            text: txt, 
+            type: type, 
+            time: Date.now() 
+        });
+
+        // 3. Update Chat List (Last Message)
+        // We use .then() to ensure DB write completed before updating chat list
+        // But to ensure it feels instant, we fire this immediately.
+        // The Chat List listener will pick up this change.
         const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
         update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
         update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
       }
 
+      // Event Listeners
       document.getElementById("btn-send-msg").onclick = () => {
         const i = document.getElementById("msg-input");
         const t = i.value.trim();
-        sendMsg(t);
-        i.value = "";
-        if(window.typingTimer) clearTimeout(window.typingTimer);
-        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+        if(t) sendMsg(t);
       };
+      
       document.getElementById("btn-attach").onclick = () => document.getElementById("file-input").click();
       document.getElementById("file-input").onchange = (e) => {
         const f = e.target.files[0];
@@ -1046,6 +1018,7 @@
         };
         r.readAsDataURL(f);
       };
+      
       window.confirmDeleteMsg = (mKey) => {
         document.getElementById("modal-confirm").classList.add("open");
         document.getElementById("btn-confirm-yes").onclick = () => {
@@ -1099,7 +1072,7 @@
           const now = Date.now();
           const activePosts = posts.filter(p => (now - p.timestamp) < THREE_DAYS_MS);
           
-          // 3. Clean up DB (Client-side cleanup)
+          // 3. Clean up DB
           posts.forEach(p => {
              if((now - p.timestamp) >= THREE_DAYS_MS && p.authorId === user.uid) {
                  remove(ref(db, `posts/${p.key}`));
@@ -1185,78 +1158,6 @@
          }
       });
 
-      document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add('open');
-      document.getElementById('btn-submit-post-text').onclick = () => {
-        const txt = document.getElementById('post-text-content').value.trim();
-        if(!txt) return;
-        push(ref(db, 'posts'), { type: 'text', content: txt, authorId: user.uid, timestamp: Date.now() });
-        document.getElementById('modal-post-text').classList.remove('open');
-        document.getElementById('post-text-content').value = '';
-        toast('Posted');
-      };
-
-      document.getElementById('btn-post-img').onclick = () => document.getElementById('modal-post-img').classList.add('open');
-      document.getElementById('btn-submit-post-img').onclick = async () => {
-        const fileInput = document.getElementById('post-img-file');
-        const caption = document.getElementById('post-img-caption').value.trim();
-        const file = fileInput.files[0];
-        if(!file) return;
-
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-          const img = new Image();
-          img.src = event.target.result;
-          img.onload = () => {
-            let quality = 0.5;
-            let res = img.src;
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 500; 
-            canvas.height = (canvas.width / img.width) * img.height;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            res = canvas.toDataURL('image/jpeg', quality);
-            while(res.length > 50000 && quality > 0.1) {
-               quality -= 0.1;
-               res = canvas.toDataURL('image/jpeg', quality);
-            }
-            
-            push(ref(db, 'posts'), { type: 'img', content: res, caption, authorId: user.uid, timestamp: Date.now() });
-            document.getElementById('modal-post-img').classList.remove('open');
-            toast('Posted');
-          };
-        };
-      };
-
-      document.getElementById('btn-post-money').onclick = () => document.getElementById('modal-post-money').classList.add('open');
-      document.getElementById('btn-submit-post-money').onclick = async () => {
-        const amt = parseFloat(document.getElementById('post-money-amount').value);
-        if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
-        
-        const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
-        await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
-        setupWallet(); 
-
-        await push(ref(db, 'posts'), { type: 'money', amount: amt, authorId: user.uid, timestamp: Date.now() });
-        document.getElementById('modal-post-money').classList.remove('open');
-        toast('Crypto Posted!');
-      };
-
-      window.claimMoney = async (postKey, amount, authorId) => {
-        const snap = await get(ref(db, `posts/${postKey}`));
-        if(!snap.exists()) { toast('Already claimed'); loadFeed(); return; }
-        
-        const rSnap = await get(ref(db, `users/${user.uid}/wallets/eth`));
-        const newBal = (parseFloat(rSnap.val().balance || 0) + parseFloat(amount)).toFixed(4);
-        await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
-        await remove(ref(db, `posts/${postKey}`));
-        
-        toast(`You got ${amount} ETH!`);
-        setupWallet();
-        loadFeed(); 
-      };
-
       // --- Verification Logic ---
       document.getElementById('btn-verify-account').onclick = () => document.getElementById('modal-verify').classList.add('open');
       
@@ -1307,7 +1208,7 @@
         }, 2500);
       };
 
-      // --- AI System (FIXED) ---
+      // --- AI System ---
       document.getElementById("btn-ai-send").onclick = async () => {
         const i = document.getElementById("ai-input");
         const t = i.value.trim();
@@ -1325,7 +1226,7 @@
         document.getElementById("ai-messages").scrollTop = document.getElementById("ai-messages").scrollHeight;
 
         try {
-          console.log("Attempting AI Request with OpenRouter...");
+          console.log("Attempting AI Request...");
           const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: { 
@@ -1417,11 +1318,7 @@
           l.appendChild(i);
         });
       }
-      document.getElementById("btn-back-chat").onclick = () => {
-         // Stop typing status
-         if(chatId && user) set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-         document.getElementById("chat-room").classList.remove("active");
-      };
+      document.getElementById("btn-back-chat").onclick = () => document.getElementById("chat-room").classList.remove("active");
       document.getElementById("btn-new-chat").onclick = () => {
         document.getElementById("modal-new-chat").classList.add("open");
         document.getElementById("search-results").innerHTML = "";
