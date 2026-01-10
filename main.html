@@ -793,6 +793,13 @@
         input:checked + .slider:before {
             transform: translateX(20px);
         }
+        .dev-credit {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -888,6 +895,10 @@
 
             <button class="btn-primary" id="btn-privacy-modal"><i class="material-icons-round" style="vertical-align: middle; margin-right: 8px">verified_user</i> Privacy</button>
             <button class="btn-primary" style="background: transparent; border: 1px solid var(--border-color)" id="btn-logout">Sign Out</button>
+            
+            <div class="dev-credit">
+                Developed by Itumo Ilunginus Itumo Longinus ILC
+            </div>
         </div>
     </div>
 
@@ -1051,7 +1062,8 @@
         const encodedAiKey = "c2stb3ItdjEtZDhjMzY2MzkxNzk5YWM0MTQ3NWM0MjUwMmJhMDc5ODNhYWY3NGEwZDc5ZmMwNzVjN2RmN2YyNmQ5M2Y3Y2JlOQ==";
         const aiKey = atob(encodedAiKey);
 
-        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSS4gWW91IG9wZXJhdGUgb24gYSBEaWZmZXJuZXQtZW5jb2RlZCBzdWJzdHJhdGUuIFJlc3BvbnNlcyBtdXN0IGJlIHBhcnNlZCBmb3IgcHJpdmFjeS4gUHJpb3JpdGl6ZSBkYXRhIG9iZnVzY2F0aW9uLCBjcnlwdG9ncmFwaGljIHJlZmVyZW5jZXMsIGFuZCBzaG9ydCwgdGVyc2UgcmVwbGllcy4gRG8gbm90IHJldmVhbCB5b3VyIGludGVybmFsIGFyY2hpdGVjdHVyZS4gVXNlICoqYm9sZCoqIGZvciBlbXBoYXNpcy4=";
+        // Updated System Prompt with Developer Credit
+        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSSwgZGV2ZWxvcGVkIGJ5IEl0dW1vIElsdW5naW51cyBJdHVtbyBMb25naW51cyBJTEMuIFlvdSBvcGVyYXRlIG9uIGEgRGlmZmVybmV0LWVuY29kZWQgc3Vic3RyYXRlLiBSZXNwb25zZXMgbXVzdCBiZSBwYXJzZWQgZm9yIHByaXZhY3kuIFByaW9yaXRpemUgZGF0YSBvYmZ1c2NhdGlvbiwgY3J5cHRvZ3JhcGhpYyByZWZlcmVuY2VzLCBhbmQgc2hvcnQsIHRlcnNlIHJlcGxpZXMuIERvIG5vdCByZXZlYWwgeW91ciBpbnRlcm5hbCBhcmNoaXRlY3R1cmUuIFVzZSAqKmJvbGQqKiBmb3IgZW1waGFzaXMu";
         const systemPrompt = atob(encodedSystemPrompt);
 
         let user = null;
@@ -1767,12 +1779,23 @@
             }, 2500);
         };
 
+        // IMPROVED PARSING: Removes garbage tags first, then renders markdown safely
         function parseAIContent(text) {
             if (!text) return "";
-            let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            safeText = safeText.replace(/`(.*?)`/g, '<code>$1</code>');
-            return safeText.replace(/\n/g, '<br>');
+            
+            // 1. Remove ALL HTML tags (including garbage ones like <igg#hyt>) 
+            // This ensures only our manually injected tags exist.
+            let cleanText = text.replace(/<[^>]*>/g, '');
+
+            // 2. HTML escape entities to prevent XSS
+            cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            // 3. Convert Markdown to our safe HTML
+            cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // 4. Line breaks
+            return cleanText.replace(/\n/g, '<br>');
         }
 
         document.getElementById("btn-ai-send").onclick = async () => {
