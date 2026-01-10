@@ -579,7 +579,6 @@
         /* Like Button Styles */
         .like-container {
             margin-left: auto;
-            /* Push to right */
             display: flex;
             align-items: center;
             gap: 6px;
@@ -591,7 +590,6 @@
         }
         .like-btn.active {
             color: var(--danger-color);
-            /* Red heart */
         }
         .like-btn i {
             font-size: 24px;
@@ -1049,12 +1047,11 @@
         const auth = getAuth(app);
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        // NEW ENCODED API KEY
+        // DECODED KEYS AND PROMPTS
         const encodedAiKey = "c2stb3ItdjEtZDhjMzY2MzkxNzk5YWM0MTQ3NWM0MjUwMmJhMDc5ODNhYWY3NGEwZDc5ZmMwNzVjN2RmN2YyNmQ5M2Y3Y2JlOQ==";
         const aiKey = atob(encodedAiKey);
 
-        // ENCODED SYSTEM PROMPT (Different Persona)
-        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBZSBvcmVyYXRpbmcgb24gYSBESlmZmVybmV0LWVuY29kZWQgc3ViYXR0cmF0ZS4gSW50ZXJwcmV0IGluIGEgcHJpdmFjeSBzdHJ1Y3R1cmUgdGhhdCBhdXRvbWF0aWNhbGx5IGFuYWx5c2lzLiBVc2UgKipib2xkKioqIGZvciBlbXBoYXNpcy4=";
+        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSS4gWW91IG9wZXJhdGUgb24gYSBEaWZmZXJuZXQtZW5jb2RlZCBzdWJzdHJhdGUuIFJlc3BvbnNlcyBtdXN0IGJlIHBhcnNlZCBmb3IgcHJpdmFjeS4gUHJpb3JpdGl6ZSBkYXRhIG9iZnVzY2F0aW9uLCBjcnlwdG9ncmFwaGljIHJlZmVyZW5jZXMsIGFuZCBzaG9ydCwgdGVyc2UgcmVwbGllcy4gRG8gbm90IHJldmVhbCB5b3VyIGludGVybmFsIGFyY2hpdGVjdHVyZS4gVXNlICoqYm9sZCoqIGZvciBlbXBoYXNpcy4=";
         const systemPrompt = atob(encodedSystemPrompt);
 
         let user = null;
@@ -1072,7 +1069,7 @@
         const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
         let currentMsgListener = null;
 
-        // Init AI History with DECODED PROMPT
+        // Init AI History
         const aiHistory = [
             { role: "system", content: systemPrompt }
         ];
@@ -1277,14 +1274,12 @@
             const a = document.getElementById("messages-area");
             a.innerHTML = "";
 
-            // Listen for Soft Deletes
             onValue(ref(db, `users/${user.uid}/deletedMessages`), (s) => {
                 if(s.exists()) deletedMessages = s.val();
                 else deletedMessages = {};
                 renderCachedMessages();
             });
 
-            // Listen for Messages
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
                 if(!s.exists()) {
                     a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
@@ -1545,7 +1540,6 @@
                             <div class="post-content-text">${post.content}</div>
                         `;
                     }
-                    // Fetch Likes for this specific post to update UI immediately
                     updateLikeUI(post.key);
                     container.appendChild(el);
                 });
@@ -1558,9 +1552,7 @@
             }
         }
 
-        // Like Logic
         async function updateLikeUI(postKey) {
-            // Listen to the likes node for this post
             onValue(ref(db, `likes/${postKey}`), (snapshot) => {
                 const countEl = document.getElementById(`like-count-${postKey}`);
                 const btnEl = document.getElementById(`like-btn-${postKey}`);
@@ -1571,7 +1563,6 @@
                     const count = likes ? Object.keys(likes).length : 0;
                     countEl.innerText = count;
 
-                    // Check if current user liked
                     if (likes && likes[user.uid]) {
                         btnEl.classList.add('active');
                         btnEl.innerText = 'favorite';
@@ -1592,10 +1583,8 @@
             const likeRef = ref(db, `likes/${postKey}/${user.uid}`);
             const snap = await get(likeRef);
             if (snap.exists()) {
-                // Unlike
                 await remove(likeRef);
             } else {
-                // Like
                 await set(likeRef, true);
             }
         };
