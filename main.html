@@ -61,11 +61,6 @@
         .hidden {
             display: none !important;
         }
-        .flex-center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
         .scrollable {
             flex: 1;
             overflow-y: auto;
@@ -244,7 +239,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             z-index: 100;
-            width: 170px;
+            width: 170px; 
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -378,7 +373,7 @@
             align-items: flex-end;
             gap: 8px;
             border-top: 1px solid var(--border-color);
-            z-index: 9999; /* Ensures above Nav */
+            z-index: 9999;
             position: relative;
         }
         .chat-footer-controls {
@@ -636,7 +631,7 @@
             background: var(--surface-color);
             border-top: 1px solid var(--border-color);
             gap: 20px;
-            z-index: 9999; /* Above Nav */
+            z-index: 9999;
             position: relative;
         }
         .fab-btn {
@@ -1092,7 +1087,7 @@
                     <div id="p-username" style="font-size: 18px; font-weight: 700">User</div>
                     <div style="font-size: 12px; color: #22c55e; margin-top: 4px">Active Member</div>
                 </div>
-                <i class="material-icons-round edit-pencil" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
+                <i class="material-icons-round" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
             </div>
 
             <div class="setting-item" style="background: var(--surface-light); padding: 15px; border-radius: 12px; margin-bottom: 20px; border:none;">
@@ -1192,25 +1187,18 @@
                     <i class="material-icons-round" id="c-badge" style="font-size: 16px; color: var(--verified-color); display:none;">check_circle</i>
                 </div>
             </div>
-            
-            <!-- HIDDEN: Email Row -->
-            <div id="c-email-row" class="contact-row">
+            <div id="c-email-row" class="contact-row" style="display:none;">
                 <span class="contact-label">Email</span>
                 <span class="contact-value" id="c-email">Hidden</span>
             </div>
-            
-            <!-- HIDDEN: Joined Row -->
-            <div id="c-joined-row" class="contact-row">
+            <div id="c-joined-row" class="contact-row" style="display:none;">
                 <span class="contact-label">Joined</span>
                 <span class="contact-value" id="c-joined">---</span>
             </div>
-
-            <!-- NEW: Total Chats Row -->
             <div id="c-total-chats-row" class="contact-row" style="display:none;">
                 <span class="contact-label">Total Chats</span>
                 <span class="contact-value" id="c-total-chats">...</span>
             </div>
-
             <div class="contact-row">
                 <span class="contact-label">Status</span>
                 <span class="contact-value" id="c-status">Offline</span>
@@ -1370,13 +1358,12 @@
         let typingTimeout = null;
         let currentChatDetails = null; 
         let currentCommentPostId = null;
-        let chatsDataSnapshot = null; // Store snapshot for menu logic
+        let chatsDataSnapshot = null; 
 
         const aiHistory = [
             { role: "system", content: systemPrompt }
         ];
 
-        // Helper to format likes (1k, 1.1k)
         function formatLikes(count) {
             if(count < 1000) return count;
             return (count / 1000).toFixed(count > 10000 ? 0 : 1) + 'k';
@@ -1413,14 +1400,14 @@
             if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
             
             // Total Chats Logic
-            if(cTotalChats) {
+            if(cTotalChats && chatCount) {
                 cTotalChats.innerText = chatCount + " Chats";
                 document.getElementById('c-total-chats-row').style.display = 'flex';
             }
 
             // Hide Rows Logic
-            document.getElementById('c-email-row').style.display = 'none';
-            document.getElementById('c-joined-row').style.display = 'none';
+            if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
+            if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
 
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
             const cStatus = document.getElementById('c-status');
@@ -1477,12 +1464,15 @@
         
         window.confirmDeleteMsg = function(mKey) {
             document.getElementById("modal-confirm").classList.add("open");
-            document.getElementById("btn-confirm-yes").onclick = function() {
-                set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
-                const el = document.getElementById(`msg-bubble-${mKey}`);
-                if(el) el.remove();
-                document.getElementById("modal-confirm").classList.remove("open");
-            };
+            const yesBtn = document.getElementById("btn-confirm-yes");
+            if(yesBtn) {
+                yesBtn.onclick = function() {
+                    set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
+                    const el = document.getElementById(`msg-bubble-${mKey}`);
+                    if(el) el.remove();
+                    document.getElementById("modal-confirm").classList.remove("open");
+                };
+            }
         };
 
         function initTheme() {
@@ -1497,24 +1487,86 @@
                 themeToggle.checked = false;
             }
 
-            themeToggle.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    document.body.classList.add('light-mode');
-                    localStorage.setItem('crypa_theme', 'light');
-                } else {
-                    document.body.classList.remove('light-mode');
-                    localStorage.setItem('crypa_theme', 'dark');
-                }
-            });
+            if(themeToggle) {
+                themeToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        document.body.classList.add('light-mode');
+                        localStorage.setItem('crypa_theme', 'light');
+                    } else {
+                        document.body.classList.remove('light-mode');
+                        localStorage.setItem('crypa_theme', 'dark');
+                    }
+                });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             
+            // Navigation
+            const navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach((n) => {
+                n.onclick = () => {
+                    const target = n.dataset.target;
+                    if(!target) return;
+                    navItems.forEach((i) => i.classList.remove("active"));
+                    n.classList.add("active");
+                    const view = document.getElementById(target);
+                    if(view) {
+                        document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
+                        view.classList.add("active");
+                        if (target === 'view-feed') loadFeed(true);
+                    }
+                };
+            });
+
+            // Chat List & Buttons
+            const btnNewChat = document.getElementById('btn-new-chat');
+            const btnRefreshFeed = document.getElementById('btn-refresh-feed');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnBackChat = document.getElementById('btn-back-chat');
+            const btnSendMsg = document.getElementById('btn-send-msg');
+            const btnAttach = document.getElementById('btn-attach');
+            const fileInput = document.getElementById('file-input');
+            const btnMoneyModal = document.getElementById('btn-money-modal');
+            const btnDoTransfer = document.getElementById('btn-do-transfer');
+            const pWithdraw = document.getElementById('p-withdraw');
+            const btnDoWithdraw = document.getElementById('btn-do-withdraw');
+            const pReceive = document.getElementById('p-receive');
+            const btnCopy = document.getElementById('btn-copy');
+            const btnEditP = document.getElementById('btn-edit-p');
+            const btnChangeAvatar = document.getElementById('btn-change-avatar');
+            const avatarInput = document.getElementById('avatar-input');
+            const btnSaveProfile = document.getElementById('btn-save-profile');
+            const btnVerifyAccount = document.getElementById('btn-verify-account');
+            const btnCam = document.getElementById('btn-camera-toggle');
+            const idInput = document.getElementById('verify-id-input');
+            const btnVerifySubmit = document.getElementById('btn-verify-submit');
+            const btnPostText = document.getElementById('btn-post-text');
+            const btnSubmitPostText = document.getElementById('btn-submit-post-text');
+            const btnPostImg = document.getElementById('btn-post-img');
+            const postImgFile = document.getElementById('post-img-file');
+            const imgPreviewContainer = document.getElementById('img-preview-container');
+            const postImgPreview = document.getElementById('post-img-preview');
+            const btnSubmitPostImg = document.getElementById('btn-submit-post-img');
+            const btnPostMoney = document.getElementById('btn-post-money');
+            const postMoneyAmount = document.getElementById('post-money-amount');
+            const btnSubmitPostMoney = document.getElementById('btn-submit-post-money');
+            const btnCloseContact = document.getElementById('btn-close-contact');
+            const btnCloseComments = document.getElementById('btn-close-comments');
+            const btnSubmitComment = document.getElementById('btn-submit-comment');
+            const commentInput = document.getElementById('comment-input');
+            const btnConfirmNo = document.getElementById('btn-confirm-no');
+            const btnPrivacyModal = document.getElementById('btn-privacy-modal');
+            const privacyList = document.getElementById('privacy-list');
+            const btnUnblockChat = document.getElementById('btn-unblock-chat');
+            const btnDeleteChatFull = document.getElementById('btn-delete-chat-full');
+            const btnDeleteConfirmReceiver = document.getElementById('btn-delete-confirm-receiver');
             const btnAiSend = document.getElementById("btn-ai-send");
             const btnAiClear = document.getElementById("btn-ai-clear");
             const aiInput = document.getElementById("ai-input");
             const aiMessages = document.getElementById("ai-messages");
 
+            // AI Logic
             if(btnAiSend) {
                 btnAiSend.onclick = async () => {
                     if (!aiInput) return;
@@ -1591,7 +1643,6 @@
                     }
                 };
             }
-
             if(btnAiClear && aiMessages) {
                 btnAiClear.onclick = () => {
                     aiHistory.length = 1;
@@ -1599,63 +1650,24 @@
                 };
             }
 
-            const navItems = document.querySelectorAll(".nav-item");
-            navItems.forEach((n) => {
-                n.onclick = () => {
-                    const target = n.dataset.target;
-                    if(!target) return;
-                    navItems.forEach((i) => i.classList.remove("active"));
-                    n.classList.add("active");
-                    const view = document.getElementById(target);
-                    if(view) {
-                        document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
-                        view.classList.add("active");
-                        if (target === 'view-feed') loadFeed(true);
-                    }
+            // Profile & Settings
+            if(btnPrivacyModal && privacyList) {
+                btnPrivacyModal.onclick = () => {
+                    const modal = document.getElementById('modal-privacy');
+                    if(modal) modal.classList.add("open");
+                    buildPrivacyUI();
                 };
-            });
+            }
+            
+            if(btnLogout) {
+                btnLogout.onclick = () => {
+                    signOut(auth).then(() => {
+                        window.location.href = "index.html";
+                    });
+                };
+            }
 
-            const btnNewChat = document.getElementById('btn-new-chat');
-            const btnRefreshFeed = document.getElementById('btn-refresh-feed');
-            const btnLogout = document.getElementById('btn-logout');
-            const btnBackChat = document.getElementById('btn-back-chat');
-            const btnSendMsg = document.getElementById('btn-send-msg');
-            const btnAttach = document.getElementById('btn-attach');
-            const btnMoneyModal = document.getElementById('btn-money-modal');
-            const btnDoTransfer = document.getElementById('btn-do-transfer');
-            const pWithdraw = document.getElementById('p-withdraw');
-            const btnDoWithdraw = document.getElementById('btn-do-withdraw');
-            const pReceive = document.getElementById('p-receive');
-            const btnCopy = document.getElementById('btn-copy');
-            const btnEditP = document.getElementById('btn-edit-p');
-            const btnChangeAvatar = document.getElementById('btn-change-avatar');
-            const avatarInput = document.getElementById('avatar-input');
-            const btnSaveProfile = document.getElementById('btn-save-profile');
-            const btnVerifyAccount = document.getElementById('btn-verify-account');
-            const btnCam = document.getElementById('btn-camera-toggle');
-            const idInput = document.getElementById('verify-id-input');
-            const btnVerifySubmit = document.getElementById('btn-verify-submit');
-            const btnPostText = document.getElementById('btn-post-text');
-            const btnSubmitPostText = document.getElementById('btn-submit-post-text');
-            const btnPostImg = document.getElementById('btn-post-img');
-            const postImgFile = document.getElementById('post-img-file');
-            const imgPreviewContainer = document.getElementById('img-preview-container');
-            const postImgPreview = document.getElementById('post-img-preview');
-            const btnSubmitPostImg = document.getElementById('btn-submit-post-img');
-            const btnPostMoney = document.getElementById('btn-post-money');
-            const postMoneyAmount = document.getElementById('post-money-amount');
-            const btnSubmitPostMoney = document.getElementById('btn-submit-post-money');
-            const btnCloseContact = document.getElementById('btn-close-contact');
-            const btnCloseComments = document.getElementById('btn-close-comments');
-            const btnSubmitComment = document.getElementById('btn-submit-comment');
-            const commentInput = document.getElementById('comment-input');
-            const btnConfirmNo = document.getElementById('btn-confirm-no');
-            const btnPrivacyModal = document.getElementById('btn-privacy-modal');
-            const privacyList = document.getElementById('privacy-list');
-            const btnUnblockChat = document.getElementById('btn-unblock-chat');
-            const btnDeleteChatFull = document.getElementById('btn-delete-chat-full');
-            const btnDeleteConfirmReceiver = document.getElementById('btn-delete-confirm-receiver');
-
+            // Chat Logic
             if(btnNewChat) {
                 btnNewChat.onclick = () => {
                     const modal = document.getElementById("modal-new-chat");
@@ -1664,7 +1676,7 @@
                     if(searchResults) searchResults.innerHTML = "";
                 };
             }
-
+            
             if(document.getElementById('search-input')) {
                 document.getElementById('search-input').oninput = (e) => {
                     const v = e.target.value.toLowerCase();
@@ -1680,7 +1692,8 @@
                             d.onclick = () => {
                                 const cid = [user.uid, uid].sort().join("_");
                                 set(ref(db, `chats/${cid}`), { members: [user.uid, uid], timestamp: Date.now() });
-                                document.getElementById("modal-new-chat").classList.remove('open');
+                                const modal = document.getElementById("modal-new-chat");
+                                if(modal) modal.classList.remove('open');
                                 openChat(cid, uid);
                             };
                             r.appendChild(d);
@@ -1689,19 +1702,12 @@
                 };
             }
 
-            if(btnRefreshFeed) btnRefreshFeed.onclick = () => loadFeed(false);
-            if(btnLogout) {
-                btnLogout.onclick = () => {
-                    signOut(auth).then(() => {
-                        window.location.href = "index.html";
-                    });
-                };
-            }
             if(btnBackChat) {
                 btnBackChat.onclick = () => {
                     const room = document.getElementById("chat-room");
+                    const body = document.body;
                     if(room) room.classList.remove("active");
-                    document.body.classList.remove("chat-active");
+                    if(body) body.classList.remove("chat-active");
                     if(chatId && user) {
                         set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
                     }
@@ -1714,8 +1720,8 @@
                     sendMsg(t);
                 };
             }
-            if(btnAttach && document.getElementById('file-input')) {
-                btnAttach.onclick = () => document.getElementById('file-input').click();
+            if(btnAttach && fileInput) {
+                btnAttach.onclick = () => fileInput.click();
             }
             if(btnMoneyModal && document.getElementById('modal-transfer')) {
                 btnMoneyModal.onclick = () => document.getElementById('modal-transfer').classList.add("open");
@@ -1740,13 +1746,15 @@
             }
             if(btnDoWithdraw) {
                 btnDoWithdraw.onclick = async () => {
-                    if(!document.getElementById("w-addr")) return;
-                    const toAddress = document.getElementById("w-addr").value;
-                    const amountStr = document.getElementById("w-amt").value;
+                    const wAddr = document.getElementById("w-addr");
+                    const wAmt = document.getElementById("w-amt");
+                    if(!wAddr || !wAmt) return;
+                    const toAddress = wAddr.value;
+                    const amountStr = wAmt.value;
                     if (!ethers.isAddress(toAddress)) return toast("Invalid Address");
                     if (!amountStr || parseFloat(amountStr) <= 0) return toast("Invalid Amount");
 
-                    const btn = document.getElementById("btn-do-withdraw");
+                    const btn = btnDoWithdraw;
                     const originalText = btn.innerText;
                     btn.innerText = "Signing...";
                     btn.disabled = true;
@@ -1812,122 +1820,71 @@
                     const prev = document.getElementById("edit-p-preview");
                     const av = prev ? prev.src : "";
                     await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
-                    document.getElementById("modal-edit-profile").classList.remove('open');
+                    document.getElementById("modal-edit-profile").classList.remove("open");
                     toast("Updated");
                 };
             }
-            if(btnVerifyAccount) {
-                btnVerifyAccount.onclick = () => document.getElementById('modal-verify').classList.add('open');
-            }
-            if(btnCam && document.getElementById('face-video')) {
-                const scanOverlay = document.getElementById('scan-overlay');
-                const cameraPlaceholder = document.getElementById('camera-placeholder');
-                btnCam.onclick = async () => {
-                    try {
-                        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-                        if(videoPlaceholder) videoPlaceholder.classList.add('hidden');
-                        if(scanOverlay) scanOverlay.style.display = 'none';
-                        checkVerifyInputs();
-                    } catch(e) {
-                        toast('Camera access denied');
-                    }
-                };
-            }
-            if(idInput && document.getElementById('verify-id-filename')) {
-                idInput.onchange = () => {
-                    const file = idInput.files[0];
-                    const filenameDiv = document.getElementById("verify-id-filename");
-                    if(file && filenameDiv) {
-                        filenameDiv.style.display = 'block';
-                        filenameDiv.innerText = file.name;
-                    } else {
-                         if(filenameDiv) filenameDiv.style.display = 'none';
-                    }
-                    checkVerifyInputs();
-                };
-            }
-            function checkVerifyInputs() {
-                if(idInput.files.length > 0 && cameraStream) btnVerifySubmit.removeAttribute('disabled');
-            }
-            if(btnVerifySubmit && document.getElementById('modal-verify')) {
-                btnVerifySubmit.onclick = async () => {
-                    btnVerifySubmit.innerText = "Analyzing...";
-                    if(scanOverlay) scanOverlay.style.display = 'block';
-                    setTimeout(async () => {
-                        if(scanOverlay) scanOverlay.style.display = 'none';
-                        await update(ref(db, `users/${user.uid}`), { verified: true });
-                        updateVerifiedUI(true);
-                        isVerified = true;
-                        const content = document.querySelector('#modal-verify .modal-content');
-                        if(content) {
-                            content.innerHTML = `
-                                <div style="text-align:center">
-                                    <i class="material-icons-round" style="font-size:60px; color:var(--success-color); margin-bottom:15px">check_circle</i>
-                                    <h3>You're now Verified</h3>
-                                    <p style="color:var(--text-secondary); margin-bottom:20px;">Your identity has been confirmed.</p>
-                                </div>
-                            `;
-                        }
-                        setTimeout(() => {
-                            document.getElementById('modal-verify').classList.remove('open');
-                            location.reload();
-                        }, 2000);
-                    }, 2500);
-                };
-            }
-            if(btnPostText) {
+
+            // Feed & Posts
+            if(btnRefreshFeed) btnRefreshFeed.onclick = () => loadFeed(false);
+            
+            if(btnPostText && document.getElementById('modal-post-text') && document.getElementById('post-text-content')) {
                 btnPostText.onclick = () => {
                     const modal = document.getElementById("modal-post-text");
-                    const content = document.getElementById("post-text-content");
                     if(modal) modal.classList.add("open");
                 };
             }
-            if(btnSubmitPostText && document.getElementById('modal-post-text') && document.getElementById('post-text-content')) {
+            if(btnSubmitPostText) {
                 btnSubmitPostText.onclick = () => {
                     const modal = document.getElementById("modal-post-text");
-                    const txt = document.getElementById("post-text-content").value.trim();
-                    if(!txt) return;
-                    toast("Posting...");
-                    push(ref(db, 'posts'), {
-                        type: 'text',
-                        content: txt,
-                        authorId: user.uid,
-                        timestamp: Date.now()
-                    })
-                    .then(() => {
-                        if(modal) modal.classList.remove("open");
-                        const contentEl = document.getElementById("post-text-content");
-                        if(contentEl) contentEl.value = '';
-                        toast("Posted");
-                    }).catch(e => { console.error(e); toast("Failed to post"); });
+                    const content = document.getElementById("post-text-content");
+                    if(modal && content) {
+                        const txt = content.value.trim();
+                        if(!txt) return;
+                        toast("Posting...");
+                        push(ref(db, 'posts'), {
+                            type: 'text',
+                            content: txt,
+                            authorId: user.uid,
+                            timestamp: Date.now()
+                        })
+                        .then(() => {
+                            modal.classList.remove("open");
+                            content.value = '';
+                            toast("Posted");
+                        }).catch(e => { console.error(e); toast("Failed to post"); });
+                    }
                 };
             }
-            if(btnPostImg && document.getElementById('modal-post-img')) {
+            
+            if(btnPostImg) {
                 btnPostImg.onclick = () => {
                     const modal = document.getElementById("modal-post-img");
                     if(modal) modal.classList.add("open");
                 };
             }
-            if(postImgFile && document.getElementById('img-preview-container') && document.getElementById('post-img-preview')) {
+            if(postImgFile && imgPreviewContainer && postImgPreview) {
                 postImgFile.onchange = (e) => {
                     const file = e.target.files[0];
                     if (!file) {
-                        document.getElementById("img-preview-container").classList.add('hidden');
+                        imgPreviewContainer.classList.add('hidden');
                         return;
                     }
                     const reader = new FileReader();
                     reader.onload = (ev) => {
-                        const prev = document.getElementById("post-img-preview");
-                        if(prev) prev.src = ev.target.result;
-                        document.getElementById("img-preview-container").classList.remove('hidden');
+                        postImgPreview.src = ev.target.result;
+                        imgPreviewContainer.classList.remove('hidden');
                     };
                     reader.readAsDataURL(file);
                 };
             }
             if(btnSubmitPostImg) {
                 btnSubmitPostImg.onclick = async () => {
-                    const fileInput = document.getElementById("post-img-file");
-                    const caption = document.getElementById("post-img-caption").value.trim();
+                    const fileInput = postImgFile;
+                    const caption = document.getElementById("post-img-caption");
+                    const modal = document.getElementById("modal-post-img");
+                    
+                    if(!fileInput) return;
                     const file = fileInput.files[0];
                     if(!file) return;
 
@@ -1953,15 +1910,15 @@
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
-                                caption,
+                                caption: caption ? caption.value.trim() : '',
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
                             .then(() => {
-                                document.getElementById('modal-post-img').classList.remove("open");
-                                document.getElementById("post-img-file").value = "";
+                                if(modal) modal.classList.remove("open");
+                                if(fileInput) fileInput.value = "";
                                 if(caption) caption.value = "";
-                                document.getElementById("img-preview-container").classList.add('hidden');
+                                if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
                                 toast("Posted");
                             }).catch(e => {
                                 console.error(e);
@@ -1971,15 +1928,17 @@
                     };
                 };
             }
-            if(btnPostMoney && document.getElementById('modal-post-money')) {
+            
+            if(btnPostMoney) {
                 btnPostMoney.onclick = () => {
                     const modal = document.getElementById("modal-post-money");
                     if(modal) modal.classList.add("open");
                 };
             }
-            if(btnSubmitPostMoney && document.getElementById('modal-post-money') && document.getElementById('post-money-amount')) {
+            if(btnSubmitPostMoney && postMoneyAmount) {
                 btnSubmitPostMoney.onclick = async () => {
-                    const amt = parseFloat(document.getElementById('post-money-amount').value);
+                    const amt = parseFloat(postMoneyAmount.value);
+                    const modal = document.getElementById("modal-post-money");
                     if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
                     const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
                     await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
@@ -1991,58 +1950,85 @@
                         timestamp: Date.now()
                     })
                     .then(() => {
-                        document.getElementById('modal-post-money').classList.remove('open');
+                        if(modal) modal.classList.remove("open");
                         toast('Crypto Posted!');
                     }).catch(e => {
                         toast("Failed");
                     });
                 };
             }
-            if(btnUnblockChat) {
-                btnUnblockChat.onclick = async () => {
-                    if(!chatId) return;
-                    await update(ref(db, `chats/${chatId}`), { blockedBy: null });
-                    document.getElementById('chat-footer').classList.add('hidden');
-                    document.getElementById('input-bar-wrapper').classList.remove('hidden');
-                    toast("Unblocked");
+
+            // Verification
+            if(btnVerifyAccount) {
+                btnVerifyAccount.onclick = () => {
+                    const modal = document.getElementById('modal-verify');
+                    if(modal) modal.classList.add("open");
                 };
             }
-            if(btnDeleteChatFull) {
-                btnDeleteChatFull.onclick = async () => {
-                    if(!chatId) return;
-                    await remove(ref(db, `chats/${chatId}`));
-                    await remove(ref(db, `messages/${chatId}`));
-                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
-                    await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
-                    
-                    const room = document.getElementById("chat-room");
-                    if(room) room.classList.remove("active");
-                    document.body.classList.remove("chat-active");
-                    
-                    loadChats();
+            const video = document.getElementById('face-video');
+            const scanOverlay = document.getElementById('scan-overlay');
+            const cameraPlaceholder = document.getElementById('camera-placeholder');
+            const idFilename = document.getElementById('verify-id-filename');
+
+            if(btnCam && video && scanOverlay && cameraPlaceholder) {
+                btnCam.onclick = async () => {
+                    try {
+                        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                        if(cameraPlaceholder) cameraPlaceholder.classList.add('hidden');
+                        if(scanOverlay) scanOverlay.style.display = 'none';
+                        checkVerifyInputs();
+                    } catch(e) {
+                        toast('Camera access denied');
+                    }
                 };
             }
-            if(btnDeleteConfirmReceiver) {
-                btnDeleteConfirmReceiver.onclick = async () => {
-                    if(!chatId) return;
-                    await remove(ref(db, `chats/${chatId}`));
-                    await remove(ref(db, `messages/${chatId}`));
-                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
-                    
-                    const room = document.getElementById("chat-room");
-                    const modal = document.getElementById('modal-chat-deleted');
-                    const body = document.body;
-                    
-                    if(room) room.classList.remove("active");
-                    if(body) body.classList.remove("chat-active");
-                    if(modal) modal.classList.remove('open');
-                    loadChats();
+            if(idInput && idFilename) {
+                idInput.onchange = () => {
+                    const file = idInput.files[0];
+                    if(file && idFilename) {
+                        idFilename.style.display = 'block';
+                        idFilename.innerText = file.name;
+                    } else {
+                         if(idFilename) idFilename.style.display = 'none';
+                    }
+                    checkVerifyInputs();
                 };
             }
-            if(btnCloseContact && document.getElementById('modal-contact-info')) {
-                btnCloseContact.onclick = () => document.getElementById('modal-contact-info').classList.remove('open');
+            function checkVerifyInputs() {
+                if(btnVerifySubmit && idInput && cameraStream) {
+                    btnVerifySubmit.removeAttribute('disabled');
+                }
             }
-            if(btnCloseComments && document.getElementById('modal-comments')) {
+            if(btnVerifySubmit) {
+                btnVerifySubmit.onclick = async () => {
+                    const content = document.querySelector('#modal-verify .modal-content');
+                    if(btnVerifySubmit) btnVerifySubmit.innerText = "Analyzing...";
+                    if(scanOverlay) scanOverlay.style.display = 'block';
+                    setTimeout(async () => {
+                        if(scanOverlay) scanOverlay.style.display = 'none';
+                        await update(ref(db, `users/${user.uid}`), { verified: true });
+                        updateVerifiedUI(true);
+                        isVerified = true;
+                        if(content) {
+                            content.innerHTML = `
+                                <div style="text-align:center">
+                                    <i class="material-icons-round" style="font-size:60px; color:var(--success-color); margin-bottom:15px">check_circle</i>
+                                    <h3>You're now Verified</h3>
+                                    <p style="color:var(--text-secondary); margin-bottom:20px;">Your identity has been confirmed.</p>
+                                </div>
+                            `;
+                        }
+                        setTimeout(() => {
+                            const modal = document.getElementById('modal-verify');
+                            if(modal) modal.classList.remove('open');
+                            location.reload();
+                        }, 2000);
+                    }, 2500);
+                };
+            }
+
+            // Comments
+            if(btnCloseComments) {
                 btnCloseComments.onclick = () => {
                     const modal = document.getElementById("modal-comments");
                     if(modal) {
@@ -2066,17 +2052,66 @@
                     });
                 };
             }
-            if(btnConfirmNo && document.getElementById('modal-confirm')) {
-                btnConfirmNo.onclick = () => document.getElementById("modal-confirm").classList.remove("open");
+
+            // Chat Footer
+            if(btnUnblockChat) {
+                btnUnblockChat.onclick = async () => {
+                    if(!chatId) return;
+                    await update(ref(db, `chats/${chatId}`), { blockedBy: null });
+                    const chatFooter = document.getElementById('chat-footer');
+                    const inputBarWrapper = document.getElementById('input-bar-wrapper');
+                    if(chatFooter) chatFooter.classList.add('hidden');
+                    if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
+                    toast("Unblocked");
+                };
             }
-            if(btnPrivacyModal && privacyList) {
-                btnPrivacyModal.onclick = () => {
-                    const modal = document.getElementById('modal-privacy');
-                    if(modal) modal.classList.add('open');
-                    buildPrivacyUI();
+            if(btnDeleteChatFull) {
+                btnDeleteChatFull.onclick = async () => {
+                    if(!chatId) return;
+                    await remove(ref(db, `chats/${chatId}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+                    await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
+                    
+                    const room = document.getElementById("chat-room");
+                    const body = document.body;
+                    if(room) room.classList.remove("active");
+                    if(body) body.classList.remove("chat-active");
+                    
+                    loadChats();
+                };
+            }
+            if(btnDeleteConfirmReceiver) {
+                btnDeleteConfirmReceiver.onclick = async () => {
+                    if(!chatId) return;
+                    await remove(ref(db, `chats/${chatId}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+                    
+                    const room = document.getElementById("chat-room");
+                    const modal = document.getElementById('modal-chat-deleted');
+                    const body = document.body;
+                    
+                    if(room) room.classList.remove("active");
+                    if(body) body.classList.remove("chat-active");
+                    if(modal) modal.classList.remove('open');
+                    loadChats();
+                };
+            }
+            if(btnCloseContact) {
+                btnCloseContact.onclick = () => {
+                    const modal = document.getElementById('modal-contact-info');
+                    if(modal) modal.classList.remove('open');
                 };
             }
 
+            // Confirm Modal
+            if(btnConfirmNo) {
+                btnConfirmNo.onclick = () => {
+                    const modal = document.getElementById("modal-confirm");
+                    if(modal) modal.classList.remove("open");
+                };
+            }
         }); // End DOMContentLoaded
 
         onAuthStateChanged(auth, (u) => {
@@ -2101,13 +2136,19 @@
             onValue(ref(db, `users/${user.uid}`), (s) => {
                 if (s.exists()) {
                     const d = s.val();
-                    document.getElementById("p-username").innerText = d.username;
-                    document.getElementById("p-avatar").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
-                    document.getElementById("edit-p-preview").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+                    const pUsername = document.getElementById("p-username");
+                    const pAvatar = document.getElementById("p-avatar");
+                    const pBadge = document.getElementById("p-badge");
+                    const vBtn = document.getElementById('btn-verify-account');
+                    
+                    if(pUsername) pUsername.innerText = d.username;
+                    if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+                    if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
+                    if(vBtn) vBtn.classList.toggle('hidden', d.verified);
+                    
                     users[user.uid] = d;
                     localStorage.setItem('crypa_users_cache', JSON.stringify(users));
                     isVerified = !!d.verified;
-                    updateVerifiedUI(isVerified);
                 }
             });
 
@@ -2127,13 +2168,8 @@
         function updateVerifiedUI(verified) {
             const pBadge = document.getElementById('p-badge');
             const vBtn = document.getElementById('btn-verify-account');
-            if (verified) {
-                if(pBadge) pBadge.classList.remove('hidden');
-                if(vBtn) vBtn.classList.add('hidden');
-            } else {
-                if(pBadge) pBadge.classList.add('hidden');
-                if(vBtn) vBtn.classList.remove('hidden');
-            }
+            if (pBadge) pBadge.classList.toggle('hidden', !verified);
+            if (vBtn) vBtn.classList.toggle('hidden', verified);
         }
 
         async function setupWallet() {
@@ -2165,9 +2201,12 @@
                     } catch(e) {}
                 }
             }
-            document.getElementById("p-wallet-bal").innerText = `${wallet.balance} ETH`;
-            document.getElementById("p-wallet-addr").innerText = wallet.address;
-            document.getElementById("r-addr").innerText = wallet.address;
+            const pWalletBal = document.getElementById("p-wallet-bal");
+            const pWalletAddr = document.getElementById("p-wallet-addr");
+            const rAddr = document.getElementById('r-addr');
+            if(pWalletBal) pWalletBal.innerText = `${wallet.balance} ETH`;
+            if(pWalletAddr) pWalletAddr.innerText = wallet.address;
+            if(rAddr) rAddr.innerText = wallet.address;
         }
 
         document.addEventListener('click', (e) => {
@@ -2176,13 +2215,15 @@
             }
         });
 
-        function renderChatList(chatsData, allChatsCount) {
+        function renderChatList(enrichedChats) {
             const l = document.getElementById("chat-list");
-            if(chatsData) l.innerHTML = "";
-            if (!chatsData) return;
+            if(l) l.innerHTML = "";
+            if (!enrichedChats) return;
 
-            for (const id in chatsData) {
-                const ouid = chatsData[id].otherUid || (chatsData[id].members ? chatsData[id].members.find((m) => m !== user.uid) : null);
+            const totalChats = Object.keys(enrichedChats).length;
+
+            for (const id in enrichedChats) {
+                const ouid = enrichedChats[id].otherUid;
                 if(!ouid) continue;
                 const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
                 if(document.getElementById(`chat-item-${id}`)) continue;
@@ -2198,11 +2239,11 @@
                 const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
                 const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
                 const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
-                const hasNewMsg = chatsData[id].timestamp && ud.lastSeen && (chatsData[id].timestamp > ud.lastSeen);
+                const hasNewMsg = enrichedChats[id].timestamp && ud.lastSeen && (enrichedChats[id].timestamp > ud.lastSeen);
                 const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
 
-                // Check if current user blocked this chat owner
-                const isBlockedByMe = chatsData[id].blockedBy === user.uid;
+                // Check if user blocked this contact
+                const isBlockedByMe = enrichedChats[id].blockedBy === user.uid;
                 const blockBtnHtml = isBlockedByMe
                     ? `<div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', true)"><i class="material-icons-round">lock_open</i> Unblock</div>`
                     : `<div class="dropdown-item delete" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', false)"><i class="material-icons-round">block</i> Block Chat</div>`;
@@ -2220,7 +2261,7 @@
                         <div class="chat-name">
                             ${ud.username} ${pillHTML}
                         </div>
-                        <div class="chat-msg">${chatsData[id].lastMessage}</div>
+                        <div class="chat-msg">${enrichedChats[id].lastMessage}</div>
                     </div>
                     <div class="chat-dots" onclick="event.stopPropagation(); window.toggleDropdown('${id}')">
                         <i class="material-icons-round">more_vert</i>
@@ -2233,6 +2274,11 @@
                 `;
                 l.appendChild(item);
             }
+            // Update Contact Info with total chats count
+            if(totalChats > 0 && document.getElementById('c-total-chats')) {
+                document.getElementById('c-total-chats').innerText = totalChats + " Chats";
+                document.getElementById('c-total-chats-row').style.display = 'flex';
+            }
         }
 
         function loadChats() {
@@ -2241,15 +2287,13 @@
             if (cachedChatsJSON) {
                 try {
                     const cachedChats = JSON.parse(cachedChatsJSON);
-                    // Get total count from snapshot to pass to render
-                    const totalChatsCount = Object.keys(cachedChats).length;
-                    renderChatList(cachedChats, totalChatsCount);
+                    renderChatList(cachedChats);
                 } catch(e) {}
             }
 
             onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
                 const l = document.getElementById("chat-list");
-                l.innerHTML = "";
+                if(l) l.innerHTML = "";
                 const d = s.val();
                 if (!d) return;
 
@@ -2261,9 +2305,8 @@
                     const ouid = members.find((m) => m !== user.uid);
                     enrichedChats[id] = { ...d[id], otherUid: ouid, blockedBy: cs.val().blockedBy };
                 }
-                const totalChatsCount = Object.keys(enrichedChats).length;
                 localStorage.setItem('crypa_chats_list', JSON.stringify(enrichedChats));
-                renderChatList(enrichedChats, totalChatsCount);
+                renderChatList(enrichedChats);
             });
 
             onValue(ref(db, `users/${user.uid}`), (s) => {
@@ -2271,39 +2314,21 @@
             });
         }
 
-        window.deleteMyChat = async (id, uid, unblock) => {
+        window.deleteMyChat = async (id, uid) => {
             const chatSnap = await get(ref(db, `chats/${id}`));
-            if(unblock) {
-                if(chatSnap.exists()) {
-                    await update(ref(db, `chats/${id}`), { blockedBy: null });
-                    // Trigger UI update manually for speed
-                    const item = document.getElementById(`chat-item-${id}`);
-                    if(item) {
-                        const btnDiv = item.querySelector('.dropdown-item:last-child');
-                        if(btnDiv) {
-                            btnDiv.innerHTML = `<i class="material-icons-round">block</i> Block Chat`;
-                            btnDiv.onclick = () => {
-                                window.blockUser(id, uid, false);
-                            };
-                        }
-                    }
+            if(chatSnap.exists()) {
+                let deletedList = chatSnap.val().deletedBy || [];
+                if(!deletedList.includes(user.uid)) {
+                    deletedList.push(user.uid);
+                    await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
                 }
-                toast("Unblocked");
-            } else {
-                if(chatSnap.exists()) {
-                    let deletedList = chatSnap.val().deletedBy || [];
-                    if(!deletedList.includes(user.uid)) {
-                        deletedList.push(user.uid);
-                        await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
-                    }
-                }
-                await remove(ref(db, `user_chats/${user.uid}/${id}`));
-                const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
-                delete cached[id];
-                localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
-                const el = document.getElementById(`chat-item-${id}`);
-                if(el) el.remove();
             }
+            await remove(ref(db, `user_chats/${user.uid}/${id}`));
+            const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
+            delete cached[id];
+            localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
+            const el = document.getElementById(`chat-item-${id}`);
+            if(el) el.remove();
             window.toggleDropdown(id);
         };
 
@@ -2319,8 +2344,8 @@
             if(item) {
                 const btnDiv = item.querySelector('.dropdown-item:last-child');
                 if(btnDiv) {
-                    btnDiv.innerHTML = `<i class="material-icons-round">lock_open</i> Unblock`;
-                    btnDiv.onclick = () => window.deleteMyChat(id, uid, true);
+                    btnDiv.innerHTML = `<i class="material-icons-round">block</i> Block Chat`;
+                    btnDiv.onclick = () => window.blockUser(id, uid, false);
                 }
             }
         };
@@ -2331,14 +2356,14 @@
             const ud = users[otherUid];
             if(!ud) return;
 
-            document.getElementById('c-avatar').src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
-            document.getElementById('c-username').innerText = ud.username;
+            const cAvatar = document.getElementById('c-avatar');
+            const cUsername = document.getElementById('c-username');
+            const cBadge = document.getElementById('c-badge');
+            const cTotalChats = document.getElementById('c-total-chats');
             
-            // Reset visibility
-            document.getElementById('c-total-chats-row').style.display = 'none';
-            document.getElementById('c-email-row').style.display = 'none';
-            document.getElementById('c-joined-row').style.display = 'none';
-            document.getElementById('c-badge').style.display = ud.verified ? 'inline-block' : 'none';
+            if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+            if(cUsername) cUsername.innerText = ud.username;
+            if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
 
             const joinedDate = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024"; 
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
@@ -2358,26 +2383,28 @@
                     cLastSeen.innerText = "Unknown";
                 }
             }
+            
+            // Hide Rows Logic
+            if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
+            if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
+            if(document.getElementById('c-total-chats-row')) document.getElementById('c-total-chats-row').style.display = 'none';
 
             contactModal.classList.add('open');
         }
-
-        document.getElementById('header-avatar-wrap')?.onclick = openContactInfo;
-        document.getElementById('header-text-wrap')?.onclick = openContactInfo;
-        document.getElementById('btn-close-contact').onclick = () => contactModal.classList.remove('open');
-
 
         function openChat(id, uid) {
             chatId = id;
             otherUid = uid;
             const room = document.getElementById("chat-room");
+            const body = document.body;
             if(room) room.classList.add("active");
-            document.body.classList.add("chat-active");
+            if(body) body.classList.add("chat-active");
 
             const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
             const badge = document.getElementById('curr-chat-badge');
+            
             if(currName) currName.innerText = ud.username;
             if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
             if(badge) badge.classList.toggle('hidden', !ud.verified);
@@ -2395,7 +2422,8 @@
                 currentChatDetails = data;
 
                 if(data.deletedBy && data.deletedBy.includes(otherUid)) {
-                    document.getElementById('modal-chat-deleted').classList.add('open');
+                    const modal = document.getElementById('modal-chat-deleted');
+                    if(modal) modal.classList.add('open');
                 }
 
                 if(data.blockedBy === user.uid) {
@@ -2455,11 +2483,13 @@
             onValue(ref(db, `chats/${id}/typing/${otherUid}`), (s) => {
                 const isTyping = s.val();
                 const typingEl = document.getElementById('typing-indicator');
-                if(isTyping) {
-                    typingEl.classList.remove('hidden');
-                    if(a) a.scrollTop = a.scrollHeight;
-                } else {
-                    typingEl.classList.add('hidden');
+                if(typingEl) {
+                    if(isTyping) {
+                        typingEl.classList.remove('hidden');
+                        if(a) a.scrollTop = a.scrollHeight;
+                    } else {
+                        typingEl.classList.add('hidden');
+                    }
                 }
             });
         }
@@ -2561,75 +2591,6 @@
             });
         }
 
-        window.confirmDeleteMsg = (mKey) => {
-            document.getElementById("modal-confirm").classList.add("open");
-            document.getElementById("btn-confirm-yes").onclick = function() {
-                set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
-                const el = document.getElementById(`msg-bubble-${mKey}`);
-                if(el) el.remove();
-                document.getElementById("modal-confirm").classList.remove("open");
-            };
-        };
-        if(document.getElementById("btn-confirm-no")) document.getElementById("btn-confirm-no").onclick = () => document.getElementById("modal-confirm").classList.remove("open");
-
-        document.getElementById("btn-money-modal").onclick = () => document.getElementById('modal-transfer').classList.add("open");
-
-        document.getElementById("btn-do-transfer").onclick = async () => {
-            const a = parseFloat(document.getElementById("t-amount").value);
-            if (!a || a > parseFloat(wallet.balance)) return toast("Insufficient Balance");
-            const newSenderB = (parseFloat(wallet.balance) - a).toFixed(4);
-            await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newSenderB });
-            const rSnap = await get(ref(db, `users/${otherUid}/wallets/eth`));
-            const newRecB = (parseFloat(rSnap.val()?.balance || 0) + a).toFixed(4);
-            await update(ref(db, `users/${otherUid}/wallets/eth`), { balance: newRecB });
-            sendMsg(`💸 Sent ${a} ETH`);
-            document.getElementById("modal-transfer").classList.remove("open");
-            setupWallet();
-        };
-
-        document.getElementById("p-withdraw").onclick = () => document.getElementById("modal-withdraw").classList.add("open");
-
-        document.getElementById("btn-do-withdraw").onclick = async () => {
-            const toAddress = document.getElementById("w-addr").value;
-            const amountStr = document.getElementById("w-amt").value;
-            if (!ethers.isAddress(toAddress)) return toast("Invalid Address");
-            if (!amountStr || parseFloat(amountStr) <= 0) return toast("Invalid Amount");
-
-            const btn = document.getElementById("btn-do-withdraw");
-            const originalText = btn.innerText;
-            btn.innerText = "Signing...";
-            btn.disabled = true;
-
-            try {
-                const pk = localStorage.getItem(`pk_${user.uid}`);
-                if (!pk) throw new Error("Wallet not found in local storage");
-
-                const walletInstance = new ethers.Wallet(pk);
-                const connectedWallet = walletInstance.connect(rpc);
-                const amountWei = ethers.parseEther(amountStr);
-
-                toast("Broadcasting Transaction...");
-                const tx = await connectedWallet.sendTransaction({ to: toAddress, value: amountWei });
-                console.log("Transaction Hash:", tx.hash);
-                toast(`Success! Hash: ${tx.hash.substring(0, 10)}...`);
-
-                document.getElementById("modal-withdraw").classList.remove("open");
-                setupWallet();
-            } catch (e) {
-                console.error(e);
-                toast("Transaction Failed: " + e.message);
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        };
-
-        document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
-        document.getElementById("btn-copy").onclick = () => {
-            navigator.clipboard.writeText(wallet.address);
-            toast("Copied");
-        };
-
         function loadComments(postKey) {
             const list = document.getElementById('comments-list');
             if(list) list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>';
@@ -2658,25 +2619,6 @@
                 if(list) list.innerHTML = html;
             });
         }
-
-        document.getElementById('btn-close-comments').onclick = () => {
-            document.getElementById('modal-comments').classList.remove('open');
-            currentCommentPostId = null;
-        };
-
-        document.getElementById('btn-submit-comment').onclick = () => {
-            const input = document.getElementById('comment-input');
-            const txt = input.value.trim();
-            if(!txt || !currentCommentPostId) return;
-            push(ref(db, `comments/${currentCommentPostId}`), {
-                senderId: user.uid,
-                text: txt,
-                time: Date.now()
-            }).then(() => {
-                input.value = '';
-                toast("Commented");
-            });
-        };
 
         // FEED LOGIC
         function loadFeed(useCache = false) {
@@ -2721,8 +2663,6 @@
                 renderNextChunk();
             });
         }
-
-        document.getElementById('btn-refresh-feed').onclick = () => loadFeed(false);
 
         function renderNextChunk() {
             const container = document.getElementById('feed-content');
@@ -2816,7 +2756,6 @@
                 if(snapshot.exists()) {
                     const likes = snapshot.val();
                     const count = likes ? Object.keys(likes).length : 0;
-                    // Fix 5: Format likes > 999 as 1k, 1.1k
                     cEl.innerText = formatLikes(count);
 
                     if (likes && likes[user.uid]) {
@@ -2843,176 +2782,6 @@
             });
         }
 
-        document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add('open');
-
-        document.getElementById('btn-submit-post-text').onclick = () => {
-            const txt = document.getElementById('post-text-content').value.trim();
-            if(!txt) return;
-            toast("Posting...");
-            push(ref(db, 'posts'), {
-                type: 'text',
-                content: txt,
-                authorId: user.uid,
-                timestamp: Date.now()
-            })
-            .then(() => {
-                document.getElementById('modal-post-text').classList.remove('open');
-                document.getElementById('post-text-content').value = '';
-                toast("Posted");
-            }).catch(e => { console.error(e); toast("Failed to post"); });
-        };
-
-        document.getElementById('btn-post-img').onclick = () => document.getElementById('modal-post-img').classList.add('open');
-
-        document.getElementById('post-img-file').onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) {
-                document.getElementById("img-preview-container").classList.add('hidden');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                document.getElementById("post-img-preview").src = ev.target.result;
-                document.getElementById("img-preview-container").classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        };
-
-        document.getElementById('btn-submit-post-img').onclick = async () => {
-            const fileInput = document.getElementById("post-img-file");
-            const caption = document.getElementById("post-img-caption").value.trim();
-            const file = fileInput.files[0];
-            if(!file) return;
-
-            toast("Posting...");
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    let quality = 0.5;
-                    let res = img.src;
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 500;
-                    canvas.height = (canvas.width / img.width) * img.height;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    res = canvas.toDataURL('image/jpeg', quality);
-                    while(res.length > 50000 && quality > 0.1) {
-                        quality -= 0.1;
-                        res = canvas.toDataURL('image/jpeg', quality);
-                    }
-                    push(ref(db, 'posts'), {
-                        type: 'img',
-                        content: res,
-                        caption,
-                        authorId: user.uid,
-                        timestamp: Date.now()
-                    })
-                    .then(() => {
-                        document.getElementById('modal-post-img').classList.remove("open");
-                        document.getElementById("post-img-file").value = "";
-                        document.getElementById("post-img-caption").value = "";
-                        document.getElementById("img-preview-container").classList.add('hidden');
-                        toast("Posted");
-                    }).catch(e => {
-                        console.error(e);
-                        toast("Upload Failed");
-                    });
-                };
-            };
-        };
-
-        document.getElementById('btn-post-money').onclick = () => document.getElementById('modal-post-money').classList.add('open');
-
-        document.getElementById('btn-submit-post-money').onclick = async () => {
-            const amt = parseFloat(document.getElementById('post-money-amount').value);
-            if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
-            const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
-            await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
-            setupWallet();
-            await push(ref(db, 'posts'), {
-                type: 'money',
-                amount: amt,
-                authorId: user.uid,
-                timestamp: Date.now()
-            })
-            .then(() => {
-                document.getElementById('modal-post-money').classList.remove('open');
-                toast('Crypto Posted!');
-            }).catch(e => {
-                toast("Failed");
-            });
-        };
-
-        document.getElementById('btn-verify-account').onclick = () => document.getElementById('modal-verify').classList.add('open');
-
-        const video = document.getElementById('face-video');
-        const btnCam = document.getElementById('btn-camera-toggle');
-        const btnVerifySubmit = document.getElementById('btn-verify-submit');
-        const scanOverlay = document.getElementById('scan-overlay');
-        const idInput = document.getElementById('verify-id-input');
-        const idFilename = document.getElementById('verify-id-filename');
-
-        if(btnCam) {
-            btnCam.onclick = async () => {
-                try {
-                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-                    if(videoPlaceholder) videoPlaceholder.classList.add('hidden');
-                    if(scanOverlay) scanOverlay.style.display = 'none';
-                    checkVerifyInputs();
-                } catch(e) {
-                    toast('Camera access denied');
-                }
-            };
-        }
-
-        if(idInput && document.getElementById('verify-id-filename')) {
-            idInput.onchange = () => {
-                const file = idInput.files[0];
-                const filenameDiv = document.getElementById("verify-id-filename");
-                if(file && filenameDiv) {
-                    filenameDiv.style.display = 'block';
-                    filenameDiv.innerText = file.name;
-                } else {
-                     if(filenameDiv) filenameDiv.style.display = 'none';
-                }
-                checkVerifyInputs();
-            };
-        }
-
-        function checkVerifyInputs() {
-            if(idInput.files.length > 0 && cameraStream) btnVerifySubmit.removeAttribute('disabled');
-        }
-
-        if(btnVerifySubmit && document.getElementById('modal-verify')) {
-            btnVerifySubmit.onclick = async () => {
-                btnVerifySubmit.innerText = "Analyzing...";
-                if(scanOverlay) scanOverlay.style.display = 'block';
-                setTimeout(async () => {
-                    if(scanOverlay) scanOverlay.style.display = 'none';
-                    await update(ref(db, `users/${user.uid}`), { verified: true });
-                    updateVerifiedUI(true);
-                    isVerified = true;
-                    const content = document.querySelector('#modal-verify .modal-content');
-                    if(content) {
-                        content.innerHTML = `
-                            <div style="text-align:center">
-                                <i class="material-icons-round" style="font-size:60px; color:var(--success-color); margin-bottom:15px">check_circle</i>
-                                <h3>You're now Verified</h3>
-                                <p style="color:var(--text-secondary); margin-bottom:20px;">Your identity has been confirmed.</p>
-                            </div>
-                        `;
-                    }
-                    setTimeout(() => {
-                        document.getElementById('modal-verify').classList.remove('open');
-                        location.reload();
-                    }, 2000);
-                }, 2500);
-            };
-        }
-
         function parseAIContent(text) {
             if (!text) return "";
             let cleanText = text.replace(/<[^>]*>/g, '');
@@ -3020,6 +2789,20 @@
             cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
             return cleanText.replace(/\n/g, '<br>');
+        }
+
+        function buildPrivacyUI() {
+            const l = document.getElementById("privacy-list");
+            const s = ["Read Receipts", "Online Status", "2FA Security", "Wallet Privacy", "Incognito Mode"];
+            if(l) {
+                l.innerHTML = "";
+                s.forEach((t) => {
+                    const i = document.createElement("div");
+                    i.className = "setting-item";
+                    i.innerHTML = `<span class="setting-label">${t}</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`;
+                    l.appendChild(i);
+                });
+            }
         }
 
         function renderAI() {
@@ -3034,45 +2817,6 @@
                     a.appendChild(d);
                 });
                 a.scrollTop = a.scrollHeight;
-            }
-        }
-
-        document.getElementById("btn-edit-p").onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
-        document.getElementById("btn-change-avatar").onclick = () => document.getElementById("avatar-input").click();
-        document.getElementById("avatar-input").onchange = (e) => {
-            const f = e.target.files[0];
-            if (!f) return;
-            const r = new FileReader();
-            r.onload = (ev) => (document.getElementById("edit-p-preview").src = ev.target.result);
-            r.readAsDataURL(f);
-        };
-        document.getElementById("btn-save-profile").onclick = async () => {
-            const n = document.getElementById("edit-p-name").value;
-            const av = document.getElementById("edit-p-preview").src;
-            await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
-            document.getElementById("modal-edit-profile").classList.remove('open');
-            toast("Updated");
-        };
-
-        document.getElementById("btn-logout").onclick = () => {
-            signOut(auth).then(() => {
-                window.location.href = "index.html";
-            });
-        };
-
-        document.getElementById("btn-privacy-modal").onclick = () => document.getElementById('modal-privacy').classList.add("open");
-
-        function buildPrivacyUI() {
-            const l = document.getElementById("privacy-list");
-            const s = ["Read Receipts", "Online Status", "2FA Security", "Wallet Privacy", "Incognito Mode"];
-            if(l) {
-                l.innerHTML = "";
-                s.forEach((t) => {
-                    const i = document.createElement("div");
-                    i.className = "setting-item";
-                    i.innerHTML = `<span class="setting-label">${t}</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`;
-                    l.appendChild(i);
-                });
             }
         }
 
