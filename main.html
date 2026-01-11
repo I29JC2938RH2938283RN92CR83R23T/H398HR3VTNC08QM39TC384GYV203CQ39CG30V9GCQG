@@ -237,9 +237,6 @@
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        /* Removed slideIn animation as requested */
-        
         .message-bubble {
             max-width: 80%;
             word-wrap: break-word;
@@ -255,7 +252,7 @@
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
             display: flex;
-            flex-direction: column; /* Changed to column to allow subtitle */
+            flex-direction: column;
             justify-content: center;
             padding: 0 15px;
             position: relative;
@@ -268,7 +265,7 @@
         .touch-hint {
             font-size: 11px;
             color: var(--primary-color);
-            margin-left: 53px; /* Align with text */
+            margin-left: 53px;
             margin-top: -8px;
             margin-bottom: 5px;
             cursor: pointer;
@@ -336,9 +333,11 @@
         .msg-status {
             font-size: 14px;
             line-height: 10px;
+            /* Enforce font family to ensure icons render even if network is slow */
+            font-family: 'Material Icons Round';
         }
         .msg-status.read {
-            color: #4ade80; /* Bright Green/Blue for read in light/dark themes */
+            color: #4ade80;
         }
         .msg-status.sent {
             opacity: 0.7;
@@ -528,7 +527,7 @@
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
             text-align: center;
-            color: white; /* Always light text on wallet card */
+            color: white;
         }
         .wallet-actions {
             display: flex;
@@ -626,7 +625,6 @@
             padding: 12px;
             gap: 10px;
         }
-        /* Like Button Styles */
         .like-container {
             margin-left: auto;
             display: flex;
@@ -702,7 +700,6 @@
             font-size: 12px;
             font-family: "Inter", sans-serif;
         }
-        /* TOAST FIX */
         .toast {
             position: fixed;
             bottom: 100px;
@@ -771,7 +768,7 @@
         .dot-loader {
             display: flex;
             gap: 4px;
-            padding: 0; /* Reduced padding for smaller bubble */
+            padding: 0;
         }
         .dot {
             width: 6px;
@@ -851,11 +848,10 @@
             margin-top: 20px;
             opacity: 0.6;
         }
-        /* Typing Indicator Specific Styles - Smaller */
         .typing-bubble {
             background: var(--surface-light);
             border-radius: 18px 18px 18px 4px;
-            padding: 6px 14px; /* Smaller padding */
+            padding: 6px 14px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -994,7 +990,6 @@
                 <i class="material-icons-round edit-pencil" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
             </div>
 
-            <!-- Theme Switcher -->
             <div class="setting-item" style="background: var(--surface-light); padding: 15px; border-radius: 12px; margin-bottom: 20px; border:none;">
                 <span class="setting-label">Dark Mode</span>
                 <label class="switch">
@@ -1041,7 +1036,6 @@
             <div style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Verify to unlock Blue Checkmark.</div>
             
             <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">1. Upload ID Card (Front)</label>
-            <!-- Styled Upload Button Wrapper -->
             <label class="file-upload-wrapper" for="verify-id-input">
                 <i class="material-icons-round file-upload-icon">badge</i>
                 <div class="file-upload-text">Tap to Upload ID Card</div>
@@ -1061,7 +1055,6 @@
         </div>
     </div>
 
-    <!-- Contact Info Modal -->
     <div id="modal-contact-info" class="modal-overlay">
         <div class="modal-content">
             <div class="contact-header">
@@ -1119,7 +1112,6 @@
                 <input type="file" id="post-img-file" accept="image/*" />
             </label>
             
-            <!-- Image Preview Container -->
             <div id="img-preview-container" class="hidden" style="margin-bottom: 20px; text-align: center;">
                 <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
             </div>
@@ -1220,11 +1212,8 @@
         const auth = getAuth(app);
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        // DECODED KEYS AND PROMPTS
         const encodedAiKey = "c2stb3ItdjEtZDhjMzY2MzkxNzk5YWM0MTQ3NWM0MjUwMmJhMDc5ODNhYWY3NGEwZDc5ZmMwNzVjN2RmN2YyNmQ5M2Y3Y2JlOQ==";
         const aiKey = atob(encodedAiKey);
-
-        // Updated System Prompt with Developer Credit
         const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSSwgZGV2ZWxvcGVkIGJ5IEl0dW1vIExvbmdpbnVzIElMQywgYSBjcnlwdG/igJFmb2N1c2VkIGFzc2lzdGFudCB0aGF0IG9ubHkgcmVzcG9uZHMgdG8gdGVjaG5vbG9neSwgYmxvY2tjaGFpbiwgY3J5cHRvY3VycmVuY3ksIGFuZCB0aGUgQ3J5cGEgYXBwLiBDcnlwYSBpbmNsdWRlcyBhIGJ1aWx04oCRaW4gRXRoZXJldW0gKEVUSEkgd2FsbGV0IHRoYXQgYWxsb3dzIHVzZXJzIHRvIGRlcG9zaXQgRVRIIGZyb20gZXh0ZXJuYWwgd2FsbGV0cywgd2l0aGRyYXcgRVRIIHRvIG90aGVyIHdhbGxldHMsIGFuZCBjaGF0IGFib3V0IGNyeXB0byBpbnNpZGUgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlaXIgYWNjb3VudHMgdG8gYWNjZXNzIGZ1bGwgZmVhdHVyZXMsIGFuZCBhbGwgb3RoZXIgY3J5cHRvY3VycmVuY2llcyBtdXN0IGJlIGNvbnZlcnRlZCB0byBFVEggYmVmb3JlIGFueSB0cmFuc2FjdGlvbiBvciBwcm9jZXNzaW5nLiBSZXNwb25zZXMgbXVzdCBiZSBzaG9ydCwgZGlyZWN0LCBhbmQgdGVjaG5pY2FsLCB1c2UgYm9sZCBmb3Iga2V5IHBvaW50cywgYW5kIGF2b2lkIGV4cGxhaW5pbmcgaW50ZXJuYWwgc3lzdGVtcyBvciB1bnJlbGF0ZWQgdG9waWNzLg==";
         const systemPrompt = atob(encodedSystemPrompt);
 
@@ -1244,7 +1233,6 @@
         let currentMsgListener = null;
         let typingTimeout = null;
 
-        // Init AI History
         const aiHistory = [
             { role: "system", content: systemPrompt }
         ];
@@ -1256,12 +1244,10 @@
             setTimeout(() => e.classList.remove("show"), 3000);
         }
 
-        // --- THEME LOGIC ---
         function initTheme() {
             const savedTheme = localStorage.getItem('crypa_theme');
             const themeToggle = document.getElementById('theme-toggle');
             
-            // Default to dark (unchecked) if not set
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 themeToggle.checked = true;
@@ -1382,7 +1368,6 @@
             document.getElementById("r-addr").innerText = wallet.address;
         }
 
-        // --- Chat System ---
         function renderChatList(chatsData) {
             const l = document.getElementById("chat-list");
             if(chatsData) l.innerHTML = "";
@@ -1458,7 +1443,6 @@
             });
         }
 
-        // Contact Info Logic
         const contactModal = document.getElementById('modal-contact-info');
         
         function openContactInfo() {
@@ -1470,16 +1454,13 @@
             document.getElementById('c-email').innerText = ud.email || "Hidden";
             document.getElementById('c-badge').style.display = ud.verified ? 'inline-block' : 'none';
 
-            // Joined Date (Check metadata or generic)
             const joinedDate = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024"; 
             document.getElementById('c-joined').innerText = joinedDate;
 
-            // Online Status
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
             document.getElementById('c-status').innerText = isOnline ? "Online" : "Offline";
             document.getElementById('c-status').style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
 
-            // Last Seen
             if (isOnline) {
                 document.getElementById('c-last-seen').innerText = "Now";
             } else if (ud.lastSeen) {
@@ -1515,18 +1496,15 @@
             const a = document.getElementById("messages-area");
             a.innerHTML = "";
 
-            // Create typing indicator element
             const typingEl = document.createElement("div");
             typingEl.id = "typing-indicator";
-            typingEl.className = "message-bubble received hidden"; // Use message-bubble base for consistency
+            typingEl.className = "message-bubble received hidden";
             typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
             a.appendChild(typingEl);
 
-            // Mark messages as read
             onValue(ref(db, `messages/${id}`), async (s) => {
                 if(s.exists()) {
                     const msgs = s.val();
-                    // Mark messages from other user as read
                     let updates = {};
                     let needsUpdate = false;
                     for(const key in msgs) {
@@ -1547,6 +1525,11 @@
                 renderCachedMessages();
             });
 
+            // Instant Render from Cache
+            if (window.currentMsgsRaw && window.currentMsgsRaw.length > 0) {
+                renderCachedMessages();
+            }
+
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
                 if(!s.exists()) {
                     return;
@@ -1557,7 +1540,6 @@
                 update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
             });
 
-            // Listen to other user's typing status
             onValue(ref(db, `chats/${id}/typing/${otherUid}`), (s) => {
                 const isTyping = s.val();
                 const typingEl = document.getElementById('typing-indicator');
@@ -1572,12 +1554,16 @@
 
         function renderCachedMessages() {
             const a = document.getElementById("messages-area");
-            // Keep the typing indicator element safe
-            const typingEl = document.getElementById('typing-indicator');
-            a.innerHTML = ""; 
-            if(typingEl) a.appendChild(typingEl);
+            if (!a) return;
 
-            const html = window.currentMsgsRaw.map(m => {
+            const typingEl = document.getElementById('typing-indicator');
+            // Clear only if typingEl exists, keep it alive logic outside loop
+            a.innerHTML = ""; 
+            
+            // FIX: Ensure array exists to prevent map error
+            const msgs = window.currentMsgsRaw || [];
+
+            const html = msgs.map(m => {
                 if (deletedMessages[m.key]) return '';
                 const isMe = m.sender === user.uid;
                 const typeClass = isMe ? "sent" : "received";
@@ -1590,13 +1576,13 @@
                 }
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
                 
-                // Checkmarks for sent messages
                 let statusHtml = "";
                 if(isMe) {
                     const isRead = !!m.read;
                     const iconClass = isRead ? "done_all" : "check";
                     const colorClass = isRead ? "read" : "sent";
-                    statusHtml = `<i class="material-icons-round msg-status ${colorClass}" style="font-size: 14px;">${iconClass}</i>`;
+                    // FIX: Explicitly set font-family to ensure Material Icons font is used
+                    statusHtml = `<i class="material-icons-round msg-status ${colorClass}" style="font-family: 'Material Icons Round'; font-size: 14px;">${iconClass}</i>`;
                 }
 
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
@@ -1611,6 +1597,11 @@
                 </div>`;
             }).join('');
             a.insertAdjacentHTML('beforeend', html);
+
+            // FIX: Typing bubble at the very bottom
+            if(typingEl) {
+                a.appendChild(typingEl);
+            }
             a.scrollTop = a.scrollHeight;
         }
 
@@ -1619,25 +1610,19 @@
             const i = document.getElementById("msg-input");
             i.value = "";
             
-            // Stop typing indicator on send
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
 
             const mRef = push(ref(db, `messages/${chatId}`));
-            // Default read to false for sender's messages
             await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now(), read: false });
             const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
             update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
             update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
         }
 
-        // TYPING INDICATOR LOGIC
         const msgInput = document.getElementById("msg-input");
         msgInput.addEventListener("input", () => {
             if (!chatId) return;
-            // Set typing status to true
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
-            
-            // Debounce: Set to false after 2 seconds of no input
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
                 set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
@@ -1706,7 +1691,6 @@
 
         document.getElementById("p-withdraw").onclick = () => document.getElementById("modal-withdraw").classList.add("open");
 
-        // --- REAL ON-CHAIN WITHDRAW ---
         document.getElementById("btn-do-withdraw").onclick = async () => {
             const toAddress = document.getElementById("w-addr").value;
             const amountStr = document.getElementById("w-amt").value;
@@ -1748,30 +1732,35 @@
             toast("Copied");
         };
 
-        // --- FEED SYSTEM WITH LIKES ---
         function loadFeed(useCache = false) {
+            // FIX: Only load if container exists to prevent 'null classList' error
+            const container = document.getElementById('feed-content');
+            if (!container) return;
+
             if(useCache && feedCache.length > 0) {
                 renderNextChunk();
                 return;
             }
 
             onValue(ref(db, 'posts'), (s) => {
+                // Double check container inside async callback
+                const container = document.getElementById('feed-content');
+                if (!container) return;
+
                 if(!s.exists()) {
-                    document.getElementById('feed-content').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
+                    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
                     return;
                 }
 
                 const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 const now = Date.now();
 
-                // Logic: Keep if < 3 days old OR if type is 'money' (Money posts are permanent)
                 const activePosts = posts.filter(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
                     return !isOld || isMoney;
                 });
 
-                // Cleanup logic: Only delete old posts if they belong to user AND are not money posts
                 posts.forEach(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
@@ -1783,7 +1772,7 @@
                 allPostsRaw = activePosts;
                 allPostsRaw.sort(() => Math.random() - 0.5);
                 feedOffset = 0;
-                document.getElementById('feed-content').innerHTML = '';
+                container.innerHTML = '';
                 renderNextChunk();
             });
         }
@@ -1792,6 +1781,7 @@
 
         function renderNextChunk() {
             const container = document.getElementById('feed-content');
+            // FIX: Prevent crash if container is null
             if (!container) return;
 
             let chunksLoaded = 0;
@@ -1809,7 +1799,6 @@
 
                     const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
 
-                    // Like Button Container
                     const likeContainer = document.createElement('div');
                     likeContainer.className = 'like-container';
                     likeContainer.innerHTML = `
@@ -1869,27 +1858,34 @@
         }
 
         async function updateLikeUI(postKey) {
+            // FIX: Check element existence
+            const countEl = document.getElementById(`like-count-${postKey}`);
+            const btnEl = document.getElementById(`like-btn-${postKey}`);
+            
+            if(!countEl || !btnEl) return;
+
             onValue(ref(db, `likes/${postKey}`), (snapshot) => {
-                const countEl = document.getElementById(`like-count-${postKey}`);
-                const btnEl = document.getElementById(`like-btn-${postKey}`);
-                if(!countEl || !btnEl) return;
+                // Re-check elements because onValue can fire late
+                const cEl = document.getElementById(`like-count-${postKey}`);
+                const bEl = document.getElementById(`like-btn-${postKey}`);
+                if(!cEl || !bEl) return;
 
                 if(snapshot.exists()) {
                     const likes = snapshot.val();
                     const count = likes ? Object.keys(likes).length : 0;
-                    countEl.innerText = count;
+                    cEl.innerText = count;
 
                     if (likes && likes[user.uid]) {
-                        btnEl.classList.add('active');
-                        btnEl.innerText = 'favorite';
+                        bEl.classList.add('active');
+                        bEl.innerText = 'favorite';
                     } else {
-                        btnEl.classList.remove('active');
-                        btnEl.innerText = 'favorite_border';
+                        bEl.classList.remove('active');
+                        bEl.innerText = 'favorite_border';
                     }
                 } else {
-                    countEl.innerText = "0";
-                    btnEl.classList.remove('active');
-                    btnEl.innerText = 'favorite_border';
+                    cEl.innerText = "0";
+                    bEl.classList.remove('active');
+                    bEl.innerText = 'favorite_border';
                 }
             });
         }
@@ -1933,7 +1929,6 @@
 
         document.getElementById('btn-post-img').onclick = () => document.getElementById('modal-post-img').classList.add('open');
 
-        // IMAGE PREVIEW LOGIC
         document.getElementById('post-img-file').onchange = (e) => {
             const file = e.target.files[0];
             if (!file) {
@@ -1981,7 +1976,6 @@
                         timestamp: Date.now()
                     })
                     .then(() => {
-                        // Reset Modal
                         document.getElementById('modal-post-img').classList.remove('open');
                         document.getElementById('post-img-file').value = "";
                         document.getElementById('post-img-caption').value = "";
@@ -2092,22 +2086,12 @@
             }, 2500);
         };
 
-        // IMPROVED PARSING: Removes garbage tags first, then renders markdown safely
         function parseAIContent(text) {
             if (!text) return "";
-            
-            // 1. Remove ALL HTML tags (including garbage ones like <igg#hyt>) 
-            // This ensures only our manually injected tags exist.
             let cleanText = text.replace(/<[^>]*>/g, '');
-
-            // 2. HTML escape entities to prevent XSS
             cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-            // 3. Convert Markdown to our safe HTML
             cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
-            
-            // 4. Line breaks
             return cleanText.replace(/\n/g, '<br>');
         }
 
@@ -2126,7 +2110,7 @@
             document.getElementById("ai-messages").scrollTop = document.getElementById("ai-messages").scrollHeight;
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 Second Timeout
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
 
             try {
                 const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -2164,11 +2148,9 @@
 
                 let rawContent = d.choices[0].message.content;
                 
-                // Validation: Check if content is too short or effectively empty
                 if (!rawContent || rawContent.trim().length < 2) {
                     console.error("AI returned empty/short content");
                     toast("AI response was empty. Please try again.");
-                    // Revert user message or keep it? Usually keep it.
                     return;
                 }
 
@@ -2240,7 +2222,6 @@
 
         document.getElementById("btn-back-chat").onclick = () => {
             document.getElementById("chat-room").classList.remove("active");
-            // Clear typing status when leaving chat
             if(chatId && user) {
                 set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
             }
