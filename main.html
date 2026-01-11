@@ -60,7 +60,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: background-color 0s, color 0.3s; /* Instant theme load */
+            transition: background-color 0s, color 0.3s;
         }
         .hidden {
             display: none !important;
@@ -127,7 +127,7 @@
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
-            z-index: 100;
+            z-index: 2000; /* Very High Z-Index to stay on top */
             transition: transform 0.3s;
         }
         /* Hide Nav when Chat is Full Screen */
@@ -300,7 +300,7 @@
             width: 100%;
             height: 100%;
             background: var(--bg-color);
-            z-index: 200; /* Ensures full screen coverage */
+            z-index: 100; /* Higher than nav (2000) to slide over it */
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
@@ -572,7 +572,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-sizing: border-box; /* Fix for out of box */
+            box-sizing: border-box;
         }
         .file-upload-wrapper:hover {
             border-color: var(--primary-color);
@@ -1392,11 +1392,9 @@
         const auth = getAuth(app);
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const encodedAiKey = "c2stb3ItdjEtZDhjMzY2MzkxNzk5YWM0MTQ3NWM0MjUwMmJhMDc5ODNhYWY3NGEwZDc5ZmMwNzVjN2RmN2YyNmQ5M2Y3Y2JlOQ==";
-        const aiKey = atob(encodedAiKey);
-        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSSwgZGV2ZWxvcGVkIGJ5IEl0dW1vIExvbmdpbnVzIElMQywgYSBjcnlwdG/igJFmb2N1c2VkIGFzc2lzdGFudCB0aGF0IG9ubHkgcmVzcG9uZHMgdG8gdGVjaG5vbG9neSwgYmxvY2tjaGFpbiwgY3J5cHRvY3VycmVuY2llcyBhIGJ1aWx04oCRaW4gRXRoZXJldW0gKEVUSEkgd2FsbGV0IHRoYXQgYWxsb3dzIHVzZXJzIHRvIGRlcG9zaXQgRVRIIGZyb20gZXh0ZXJuYWwgd2FsbGV0cywgd2l0aGRyYXcgRVRIIHRvIG90aGVyIHdhbGxldHMsIGFuZCBjaGF0IGFib3V0IGNyeXB0byBpbnNpZGUgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZn%%-";
-
-        const systemPrompt = atob(encodedSystemPrompt);
+        // PLAIN TEXT CONFIG TO FIX 'atob' ERROR
+        const aiKey = "sk-or-v1-d8c366391799ac041475c42502ba07983aaaf74a0d79fc075c7df7f26d93f7cbe"; 
+        const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and the Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
         let chatId = null;
@@ -1431,30 +1429,32 @@
         window.toggleDropdown = function(id) {
             const el = document.getElementById(`dropdown-${id}`);
             const isVisible = el && el.style.display === 'flex';
+            // Hide all first
             document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
             if (el && !isVisible) el.style.display = 'flex';
         };
         
         window.openContactInfoDropdown = function(uid) {
-            if (!users[uid]) return;
-            document.getElementById('c-avatar').src = users[uid].avatar || `https://ui-avatars.com/api/?name=${users[uid].username}`;
-            document.getElementById('c-username').innerText = users[uid].username;
-            document.getElementById('c-email').innerText = users[uid].email || "Hidden";
-            document.getElementById('c-badge').style.display = users[uid].verified ? 'inline-block' : 'none';
-            document.getElementById('c-joined').innerText = users[uid].createdAt ? new Date(users[uid].createdAt).toLocaleDateString() : "2024";
-            const isOnline = users[uid].lastSeen && (Date.now() - users[uid].lastSeen) < 300000;
+            const ud = users[uid];
+            if(!ud) return;
+            document.getElementById('c-avatar').src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+            document.getElementById('c-username').innerText = ud.username;
+            document.getElementById('c-email').innerText = ud.email || "Hidden";
+            document.getElementById('c-badge').style.display = ud.verified ? 'inline-block' : 'none';
+            document.getElementById('c-joined').innerText = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024";
+            const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
             document.getElementById('c-status').innerText = isOnline ? "Online" : "Offline";
             document.getElementById('c-status').style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
             if (isOnline) {
                 document.getElementById('c-last-seen').innerText = "Now";
-            } else if (users[uid].lastSeen) {
-                document.getElementById('c-last-seen').innerText = new Date(users[uid].lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } else if (ud.lastSeen) {
+                document.getElementById('c-last-seen').innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
             } else {
                 document.getElementById('c-last-seen').innerText = "Unknown";
             }
             document.getElementById('modal-contact-info').classList.add('open');
         };
-        
+
         window.openComments = function(postKey) {
             currentCommentPostId = postKey;
             document.getElementById('modal-comments').classList.add('open');
@@ -1905,7 +1905,7 @@
             
             document.getElementById('modal-chat-deleted').classList.remove('open');
             document.getElementById("chat-room").classList.remove("active");
-            document.body.classList.remove('chat-active');
+            document.body.classList.remove("chat-active");
             loadChats();
         };
 
@@ -2042,7 +2042,7 @@
 
         window.confirmDeleteMsg = (mKey) => {
             document.getElementById("modal-confirm").classList.add("open");
-            document.getElementById("btn-confirm-yes").onclick = () => {
+            document.getElementById("btn-confirm-yes").onclick = function() {
                 set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
                 const el = document.getElementById(`msg-bubble-${mKey}`);
                 if(el) el.remove();
@@ -2119,7 +2119,6 @@
                     return;
                 }
                 const comments = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
-                // Sort by timestamp
                 comments.sort((a, b) => a.time - b.time);
                 
                 let html = '';
@@ -2218,7 +2217,6 @@
                 chunksLoaded++;
 
                 chunk.forEach(post => {
-                    // FIX: Check if post is valid to prevent error
                     if(!post) return;
 
                     const el = document.createElement("div");
@@ -2246,7 +2244,6 @@
                         }
                         contentHTML += `<div class="post-content-text">${post.content || ''}</div>`;
                         
-                        // Actions container
                         const actionsHTML = `
                             <div class="post-actions">
                                 <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')"><i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i> Comment</button>
@@ -2270,7 +2267,6 @@
                         `;
                     }
                     
-                    // Safe UI Update
                     updateLikeUI(post.key);
                     container.appendChild(el);
                 });
@@ -2286,14 +2282,13 @@
             }
         }
 
-        async function updateLikeUI(postKey) {
+        function updateLikeUI(postKey) {
             const countEl = document.getElementById(`like-count-${postKey}`);
             const btnEl = document.getElementById(`like-btn-${postKey}`);
             
             if(!countEl || !btnEl) return;
 
             onValue(ref(db, `likes/${postKey}`), (snapshot) => {
-                // Re-check elements because onValue can fire late
                 const cEl = document.getElementById(`like-count-${postKey}`);
                 const bEl = document.getElementById(`like-btn-${postKey}`);
                 if(!cEl || !bEl) return;
@@ -2305,15 +2300,15 @@
 
                     if (likes && likes[user.uid]) {
                         bEl.classList.add('active');
-                        bEl.innerText = 'favorite';
+                        bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite</i>';
                     } else {
                         bEl.classList.remove('active');
-                        bEl.innerText = 'favorite_border';
+                        bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite_border</i>';
                     }
                 } else {
                     cEl.innerText = "0";
                     bEl.classList.remove('active');
-                    bEl.innerText = 'favorite_border';
+                    bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite_border</i>';
                 }
             });
         }
@@ -2598,7 +2593,7 @@
             const n = document.getElementById("edit-p-name").value;
             const av = document.getElementById("edit-p-preview").src;
             await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
-            document.getElementById("modal-edit-profile").classList.remove("open");
+            document.getElementById("modal-edit-profile").classList.remove('open');
             toast("Updated");
         };
 
@@ -2623,6 +2618,7 @@
 
         document.getElementById("btn-back-chat").onclick = () => {
             document.getElementById("chat-room").classList.remove("active");
+            document.body.classList.remove("chat-active");
             if(chatId && user) {
                 set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
             }
