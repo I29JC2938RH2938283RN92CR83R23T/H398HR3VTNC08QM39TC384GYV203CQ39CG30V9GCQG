@@ -56,6 +56,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: background-color 0s, color 0.3s;
         }
         .hidden { display: none !important; }
         .scrollable {
@@ -84,11 +85,17 @@
             padding: 0 20px;
             flex-shrink: 0;
             z-index: 10;
+            width: 100%;
         }
         .header-title-center {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        .app-title {
             font-size: 20px;
             font-weight: 700;
         }
@@ -105,6 +112,7 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
             z-index: 2000;
             transition: transform 0.3s;
         }
@@ -113,11 +121,16 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             color: var(--text-secondary);
             cursor: pointer;
             width: 25%;
+            height: 100%;
+            background: transparent;
+            border: none;
         }
         .nav-item.active { color: var(--primary-color); }
+        .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; }
 
         /* Chat List */
         .chat-item {
@@ -127,190 +140,223 @@
             margin: 0 15px 12px 15px;
             background: var(--surface-light);
             border-radius: 18px;
+            cursor: pointer;
             position: relative;
-            transition: 0.2s;
         }
-        .avatar-wrapper { position: relative; margin-right: 15px; }
-        .chat-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #333; }
-        .chat-info { flex: 1; overflow: hidden; }
-        .chat-name { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+        .avatar-wrapper { position: relative; margin-right: 15px; flex-shrink: 0; }
+        .chat-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #333; display: block; }
+        .verified-badge {
+            position: absolute; bottom: 0; right: 0; width: 18px; height: 18px;
+            background: var(--verified-color); border: 2px solid var(--surface-light);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; z-index: 2;
+        }
+        .chat-info { flex: 1; overflow: hidden; min-width: 0; }
+        .chat-name { font-weight: 600; font-size: 16px; margin-bottom: 2px; display: flex; align-items: center; }
         .chat-msg { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-dots { padding: 10px; color: var(--text-secondary); cursor: pointer; }
+        .chat-dots { color: var(--text-secondary); padding: 8px; border-radius: 50%; z-index: 5; }
         
+        /* Dropdown Menu */
+        .dropdown-menu {
+            position: absolute; right: 40px; top: 40px;
+            background: var(--surface-color); border: 1px solid var(--border-color);
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 100; width: 170px; display: none; flex-direction: column; overflow: hidden;
+        }
+        .dropdown-item { padding: 12px 15px; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .dropdown-item:hover { background: var(--surface-light); }
+        .dropdown-item.delete { color: var(--danger-color); }
+
         /* Chat Room */
         #chat-room {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            transform: translateX(100%);
-            transition: transform 0.3s;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 100; display: flex; flex-direction: column;
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         #chat-room.active { transform: translateX(0); }
+        .chat-room-header {
+            background-color: var(--surface-color); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 15px; height: 65px;
+        }
         .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
         
         .message-bubble {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 18px;
-            position: relative;
-            font-size: 15px;
-            line-height: 1.4;
-            word-wrap: break-word;
+            max-width: 80%; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative; padding: 10px 16px; font-size: 15px; line-height: 1.4;
         }
-        .received { align-self: flex-start; background: var(--msg-received-bg); color: var(--text-primary); border-bottom-left-radius: 4px; }
-        .sent { align-self: flex-end; background: var(--msg-sent-bg); color: white; border-bottom-right-radius: 4px; }
-        .sent-ghost { opacity: 0.5; background: var(--text-secondary); transition: opacity 1s; }
+        .received, .bot {
+            align-self: flex-start; background: var(--msg-received-bg); color: var(--text-primary);
+            border-radius: 18px 18px 18px 4px;
+        }
+        .sent, .user {
+            align-self: flex-end; background: var(--msg-sent-bg); color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+        .sent-blocked { background-color: var(--text-secondary); opacity: 0.5; transition: opacity 1s; }
         
-        .msg-meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 4px; }
+        .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; }
         .msg-time { font-size: 10px; opacity: 0.7; }
         .msg-tick { font-size: 14px; color: rgba(255,255,255,0.8); }
-        .msg-delete { position: absolute; top: -8px; right: -8px; background: var(--danger-color); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; display: none; }
-        .message-bubble:active .msg-delete, .message-bubble:hover .msg-delete { display: flex; }
-        .msg-img { max-width: 200px; border-radius: 12px; display: block; }
-
+        .msg-delete-icon {
+            position: absolute; top: -8px; right: -8px; background: var(--danger-color);
+            color: white; border-radius: 50%; width: 20px; height: 20px; display: none;
+            align-items: center; justify-content: center; font-size: 12px; cursor: pointer; z-index: 5;
+        }
+        .message-bubble:active .msg-delete-icon { display: flex; }
+        
         .input-bar {
-            background: var(--surface-color);
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-top: 1px solid var(--border-color);
+            background: var(--surface-color); padding: 12px 15px; display: flex; align-items: center;
+            gap: 8px; border-top: 1px solid var(--border-color); z-index: 9999;
         }
         .text-input {
-            flex: 1;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 10px 15px;
-            color: var(--text-primary);
-            outline: none;
+            flex: 1; background: var(--bg-color); border: 1px solid var(--border-color);
+            border-radius: 24px; padding: 10px 16px; color: var(--text-primary);
+            font-size: 15px; outline: none;
         }
-        .action-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-send { background: var(--primary-color); color: white; width: 40px; height: 40px; border-radius: 50%; }
-
-        /* Dropdown Menu */
-        .dropdown-menu {
-            position: absolute;
-            right: 50px;
-            top: 20px;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            width: 180px;
-            display: none;
-            flex-direction: column;
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        .action-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: none; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+            background: transparent; color: var(--text-secondary);
         }
-        .dropdown-item { padding: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-primary); cursor: pointer; font-size: 14px; }
-        .dropdown-item:hover { background: var(--surface-light); }
-        .dropdown-item.danger { color: var(--danger-color); }
+        .btn-send { background: var(--primary-color); color: white; }
 
-        /* Feed */
-        .post-card { background: var(--surface-color); margin-bottom: 20px; border-radius: 0; }
-        .post-header { padding: 10px; display: flex; align-items: center; gap: 10px; }
-        .post-img { width: 100%; display: block; }
-        .post-actions { padding: 10px; display: flex; gap: 15px; }
-        .comment-modal-list { max-height: 200px; overflow-y: auto; padding: 10px; }
-        
+        /* Calling UI */
+        #call-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5000; display: none; flex-direction: column;
+            align-items: center; justify-content: space-between; padding: 60px 20px;
+        }
+        .call-avatar {
+            width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--surface-light);
+            margin-bottom: 20px; animation: pulse 2s infinite;
+        }
+        .call-status { font-size: 18px; color: var(--text-secondary); margin-bottom: 10px; }
+        .call-name { font-size: 28px; font-weight: 700; color: white; }
+        .call-controls { display: flex; gap: 40px; margin-bottom: 40px; }
+        .call-btn {
+            width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; border: none; cursor: pointer; color: white;
+        }
+        .btn-decline { background: var(--danger-color); }
+        .btn-accept { background: var(--success-color); animation: shake 1.5s infinite; }
+        .btn-mute, .btn-speaker { background: var(--surface-light); }
+        .btn-mute.active, .btn-speaker.active { background: white; color: black; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 107, 242, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(91, 107, 242, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 107, 242, 0); } }
+        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } }
+
         /* Profile & Modals */
-        .profile-card { background: var(--surface-light); border-radius: 20px; padding: 20px; margin: 20px; display: flex; align-items: center; gap: 15px; position: relative; }
-        .wallet-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; padding: 20px; margin: 0 20px 20px; text-align: center; border: 1px solid var(--border-color); }
-        .wallet-btn-row { display: flex; gap: 10px; margin-top: 15px; }
-        .wallet-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; }
+        .profile-card {
+            background: var(--surface-light); border-radius: 20px; padding: 20px;
+            margin-bottom: 20px; display: flex; align-items: center; position: relative;
+        }
+        .wallet-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px;
+            padding: 25px; margin-bottom: 20px; border: 1px solid var(--border-color);
+            text-align: center; color: white;
+        }
+        .wallet-actions { display: flex; gap: 10px; margin-top: 15px; width: 100%; }
+        .wallet-btn {
+            flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
         
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 3000;
-            display: none; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.85); z-index: 1000; display: none;
+            align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .modal-overlay.open { display: flex; }
-        .modal-content { background: var(--surface-color); width: 85%; max-width: 320px; border-radius: 20px; padding: 20px; }
-        .input-field { width: 100%; padding: 12px; background: var(--bg-color); border: 1px solid var(--border-color); color: white; margin-bottom: 10px; border-radius: 8px; }
-        .btn-modal { width: 100%; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 8px; margin-top: 10px; cursor: pointer; }
-
-        /* Call UI */
-        #call-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, #1a1a1a, #000); z-index: 5000;
-            display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 50px 0;
+        .modal-content {
+            background: var(--surface-color); width: 90%; max-width: 320px;
+            border-radius: 24px; padding: 25px 20px; max-height: 85vh; overflow-y: auto;
         }
-        .call-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--surface-light); margin-bottom: 20px; box-shadow: 0 0 30px rgba(91,107,242,0.3); }
-        .call-status { font-size: 18px; color: var(--text-secondary); margin-bottom: 10px; }
-        .call-name { font-size: 28px; font-weight: 700; }
-        .call-buttons { display: flex; gap: 40px; margin-bottom: 30px; }
-        .call-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
-        .btn-decline { background: var(--danger-color); color: white; animation: shake 1.5s infinite; }
-        .btn-accept { background: var(--success-color); color: white; animation: pulse 1.5s infinite; }
-        .btn-mute, .btn-speaker { background: var(--surface-light); color: white; }
-        .btn-mute.active, .btn-speaker.active { background: white; color: black; }
+        .input-field {
+            width: 100%; background: var(--bg-color); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 14px; color: var(--text-primary); margin-bottom: 15px;
+        }
+        .btn-primary {
+            width: 100%; background: var(--primary-color); color: white; padding: 16px;
+            border: none; border-radius: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px;
+        }
 
-        @keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+        /* Feed */
+        .post-card { background: var(--surface-color); margin-bottom: 15px; padding-bottom: 15px; }
+        .post-img-content { width: 100%; height: auto; display: block; }
+        .post-actions { display: flex; align-items: center; gap: 15px; padding: 10px 15px; }
+        
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 10px 20px; border-radius: 20px;
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 4000;
+        }
     </style>
 </head>
 <body>
-    <div id="toast" class="toast" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 20px; border-radius:20px; opacity:0; pointer-events:none; transition:0.3s; z-index:4000;"></div>
-    
-    <!-- Audio for Ringtone -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Ringtone Audio -->
     <audio id="ringtone" loop>
         <source src="https://raw.githubusercontent.com/I29JC2938RH2938283RN92CR83R23T/H398HR3VTNC08QM39TC384GYV203CQ39CG30V9GCQG/refs/heads/main/Music_fx_simple_melody_with_one_percussion_g.wav" type="audio/wav">
     </audio>
 
     <!-- Call Screen -->
     <div id="call-screen">
-        <div style="text-align:center">
+        <div style="text-align:center; margin-top:50px;">
             <img src="" id="call-ui-avatar" class="call-avatar">
             <div id="call-ui-status" class="call-status">Calling...</div>
             <div id="call-ui-name" class="call-name">User</div>
         </div>
-        <div class="call-buttons" id="incoming-controls" style="display:none">
+        
+        <!-- Incoming Controls -->
+        <div class="call-controls" id="incoming-controls" style="display:none">
             <button class="call-btn btn-decline" id="btn-reject-call"><i class="material-icons-round">call_end</i></button>
             <button class="call-btn btn-accept" id="btn-answer-call"><i class="material-icons-round">call</i></button>
         </div>
-        <div class="call-buttons" id="active-controls">
+
+        <!-- Active/Outgoing Controls -->
+        <div class="call-controls" id="active-controls" style="display:none">
             <button class="call-btn btn-speaker" id="btn-toggle-speaker"><i class="material-icons-round">volume_up</i></button>
             <button class="call-btn btn-mute" id="btn-toggle-mute"><i class="material-icons-round">mic_off</i></button>
-            <button class="call-btn btn-decline" id="btn-end-call" style="animation:none"><i class="material-icons-round">call_end</i></button>
+            <button class="call-btn btn-decline" id="btn-end-call" style="background:var(--danger-color)"><i class="material-icons-round">call_end</i></button>
         </div>
     </div>
 
     <!-- View: Chat List -->
     <div id="view-chat" class="view-container active">
         <div class="app-header">
-            <div class="header-title-center">Messages</div>
-            <button class="action-btn" id="btn-new-chat"><i class="material-icons-round">add_circle_outline</i></button>
+            <button class="action-btn" id="btn-new-chat"><i class="material-icons-round">add_circle</i></button>
+            <div class="header-title-center">
+                <div class="app-title">Messages</div>
+            </div>
+            <div style="width:44px;"></div>
         </div>
-        <div id="chat-list" class="scrollable"></div>
-
+        <div id="chat-list" class="scrollable" style="padding-top: 10px;"></div>
+        
         <!-- Chat Room -->
         <div id="chat-room">
-            <div class="app-header">
+            <div class="chat-room-header">
                 <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
-                <div style="flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column">
-                    <div id="curr-chat-name" style="font-weight:700"></div>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <div id="curr-chat-name" style="font-weight:700; font-size:16px;"></div>
                 </div>
-                <button class="action-btn" id="btn-call-user" style="margin-right:10px;"><i class="material-icons-round">call</i></button>
+                <button class="action-btn" id="btn-call-user"><i class="material-icons-round">call</i></button>
             </div>
             
             <div id="messages-area" class="messages-container"></div>
+            
+            <div id="blocked-bar" class="input-bar hidden" style="justify-content:center; background:#222;">
+                <button class="btn-primary" id="btn-bar-unblock" style="width:auto; margin:0 5px; background:var(--success-color)">Unblock</button>
+                <button class="btn-primary" id="btn-bar-delete" style="width:auto; margin:0 5px; background:var(--danger-color)">Delete</button>
+            </div>
 
             <div class="input-bar" id="input-bar-wrapper">
+                <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
                 <button class="action-btn" id="btn-attach"><i class="material-icons-round">add_photo_alternate</i></button>
-                <input type="file" id="file-input" accept="image/*" class="hidden">
-                <input type="text" id="msg-input" class="text-input" placeholder="Type a message...">
+                <input type="file" id="file-input" accept="image/*" class="hidden" />
+                <input type="text" id="msg-input" class="text-input" placeholder="Type message..." />
                 <button class="action-btn btn-send" id="btn-send-msg"><i class="material-icons-round">send</i></button>
-            </div>
-            
-            <div id="blocked-bar" class="input-bar hidden" style="justify-content:center; background:#333;">
-                <button class="btn-modal" style="background:var(--success-color); width:auto; margin:0 5px;" id="btn-bar-unblock">Unblock</button>
-                <button class="btn-modal" style="background:var(--danger-color); width:auto; margin:0 5px;" id="btn-bar-delete">Delete</button>
             </div>
         </div>
     </div>
@@ -318,96 +364,129 @@
     <!-- View: Feed -->
     <div id="view-feed" class="view-container">
         <div class="app-header">
-            <button class="action-btn" id="btn-feed-back"><i class="material-icons-round">arrow_back_ios</i></button>
-            <div class="header-title-center">Feed</div>
+            <div class="header-title-center"><div class="app-title">Feed</div></div>
             <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
         </div>
-        <div id="feed-content" class="scrollable hidden"></div> <!-- Initially hidden to prevent flash -->
-        <div style="position:fixed; bottom:90px; right:20px; display:flex; flex-direction:column; gap:10px;">
-            <button class="action-btn" style="background:var(--primary-color); width:50px; height:50px; border-radius:50%; color:white; box-shadow:0 4px 10px rgba(0,0,0,0.3)" id="btn-post-img"><i class="material-icons-round">add_a_photo</i></button>
+        <div id="feed-content" class="scrollable hidden"></div> <!-- Hidden initially to prevent flash -->
+        <div class="feed-fab">
+            <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
+            <div class="fab-btn" id="btn-post-img"><i class="material-icons-round">image</i></div>
+            <div class="fab-btn" id="btn-post-money"><i class="material-icons-round">paid</i></div>
+        </div>
+    </div>
+
+    <!-- View: AI -->
+    <div id="view-ai" class="view-container">
+        <div class="app-header">
+            <div class="header-title-center"><div class="app-title">Crypa AI</div></div>
+            <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">cleaning_services</i></button>
+        </div>
+        <div id="ai-messages" class="scrollable"></div>
+        <div class="input-bar">
+            <textarea id="ai-input" class="text-input" rows="1" placeholder="Ask AI..."></textarea>
+            <button class="action-btn btn-send" id="btn-ai-send"><i class="material-icons-round">bolt</i></button>
         </div>
     </div>
 
     <!-- View: Profile -->
     <div id="view-profile" class="view-container">
         <div class="app-header">
-            <div class="header-title-center">Profile</div>
+            <div class="header-title-center"><div class="app-title">Profile</div></div>
         </div>
-        <div class="scrollable" style="padding: 20px;">
+        <div class="scrollable" style="padding: 20px">
             <div class="profile-card">
-                <img src="" id="p-avatar" class="chat-avatar" style="width:70px; height:70px;">
-                <div>
-                    <div id="p-username" style="font-size:18px; font-weight:700">User</div>
-                    <div id="p-verified" style="color:var(--verified-color); font-size:12px; display:none"><i class="material-icons-round" style="font-size:12px">verified</i> Verified</div>
-                    <button class="action-btn" id="btn-edit-p" style="color:var(--primary-color); font-size:12px; justify-content:flex-start; margin-top:5px;">Edit Profile</button>
+                <div class="avatar-wrapper" style="margin-right: 15px;">
+                    <img src="" id="p-avatar" class="chat-avatar" style="width: 65px; height: 65px" />
+                    <div id="p-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
                 </div>
+                <div>
+                    <div id="p-username" style="font-size: 18px; font-weight: 700">User</div>
+                    <div style="font-size: 12px; color: #22c55e; margin-top: 4px">Active</div>
+                </div>
+                <i class="material-icons-round" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
             </div>
 
             <div class="wallet-card">
-                <div style="font-size:11px; text-transform:uppercase; color:gray;">ETH Balance</div>
-                <div id="p-balance" style="font-size:28px; font-weight:700; color:white; margin:5px 0;">0.0000</div>
-                <div id="p-address" style="font-size:10px; font-family:monospace; color:gray; word-break:break-all;">0x...</div>
-                <div class="wallet-btn-row">
-                    <button class="wallet-btn" style="background:#22c55e; color:white" id="btn-w-receive">Receive</button>
-                    <button class="wallet-btn" style="background:#ef4444; color:white" id="btn-w-withdraw">Withdraw</button>
+                <div style="font-size: 11px; opacity: 0.7; text-transform: uppercase">Eth Balance</div>
+                <div id="p-wallet-bal" style="font-size: 32px; font-weight: 800; margin: 8px 0; font-family: 'Inter', sans-serif">0.0000</div>
+                <div id="p-wallet-addr" style="font-size: 12px; opacity: 0.6; word-break: break-all; font-family: monospace;">0x...</div>
+                <div class="wallet-actions">
+                    <button class="wallet-btn withdraw-btn" id="p-withdraw" style="background:#ef4444; color:white">Withdraw</button>
+                    <button class="wallet-btn receive-btn" id="p-receive" style="background:#22c55e; color:white">Receive</button>
                 </div>
             </div>
 
-            <button class="btn-modal" id="btn-p-verify" style="background:transparent; border:1px solid var(--verified-color); color:var(--verified-color);">Verify Account</button>
+            <div class="setting-item">
+                <span class="setting-label">Dark Mode</span>
+                <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label>
+            </div>
+            
+            <button class="btn-primary" style="background:transparent; border:1px solid var(--border-color); margin-top:20px" id="btn-logout">Sign Out</button>
         </div>
     </div>
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" data-target="view-chat"><i class="material-icons-round">chat_bubble</i></div>
-        <div class="nav-item" data-target="view-feed"><i class="material-icons-round">rss_feed</i></div>
-        <div class="nav-item" data-target="view-profile"><i class="material-icons-round">person</i></div>
+        <div class="nav-item active" data-target="view-chat"><i class="material-icons-round">chat_bubble</i><span>CHATS</span></div>
+        <div class="nav-item" data-target="view-feed"><i class="material-icons-round">dynamic_feed</i><span>FEED</span></div>
+        <div class="nav-item" data-target="view-ai"><i class="material-icons-round">psychology</i><span>AI</span></div>
+        <div class="nav-item" data-target="view-profile"><i class="material-icons-round">account_circle</i><span>PROFILE</span></div>
     </div>
 
     <!-- Modals -->
     <div id="modal-delete-chat" class="modal-overlay">
         <div class="modal-content" style="text-align:center">
             <h3>This chat has been deleted</h3>
-            <p style="color:gray; margin:10px 0;">You cannot access it.</p>
-            <button class="btn-modal" style="background:var(--danger-color)" id="btn-force-delete">Delete from my list</button>
-            <button class="btn-modal" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
+            <p>You deleted this chat from your history.</p>
+            <button class="btn-primary" style="background:var(--danger-color)" id="btn-force-delete">Close & Remove</button>
         </div>
     </div>
 
     <div id="modal-about-user" class="modal-overlay">
         <div class="modal-content">
             <h3>About User</h3>
-            <div id="about-stats" style="margin:15px 0; font-size:14px; line-height:1.6;"></div>
-            <button class="btn-modal" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
+            <div id="about-stats-content" style="margin:20px 0; font-size:14px; line-height:1.6;"></div>
+            <button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
         </div>
     </div>
 
     <div id="modal-withdraw" class="modal-overlay">
         <div class="modal-content">
             <h3>Withdraw ETH</h3>
-            <input type="text" id="w-to-addr" class="input-field" placeholder="0x Address">
-            <input type="number" id="w-amount" class="input-field" placeholder="Amount">
-            <button class="btn-modal" id="btn-confirm-withdraw">Send</button>
-            <button class="btn-modal" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+            <input type="text" id="w-addr" class="input-field" placeholder="0x Address" />
+            <input type="number" id="w-amt" class="input-field" placeholder="Amount ETH" />
+            <button class="btn-primary" id="btn-do-withdraw">Send</button>
+            <button class="btn-primary" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
     <div id="modal-edit-profile" class="modal-overlay">
         <div class="modal-content">
             <h3>Edit Profile</h3>
-            <input type="text" id="edit-username" class="input-field" placeholder="Username">
-            <input type="text" id="edit-avatar" class="input-field" placeholder="Avatar URL">
-            <button class="btn-modal" id="btn-save-profile">Save</button>
-            <button class="btn-modal" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+            <input type="text" id="edit-p-name" class="input-field" placeholder="Username" />
+            <input type="text" id="edit-p-avatar" class="input-field" placeholder="Avatar URL" />
+            <button class="btn-primary" id="btn-save-profile">Save</button>
+            <button class="btn-primary" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
+    <div id="modal-new-chat" class="modal-overlay">
+        <div class="modal-content">
+            <h3>New Chat</h3>
+            <input type="text" id="search-input" class="input-field" placeholder="Search user..." />
+            <div id="search-results"></div>
+            <button class="btn-primary" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Feed Modals (kept from original) -->
+    <div id="modal-post-text" class="modal-overlay"><div class="modal-content"><h3>Post Text</h3><textarea id="post-text-content" class="input-field"></textarea><button class="btn-primary" id="btn-submit-post-text">Post</button><button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')" style="background:transparent; color:gray">Cancel</button></div></div>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
-        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-        // Config
         const firebaseConfig = {
             apiKey: "AIzaSyAAy3uUW0adMIMfPVRZXZkOHipi3y1v7gs",
             authDomain: "crypa-f60b0.firebaseapp.com",
@@ -421,72 +500,73 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-        const provider = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com"); // Public Mainnet
+        const provider = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
         let user = null;
-        let users = {};
         let wallet = null;
         let chatId = null;
         let otherUid = null;
+        let users = {};
         let currentCall = null;
-        let localStream = null;
+        let aiHistory = [{ role: "system", content: "You are Crypa AI." }];
 
-        // --- Init ---
+        // --- Auth & Init ---
         onAuthStateChanged(auth, async (u) => {
             if (u) {
                 user = u;
                 await initWallet();
                 initApp();
             } else {
+                // Auto-login for demo functionality if no user
                 signInAnonymously(auth);
             }
         });
 
         async function initWallet() {
-            let pk = localStorage.getItem(`pk_${user.uid}`);
+            // Real Wallet with LocalStorage
+            let pk = localStorage.getItem(`crypa_pk_${user.uid}`);
             if (!pk) {
                 const w = ethers.Wallet.createRandom();
                 pk = w.privateKey;
-                localStorage.setItem(`pk_${user.uid}`, pk);
+                localStorage.setItem(`crypa_pk_${user.uid}`, pk);
             }
             wallet = new ethers.Wallet(pk, provider);
             
-            // Sync Wallet Info
+            // Sync public address
             update(ref(db, `users/${user.uid}`), {
                 walletAddress: wallet.address,
                 lastOnline: Date.now()
             });
-
-            // Update UI
-            document.getElementById("p-address").innerText = wallet.address;
+            
+            document.getElementById("p-wallet-addr").innerText = wallet.address;
             refreshBalance();
         }
 
         async function refreshBalance() {
             try {
                 const bal = await provider.getBalance(wallet.address);
-                const eth = ethers.formatEther(bal);
-                document.getElementById("p-balance").innerText = parseFloat(eth).toFixed(4);
+                document.getElementById("p-wallet-bal").innerText = parseFloat(ethers.formatEther(bal)).toFixed(4);
             } catch(e) { console.log("RPC Error", e); }
         }
 
         function initApp() {
-            // Load Users Cache
+            // Load Users
             onValue(ref(db, 'users'), s => {
                 if(s.exists()) users = s.val();
                 if(users[user.uid]) {
                     document.getElementById("p-username").innerText = users[user.uid].username || "User";
                     document.getElementById("p-avatar").src = users[user.uid].avatar || `https://ui-avatars.com/api/?name=${user.uid}`;
-                    if(users[user.uid].verified) document.getElementById("p-verified").style.display="block";
                 }
             });
 
             loadChats();
             loadFeed();
             initCalling();
-            
+
             // Presence
-            setInterval(() => update(ref(db, `users/${user.uid}/lastOnline`), Date.now()), 10000);
+            setInterval(() => {
+                if(user) update(ref(db, `users/${user.uid}/lastOnline`), Date.now());
+            }, 10000);
         }
 
         // --- Chat Logic ---
@@ -498,22 +578,22 @@
 
                 const chats = s.val();
                 for(let cid in chats) {
+                    // Check if deleted
                     const chatMeta = await get(ref(db, `chats/${cid}`));
-                    if(!chatMeta.exists()) continue; // Skip deleted chats
-                    
+                    if(!chatMeta.exists()) continue;
+
                     const meta = chatMeta.val();
                     const oid = meta.members.find(id => id !== user.uid);
-                    const ou = users[oid] || {username: "Unknown", avatar: ""};
-                    
-                    // Check if blocked
-                    const isBlocked = meta.blockedBy === user.uid;
+                    const ou = users[oid] || {username:"Unknown", avatar:""};
+                    const isBlockedByMe = meta.blockedBy === user.uid;
                     const amBlocked = meta.blockedBy === oid;
 
-                    const item = document.createElement("div");
-                    item.className = "chat-item";
-                    item.innerHTML = `
+                    const div = document.createElement("div");
+                    div.className = "chat-item";
+                    div.innerHTML = `
                         <div class="avatar-wrapper">
                             <img src="${ou.avatar || `https://ui-avatars.com/api/?name=${ou.username}`}" class="chat-avatar">
+                            ${ou.verified ? '<div class="verified-badge"><i class="material-icons-round" style="font-size:10px">check</i></div>' : ''}
                         </div>
                         <div class="chat-info">
                             <div class="chat-name">${ou.username}</div>
@@ -522,118 +602,93 @@
                         <div class="chat-dots" id="dots-${cid}"><i class="material-icons-round">more_vert</i></div>
                         <div class="dropdown-menu" id="menu-${cid}">
                             <div class="dropdown-item" id="act-about-${cid}"><i class="material-icons-round">info</i> About User</div>
-                            <div class="dropdown-item" id="act-block-${cid}"><i class="material-icons-round">block</i> ${isBlocked ? 'Unblock' : 'Block Chat'}</div>
-                            <div class="dropdown-item danger" id="act-delete-${cid}"><i class="material-icons-round">delete</i> Delete Chat</div>
+                            <div class="dropdown-item" id="act-block-${cid}"><i class="material-icons-round">block</i> ${isBlockedByMe ? 'Unblock' : 'Block Chat'}</div>
+                            <div class="dropdown-item delete" id="act-delete-${cid}"><i class="material-icons-round">delete</i> Delete Chat</div>
                         </div>
                     `;
 
-                    // Click Logic
-                    item.onclick = (e) => {
-                        if(e.target.closest('.chat-dots') || e.target.closest('.dropdown-menu')) return;
-                        
-                        // Check if deleted by me (simulated by checking if in user_chats, which it is here)
-                        // But if messages node is empty and I deleted it? 
-                        // Real logic: We check if I deleted it.
-                        openChat(cid, oid);
+                    div.onclick = (e) => {
+                        if(!e.target.closest('.chat-dots') && !e.target.closest('.dropdown-menu')) {
+                            openChat(cid, oid);
+                        }
                     };
 
-                    // Menu Logic
-                    const dots = item.querySelector(`#dots-${cid}`);
-                    const menu = item.querySelector(`#menu-${cid}`);
+                    const dots = div.querySelector(`#dots-${cid}`);
+                    const menu = div.querySelector(`#menu-${cid}`);
+                    
                     dots.onclick = () => {
                         document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
                         menu.style.display = 'flex';
                     };
-                    
-                    // Actions
-                    item.querySelector(`#act-delete-${cid}`).onclick = () => deleteChatAction(cid);
-                    item.querySelector(`#act-block-${cid}`).onclick = () => blockChatAction(cid, oid, isBlocked);
-                    item.querySelector(`#act-about-${cid}`).onclick = () => aboutUserAction(cid, oid);
 
-                    list.appendChild(item);
+                    div.querySelector(`#act-delete-${cid}`).onclick = () => deleteChatAction(cid);
+                    div.querySelector(`#act-block-${cid}`).onclick = () => blockChatAction(cid, oid, isBlockedByMe);
+                    div.querySelector(`#act-about-${cid}`).onclick = () => aboutUserAction(cid, oid);
+
+                    list.appendChild(div);
                 }
             });
         }
 
         async function openChat(cid, oid) {
-            // Check existence
-            const msgsSnap = await get(ref(db, `messages/${cid}`));
-            if(!msgsSnap.exists()) {
-                // If no messages exist, check if it was initialized. 
-                // If completely gone, show deleted modal.
-                const meta = await get(ref(db, `chats/${cid}`));
-                if(!meta.exists()) {
-                    document.getElementById('modal-delete-chat').classList.add('open');
-                    document.getElementById('btn-force-delete').onclick = () => {
-                        remove(ref(db, `user_chats/${user.uid}/${cid}`));
-                        document.getElementById('modal-delete-chat').classList.remove('open');
-                    };
-                    return;
-                }
+            // Check if chat exists in my list (handle deletion)
+            const myChatRef = await get(ref(db, `user_chats/${user.uid}/${cid}`));
+            if(!myChatRef.exists()) {
+                document.getElementById('modal-delete-chat').classList.add('open');
+                document.getElementById('btn-force-delete').onclick = () => document.getElementById('modal-delete-chat').classList.remove('open');
+                return;
             }
 
             chatId = cid;
             otherUid = oid;
-            document.getElementById("view-chat").querySelector("#chat-room").classList.add("active");
+            document.getElementById("chat-room").classList.add("active");
             document.getElementById("curr-chat-name").innerText = users[oid]?.username || "User";
             document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
 
-            const area = document.getElementById("messages-area");
-            area.innerHTML = "";
-
-            // Listen for Block Status
-            onValue(ref(db, `chats/${cid}/blockedBy`), (s) => {
+            // Handle Block UI
+            onValue(ref(db, `chats/${cid}/blockedBy`), s => {
                 const blockedBy = s.val();
-                const inputWrapper = document.getElementById("input-bar-wrapper");
+                const inputWrap = document.getElementById("input-bar-wrapper");
                 const blockBar = document.getElementById("blocked-bar");
                 
-                if(blockedBy) {
-                    if(blockedBy === user.uid) {
-                        inputWrapper.classList.add("hidden");
-                        blockBar.classList.remove("hidden");
-                        // Setup Unblock/Delete
-                        document.getElementById("btn-bar-unblock").onclick = () => blockChatAction(cid, oid, true);
-                        document.getElementById("btn-bar-delete").onclick = () => deleteChatAction(cid);
-                    } else {
-                        // I am blocked. I can see input but logic will ghost me.
-                        inputWrapper.classList.remove("hidden");
-                        blockBar.classList.add("hidden");
-                    }
+                if(blockedBy === user.uid) {
+                    inputWrap.classList.add("hidden");
+                    blockBar.classList.remove("hidden");
+                    document.getElementById("btn-bar-unblock").onclick = () => blockChatAction(cid, oid, true);
+                    document.getElementById("btn-bar-delete").onclick = () => deleteChatAction(cid);
                 } else {
-                    inputWrapper.classList.remove("hidden");
+                    inputWrap.classList.remove("hidden");
                     blockBar.classList.add("hidden");
                 }
             });
 
-            // Listen for messages
-            onValue(ref(db, `messages/${cid}`), (s) => {
+            // Load Messages
+            const area = document.getElementById("messages-area");
+            onValue(ref(db, `messages/${cid}`), s => {
                 area.innerHTML = "";
                 if(s.exists()) {
-                    const msgs = [];
-                    s.forEach(child => { msgs.push({key: child.key, ...child.val()}); });
-                    
-                    msgs.forEach(m => {
+                    s.forEach(child => {
+                        const m = { key: child.key, ...child.val() };
                         const isMe = m.sender === user.uid;
                         
-                        // Delivery Status Logic
+                        // Delivery Ticks
                         let ticks = "";
                         if(isMe) {
-                            if(m.read) ticks = `<i class="material-icons-round msg-tick" style="color:#4ade80">done_all</i>`;
-                            else ticks = `<i class="material-icons-round msg-tick">done</i>`;
-                        } else {
-                            // If I am reading a message not by me, mark read
-                            if(!m.read) update(ref(db, `messages/${cid}/${m.key}`), {read: true});
+                            ticks = m.read ? '<i class="material-icons-round msg-tick" style="color:#4ade80">done_all</i>' 
+                                           : '<i class="material-icons-round msg-tick">done</i>';
+                        } else if (!m.read) {
+                            update(ref(db, `messages/${cid}/${m.key}`), {read: true});
                         }
 
                         const div = document.createElement("div");
                         div.className = `message-bubble ${isMe ? 'sent' : 'received'}`;
                         div.innerHTML = `
-                            ${m.type === 'img' ? `<img src="${m.text}" class="msg-img">` : `<div>${m.text}</div>`}
+                            ${m.type === 'img' ? `<img src="${m.text}" style="max-width:100%; border-radius:10px">` : `<div>${m.text}</div>`}
                             <div class="msg-meta">
                                 <span class="msg-time">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                                 ${ticks}
                             </div>
-                            <div class="msg-delete" onclick="window.deleteMsg('${cid}', '${m.key}')"><i class="material-icons-round">delete</i></div>
+                            <div class="msg-delete-icon" onclick="window.deleteMsg('${cid}', '${m.key}')"><i class="material-icons-round">delete</i></div>
                         `;
                         area.appendChild(div);
                     });
@@ -646,52 +701,35 @@
             remove(ref(db, `messages/${cid}/${mid}`));
         };
 
-        // --- Actions ---
+        // --- Chat Actions ---
         async function deleteChatAction(cid) {
-            // Delete messages node
-            await remove(ref(db, `messages/${cid}`));
-            // Remove from my list
             await remove(ref(db, `user_chats/${user.uid}/${cid}`));
-            // Remove meta if no one else needs it (simplified: just delete meta)
-            await remove(ref(db, `chats/${cid}`));
-            
-            // UI Reset
+            // Note: Messages persist for the other user.
             document.getElementById("chat-room").classList.remove("active");
             loadChats();
         }
 
-        function blockChatAction(cid, oid, isUnblocking) {
-            if(isUnblocking) {
-                set(ref(db, `chats/${cid}/blockedBy`), null);
-            } else {
-                set(ref(db, `chats/${cid}/blockedBy`), user.uid);
-            }
+        function blockChatAction(cid, oid, unblock) {
+            set(ref(db, `chats/${cid}/blockedBy`), unblock ? null : user.uid);
         }
 
         async function aboutUserAction(cid, oid) {
             const u = users[oid];
             if(!u) return;
             
-            // Calculate stats
             let msgCount = 0;
-            let mediaCount = 0;
-            const snap = await get(ref(db, `messages/${cid}`));
-            if(snap.exists()) {
-                snap.forEach(c => {
-                    if(c.val().sender === oid) {
-                        msgCount++;
-                        if(c.val().type === 'img') mediaCount++;
-                    }
-                });
+            const msgs = await get(ref(db, `messages/${cid}`));
+            if(msgs.exists()) {
+                msgs.forEach(c => { if(c.val().sender === oid) msgCount++; });
             }
 
             const html = `
                 <b>Username:</b> ${u.username}<br>
                 <b>Verified:</b> ${u.verified ? "Yes" : "No"}<br>
-                <b>Messages Shared:</b> ${msgCount}<br>
-                <b>Media Shared:</b> ${mediaCount}<br>
+                <b>Messages sent:</b> ${msgCount}<br>
+                <b>Joined:</b> ${new Date(u.createdAt || Date.now()).toLocaleDateString()}<br>
             `;
-            document.getElementById("about-stats").innerHTML = html;
+            document.getElementById("about-stats-content").innerHTML = html;
             document.getElementById("modal-about-user").classList.add("open");
         }
 
@@ -701,104 +739,85 @@
             const txt = input.value.trim();
             if(!txt || !chatId) return;
 
-            // Check Block
+            // Check if blocked by other
             const meta = await get(ref(db, `chats/${chatId}`));
             if(meta.exists() && meta.val().blockedBy === otherUid) {
-                // Ghost Send
-                input.value = "";
+                // Ghost message
                 const area = document.getElementById("messages-area");
                 const div = document.createElement("div");
-                div.className = "message-bubble sent sent-ghost";
+                div.className = "message-bubble sent sent-blocked";
                 div.innerText = txt;
                 area.appendChild(div);
                 area.scrollTop = area.scrollHeight;
-                setTimeout(() => div.remove(), 1000);
+                input.value = "";
+                setTimeout(() => div.style.opacity = 0, 1000);
+                setTimeout(() => div.remove(), 2000);
                 return;
             }
 
             push(ref(db, `messages/${chatId}`), {
                 sender: user.uid, text: txt, type: 'text', time: Date.now(), read: false
             });
-            
-            update(ref(db, `user_chats/${user.uid}/${chatId}`), {lastMessage: txt});
-            update(ref(db, `user_chats/${otherUid}/${chatId}`), {lastMessage: txt});
+            update(ref(db, `user_chats/${user.uid}/${chatId}`), { lastMessage: txt });
+            update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMessage: txt });
             input.value = "";
         };
 
-        // --- Calling Logic ---
+        // --- Calling System ---
         function initCalling() {
-            // Listen for incoming calls
-            onValue(ref(db, `calls/${user.uid}`), (s) => {
+            onValue(ref(db, `calls/${user.uid}`), s => {
                 if(s.exists()) {
                     const data = s.val();
-                    if(data.status === 'ringing') {
-                        showIncomingCall(data);
-                    } else if (data.status === 'ended') {
-                        endCallUI();
-                        remove(ref(db, `calls/${user.uid}`));
-                    }
+                    if(data.status === 'ringing') showIncomingCall(data);
+                    else if (data.status === 'ended') endCallUI();
                 }
             });
         }
 
         document.getElementById("btn-call-user").onclick = async () => {
             if(!otherUid) return;
-            // Check online
             const u = users[otherUid];
-            const isOnline = u.lastOnline && (Date.now() - u.lastOnline < 30000);
-            
-            if(!isOnline) {
-                toast("Make sure your friend is in the app");
+            if(!u.lastOnline || Date.now() - u.lastOnline > 30000) {
+                toast("User is offline");
                 return;
             }
 
-            // Start Call
             currentCall = otherUid;
-            document.getElementById("call-ui-status").innerText = "Calling...";
             document.getElementById("call-ui-name").innerText = u.username;
             document.getElementById("call-ui-avatar").src = u.avatar || "";
+            document.getElementById("call-ui-status").innerText = "Calling...";
+            
             document.getElementById("call-screen").style.display = "flex";
             document.getElementById("incoming-controls").style.display = "none";
             document.getElementById("active-controls").style.display = "flex";
-            
-            // Set signal
-            set(ref(db, `calls/${otherUid}`), {
-                caller: user.uid,
-                status: 'ringing'
-            });
 
+            set(ref(db, `calls/${otherUid}`), { caller: user.uid, status: 'ringing' });
+            
             // Listen for answer
-            const listener = onValue(ref(db, `calls/${otherUid}`), (s) => {
+            onValue(ref(db, `calls/${otherUid}`), s => {
                 const d = s.val();
-                if(d && d.status === 'connected') {
-                     document.getElementById("call-ui-status").innerText = "Connected (00:00)";
-                     // In real WebRTC, here we negotiate SDP. For sim:
-                } else if (!d) {
-                    endCallUI();
-                    off(ref(db, `calls/${otherUid}`));
-                }
+                if(!d) { endCallUI(); return; }
+                if(d.status === 'connected') document.getElementById("call-ui-status").innerText = "Connected";
             });
         };
 
         function showIncomingCall(data) {
-            const caller = users[data.caller];
-            document.getElementById("call-screen").style.display = "flex";
+            const caller = users[data.caller] || {username:"Unknown"};
+            document.getElementById("call-ui-name").innerText = caller.username;
+            document.getElementById("call-ui-avatar").src = caller.avatar || "";
             document.getElementById("call-ui-status").innerText = "Incoming Call...";
-            document.getElementById("call-ui-name").innerText = caller?.username || "Unknown";
-            document.getElementById("call-ui-avatar").src = caller?.avatar || "";
             
+            document.getElementById("call-screen").style.display = "flex";
             document.getElementById("incoming-controls").style.display = "flex";
             document.getElementById("active-controls").style.display = "none";
             
-            // Play Ringtone
-            const audio = document.getElementById("ringtone");
-            audio.currentTime = 0;
-            audio.play().catch(e=>console.log("Audio play failed", e));
+            document.getElementById("ringtone").currentTime = 0;
+            document.getElementById("ringtone").play().catch(e=>{});
         }
 
         document.getElementById("btn-answer-call").onclick = () => {
             document.getElementById("ringtone").pause();
-            update(ref(db, `calls/${user.uid}`), {status: 'connected'});
+            update(ref(db, `calls/${user.uid}`), { status: 'connected' });
             document.getElementById("incoming-controls").style.display = "none";
             document.getElementById("active-controls").style.display = "flex";
             document.getElementById("call-ui-status").innerText = "Connected";
@@ -806,18 +825,20 @@
 
         document.getElementById("btn-reject-call").onclick = () => {
             document.getElementById("ringtone").pause();
-            update(ref(db, `calls/${user.uid}`), {status: 'ended'});
-            endCallUI();
+            update(ref(db, `calls/${user.uid}`), { status: 'ended' });
+            setTimeout(() => {
+                remove(ref(db, `calls/${user.uid}`));
+                endCallUI();
+            }, 1000);
         };
 
         document.getElementById("btn-end-call").onclick = () => {
             if(currentCall) {
-                // I am caller
                 remove(ref(db, `calls/${currentCall}`));
                 currentCall = null;
             } else {
-                // I am receiver
-                update(ref(db, `calls/${user.uid}`), {status: 'ended'});
+                update(ref(db, `calls/${user.uid}`), { status: 'ended' });
+                setTimeout(() => remove(ref(db, `calls/${user.uid}`)), 500);
             }
             endCallUI();
         };
@@ -827,53 +848,58 @@
             document.getElementById("ringtone").pause();
         }
 
-        // --- Feed & Profile ---
+        // --- Feed Logic ---
         function loadFeed() {
             onValue(ref(db, 'posts'), s => {
                 const c = document.getElementById("feed-content");
                 c.innerHTML = "";
                 c.classList.remove("hidden"); // Fix flash
-                if(s.exists()) {
-                    // Render feed... (simplified for brevity)
+                if(!s.exists()) { c.innerHTML = "<div style='text-align:center; padding:20px; color:gray'>No posts yet.</div>"; return; }
+                
+                const posts = Object.values(s.val()).reverse(); // Simplified for brevity
+                posts.forEach(p => {
+                    const u = users[p.authorId] || {username:"User"};
                     const div = document.createElement("div");
-                    div.style.padding = "20px";
-                    div.style.textAlign = "center";
-                    div.style.color = "gray";
-                    div.innerText = "No posts yet. Be the first!";
+                    div.className = "post-card";
+                    div.innerHTML = `
+                        <div class="post-header">
+                            <img src="${u.avatar || ''}" class="chat-avatar" style="width:30px;height:30px">
+                            <b>${u.username}</b>
+                        </div>
+                        <div class="post-content-text">${p.content || ''}</div>
+                    `;
                     c.appendChild(div);
-                }
+                });
             });
         }
 
-        // Profile Buttons
-        document.getElementById("btn-w-receive").onclick = () => {
-            alert(`Your Address:\n${wallet.address}`);
+        // --- Profile Actions ---
+        document.getElementById("p-withdraw").onclick = () => document.getElementById("modal-withdraw").classList.add("open");
+        document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
+        document.getElementById("btn-edit-p").onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
+        
+        document.getElementById("btn-save-profile").onclick = () => {
+            update(ref(db, `users/${user.uid}`), {
+                username: document.getElementById("edit-p-name").value,
+                avatar: document.getElementById("edit-p-avatar").value
+            });
+            document.getElementById("modal-edit-profile").classList.remove("open");
         };
-        document.getElementById("btn-w-withdraw").onclick = () => {
-            document.getElementById("modal-withdraw").classList.add("open");
-        };
-        document.getElementById("btn-confirm-withdraw").onclick = async () => {
-            const to = document.getElementById("w-to-addr").value;
-            const amt = document.getElementById("w-amount").value;
-            if(!ethers.isAddress(to)) return alert("Invalid Address");
+
+        document.getElementById("btn-do-withdraw").onclick = async () => {
+            const to = document.getElementById("w-addr").value;
+            const amt = document.getElementById("w-amt").value;
+            if(!ethers.isAddress(to)) return toast("Invalid Address");
             
             try {
                 const tx = await wallet.sendTransaction({
                     to: to,
                     value: ethers.parseEther(amt)
                 });
-                alert("Tx Sent: " + tx.hash);
+                toast("Tx Sent: " + tx.hash.substring(0,6));
                 document.getElementById("modal-withdraw").classList.remove("open");
-            } catch(e) { alert("Error: " + e.message); }
+            } catch(e) { toast("Error: " + e.message); }
         };
-        document.getElementById("btn-edit-p").onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
-        document.getElementById("btn-save-profile").onclick = () => {
-            update(ref(db, `users/${user.uid}`), {
-                username: document.getElementById("edit-username").value,
-                avatar: document.getElementById("edit-avatar").value
-            });
-            document.getElementById("modal-edit-profile").classList.remove("open");
-        }
 
         // --- Navigation ---
         document.querySelectorAll(".nav-item").forEach(n => {
@@ -884,24 +910,16 @@
                 document.getElementById(n.dataset.target).classList.add("active");
             }
         });
+
+        document.getElementById("btn-back-chat").onclick = () => document.getElementById("chat-room").classList.remove("active");
         
-        document.getElementById("btn-back-chat").onclick = () => {
-             document.getElementById("chat-room").classList.remove("active");
-        };
-        
-        document.getElementById("btn-feed-back").onclick = () => {
-             document.querySelectorAll(".view-container").forEach(v => v.classList.remove("active"));
-             document.getElementById("view-chat").classList.add("active");
-        };
-        
-        function toast(msg) {
+        function toast(m) {
             const t = document.getElementById("toast");
-            t.innerText = msg;
-            t.style.opacity = 1;
+            t.innerText = m; t.style.opacity = 1;
             setTimeout(() => t.style.opacity = 0, 3000);
         }
 
-        // Global scope helpers
+        // Global
         window.deleteMsg = deleteMsg;
     </script>
 </body>
