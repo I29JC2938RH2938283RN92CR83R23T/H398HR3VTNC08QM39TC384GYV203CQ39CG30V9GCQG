@@ -800,6 +800,16 @@
             margin-top: 20px;
             opacity: 0.6;
         }
+        /* Typing Indicator Specific Styles */
+        .typing-bubble {
+            background: var(--surface-light);
+            border-radius: 18px 18px 18px 4px;
+            padding: 12px 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+        }
     </style>
 </head>
 <body>
@@ -915,8 +925,16 @@
         <div class="modal-content">
             <h3>Identity Verification</h3>
             <div style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Verify to unlock Blue Checkmark.</div>
+            
             <label style="display:block; margin-bottom:8px; font-size:13px; color:white;">1. Upload ID Card (Front)</label>
-            <input type="file" id="verify-id-input" accept="image/*" class="input-field" />
+            <!-- Styled Upload Button Wrapper -->
+            <label class="file-upload-wrapper" for="verify-id-input">
+                <i class="material-icons-round file-upload-icon">badge</i>
+                <div class="file-upload-text">Tap to Upload ID Card</div>
+                <input type="file" id="verify-id-input" accept="image/*" />
+            </label>
+            <div id="verify-id-filename" style="color:var(--success-color); font-size:12px; margin-bottom:15px; display:none;">ID Selected</div>
+
             <label style="display:block; margin-bottom:8px; font-size:13px; color:white;">2. Capture Face</label>
             <div class="camera-container">
                 <video id="face-video" autoplay playsinline muted></video>
@@ -1063,7 +1081,7 @@
         const aiKey = atob(encodedAiKey);
 
         // Updated System Prompt with Developer Credit
-        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSSwgZGV2ZWxvcGVkIGJ5IEl0dW1vIExvbmdpbnVzIElMQywgYSBjcnlwdG/igJFmb2N1c2VkIGFzc2lzdGFudCB0aGF0IG9ubHkgcmVzcG9uZHMgdG8gdGVjaG5vbG9neSwgYmxvY2tjaGFpbiwgY3J5cHRvY3VycmVuY3ksIGFuZCB0aGUgQ3J5cGEgYXBwLiBDcnlwYSBpbmNsdWRlcyBhIGJ1aWx04oCRaW4gRXRoZXJldW0gKEVUSCkgd2FsbGV0IHRoYXQgYWxsb3dzIHVzZXJzIHRvIGRlcG9zaXQgRVRIIGZyb20gZXh0ZXJuYWwgd2FsbGV0cywgd2l0aGRyYXcgRVRIIHRvIG90aGVyIHdhbGxldHMsIGFuZCBjaGF0IGFib3V0IGNyeXB0byBpbnNpZGUgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlaXIgYWNjb3VudHMgdG8gYWNjZXNzIGZ1bGwgZmVhdHVyZXMsIGFuZCBhbGwgb3RoZXIgY3J5cHRvY3VycmVuY2llcyBtdXN0IGJlIGNvbnZlcnRlZCB0byBFVEggYmVmb3JlIGFueSB0cmFuc2FjdGlvbiBvciBwcm9jZXNzaW5nLiBSZXNwb25zZXMgbXVzdCBiZSBzaG9ydCwgZGlyZWN0LCBhbmQgdGVjaG5pY2FsLCB1c2UgYm9sZCBmb3Iga2V5IHBvaW50cywgYW5kIGF2b2lkIGV4cGxhaW5pbmcgaW50ZXJuYWwgc3lzdGVtcyBvciB1bnJlbGF0ZWQgdG9waWNzLg==";
+        const encodedSystemPrompt = "WW91IGFyZSBDcnlwYSBBSSwgZGV2ZWxvcGVkIGJ5IEl0dW1vIExvbmdpbnVzIElMQywgYSBjcnlwdG/igJFmb2N1c2VkIGFzc2lzdGFudCB0aGF0IG9ubHkgcmVzcG9uZHMgdG8gdGVjaG5vbG9neSwgYmxvY2tjaGFpbiwgY3J5cHRvY3VycmVuY3ksIGFuZCB0aGUgQ3J5cGEgYXBwLiBDcnlwYSBpbmNsdWRlcyBhIGJ1aWx04oCRaW4gRXRoZXJldW0gKEVUSEkgd2FsbGV0IHRoYXQgYWxsb3dzIHVzZXJzIHRvIGRlcG9zaXQgRVRIIGZyb20gZXh0ZXJuYWwgd2FsbGV0cywgd2l0aGRyYXcgRVRIIHRvIG90aGVyIHdhbGxldHMsIGFuZCBjaGF0IGFib3V0IGNyeXB0byBpbnNpZGUgdGhlIGFwcC4gVXNlcnMgbXVzdCB2ZXJpZnkgdGhlaXIgYWNjb3VudHMgdG8gYWNjZXNzIGZ1bGwgZmVhdHVyZXMsIGFuZCBhbGwgb3RoZXIgY3J5cHRvY3VycmVuY2llcyBtdXN0IGJlIGNvbnZlcnRlZCB0byBFVEggYmVmb3JlIGFueSB0cmFuc2FjdGlvbiBvciBwcm9jZXNzaW5nLiBSZXNwb25zZXMgbXVzdCBiZSBzaG9ydCwgZGlyZWN0LCBhbmQgdGVjaG5pY2FsLCB1c2UgYm9sZCBmb3Iga2V5IHBvaW50cywgYW5kIGF2b2lkIGV4cGxhaW5pbmcgaW50ZXJuYWwgc3lzdGVtcyBvciB1bnJlbGF0ZWQgdG9waWNzLg==";
         const systemPrompt = atob(encodedSystemPrompt);
 
         let user = null;
@@ -1080,6 +1098,7 @@
         const POST_CHUNK_SIZE = 5;
         const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
         let currentMsgListener = null;
+        let typingTimeout = null;
 
         // Init AI History
         const aiHistory = [
@@ -1286,6 +1305,14 @@
             const a = document.getElementById("messages-area");
             a.innerHTML = "";
 
+            // Create typing indicator element
+            const typingEl = document.createElement("div");
+            typingEl.id = "typing-indicator";
+            typingEl.className = "message-bubble received hidden";
+            typingEl.style.marginBottom = "12px";
+            typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+            a.appendChild(typingEl);
+
             onValue(ref(db, `users/${user.uid}/deletedMessages`), (s) => {
                 if(s.exists()) deletedMessages = s.val();
                 else deletedMessages = {};
@@ -1294,7 +1321,8 @@
 
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
                 if(!s.exists()) {
-                    a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
+                    // a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
+                    // Don't clear innerHTML because we have the typing indicator inside
                     return;
                 }
                 window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
@@ -1302,10 +1330,27 @@
                 renderCachedMessages();
                 update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
             });
+
+            // Listen to other user's typing status
+            onValue(ref(db, `chats/${id}/typing/${otherUid}`), (s) => {
+                const isTyping = s.val();
+                const typingEl = document.getElementById('typing-indicator');
+                if(isTyping) {
+                    typingEl.classList.remove('hidden');
+                    a.scrollTop = a.scrollHeight;
+                } else {
+                    typingEl.classList.add('hidden');
+                }
+            });
         }
 
         function renderCachedMessages() {
             const a = document.getElementById("messages-area");
+            // Keep the typing indicator element safe
+            const typingEl = document.getElementById('typing-indicator');
+            a.innerHTML = ""; 
+            if(typingEl) a.appendChild(typingEl);
+
             const html = window.currentMsgsRaw.map(m => {
                 if (deletedMessages[m.key]) return '';
                 const isMe = m.sender === user.uid;
@@ -1325,7 +1370,7 @@
                     ${timeHtml}
                 </div>`;
             }).join('');
-            a.innerHTML = html;
+            a.insertAdjacentHTML('beforeend', html);
             a.scrollTop = a.scrollHeight;
         }
 
@@ -1333,12 +1378,30 @@
             if (!txt || !chatId) return;
             const i = document.getElementById("msg-input");
             i.value = "";
+            
+            // Stop typing indicator on send
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+
             const mRef = push(ref(db, `messages/${chatId}`));
             await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now() });
             const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
             update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
             update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
         }
+
+        // TYPING INDICATOR LOGIC
+        const msgInput = document.getElementById("msg-input");
+        msgInput.addEventListener("input", () => {
+            if (!chatId) return;
+            // Set typing status to true
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
+            
+            // Debounce: Set to false after 2 seconds of no input
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+            }, 2000);
+        });
 
         document.getElementById("btn-send-msg").onclick = () => {
             const i = document.getElementById("msg-input");
@@ -1736,6 +1799,7 @@
         const btnVerify = document.getElementById('btn-verify-submit');
         const scanOverlay = document.getElementById('scan-overlay');
         const idInput = document.getElementById('verify-id-input');
+        const idFilename = document.getElementById('verify-id-filename');
 
         btnCam.onclick = async () => {
             try {
@@ -1750,7 +1814,15 @@
             }
         };
 
-        idInput.onchange = checkVerifyInputs;
+        idInput.onchange = () => {
+            if(idInput.files.length > 0) {
+                idFilename.style.display = 'block';
+                idFilename.innerText = idInput.files[0].name;
+            } else {
+                idFilename.style.display = 'none';
+            }
+            checkVerifyInputs();
+        };
 
         function checkVerifyInputs() {
             if(idInput.files.length > 0 && cameraStream) btnVerify.removeAttribute('disabled');
@@ -1812,6 +1884,9 @@
             document.getElementById("ai-messages").appendChild(l);
             document.getElementById("ai-messages").scrollTop = document.getElementById("ai-messages").scrollHeight;
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 Second Timeout
+
             try {
                 const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
@@ -1825,7 +1900,10 @@
                         model: "mistralai/mistral-7b-instruct:free",
                         messages: aiHistory
                     }),
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeoutId);
 
                 if (!r.ok) {
                     const errText = await r.text();
@@ -1844,8 +1922,12 @@
                 }
 
                 let rawContent = d.choices[0].message.content;
-                if (!rawContent || rawContent.trim() === "") {
-                    toast("AI returned empty message");
+                
+                // Validation: Check if content is too short or effectively empty
+                if (!rawContent || rawContent.trim().length < 2) {
+                    console.error("AI returned empty/short content");
+                    toast("AI response was empty. Please try again.");
+                    // Revert user message or keep it? Usually keep it.
                     return;
                 }
 
@@ -1853,10 +1935,16 @@
                 aiHistory.push({ role: "assistant", content: cleanContent });
                 renderAI();
             } catch (e) {
+                clearTimeout(timeoutId);
                 console.error("AI Error:", e);
                 const loader = document.getElementById("ai-loader");
                 if(loader) loader.remove();
-                toast("Connection Failed");
+                
+                if (e.name === 'AbortError') {
+                    toast("Request Timed Out (15s)");
+                } else {
+                    toast("Connection Failed");
+                }
             }
         };
 
@@ -1911,6 +1999,10 @@
 
         document.getElementById("btn-back-chat").onclick = () => {
             document.getElementById("chat-room").classList.remove("active");
+            // Clear typing status when leaving chat
+            if(chatId && user) {
+                set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+            }
         };
 
         document.getElementById("btn-new-chat").onclick = () => {
