@@ -14,6 +14,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         :root {
+            /* Dark Mode (Default) */
             --bg-color: #0b0e14;
             --surface-color: #151921;
             --surface-light: #232833;
@@ -25,7 +26,23 @@
             --success-color: #22c55e;
             --verified-color: #3b82f6;
             --nav-height: 75px;
+            --msg-sent-bg: var(--primary-color);
+            --msg-received-bg: var(--surface-light);
         }
+
+        /* Light Mode Variables */
+        body.light-mode {
+            --bg-color: #f3f4f6;
+            --surface-color: #ffffff;
+            --surface-light: #e5e7eb;
+            --primary-color: #5b6bf2;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #d1d5db;
+            --msg-sent-bg: var(--primary-color);
+            --msg-received-bg: #e5e7eb;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -43,6 +60,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
         }
         .hidden {
             display: none !important;
@@ -219,16 +237,16 @@
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        
+        /* Removed slideIn animation as requested */
+        
         .message-bubble {
-            animation: slideIn 0.3s ease-out;
             max-width: 80%;
             word-wrap: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
         }
+
         #chat-room.active {
             transform: translateX(0);
         }
@@ -237,9 +255,26 @@
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
             display: flex;
-            align-items: center;
+            flex-direction: column; /* Changed to column to allow subtitle */
+            justify-content: center;
             padding: 0 15px;
+            position: relative;
         }
+        .chat-room-top {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .touch-hint {
+            font-size: 11px;
+            color: var(--primary-color);
+            margin-left: 53px; /* Align with text */
+            margin-top: -8px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            display: block;
+        }
+
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -251,15 +286,15 @@
         .received, .bot {
             position: relative;
             align-self: flex-start;
-            background: var(--surface-light);
-            color: white;
+            background: var(--msg-received-bg);
+            color: var(--text-primary);
             border-radius: 18px 18px 18px 4px;
             padding: 10px 16px;
             font-family: "Inter", sans-serif;
         }
         .sent, .user {
             align-self: flex-end;
-            background: var(--primary-color);
+            background: var(--msg-sent-bg);
             color: white;
             border-radius: 18px 18px 4px 18px;
             padding: 10px 16px;
@@ -286,15 +321,29 @@
             cursor: pointer;
             display: block;
         }
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-top: 4px;
+        }
         .msg-time {
             font-size: 10px;
             opacity: 0.7;
-            margin-top: 4px;
-            display: block;
-            text-align: right;
-            font-size: 10px;
             font-family: "Inter", sans-serif;
         }
+        .msg-status {
+            font-size: 14px;
+            line-height: 10px;
+        }
+        .msg-status.read {
+            color: #4ade80; /* Bright Green/Blue for read in light/dark themes */
+        }
+        .msg-status.sent {
+            opacity: 0.7;
+        }
+        
         .input-bar {
             background: var(--surface-color);
             padding: 12px 15px;
@@ -309,7 +358,7 @@
             border: 1px solid var(--border-color);
             border-radius: 24px;
             padding: 12px 16px;
-            color: white;
+            color: var(--text-primary);
             font-size: 15px;
             outline: none;
             resize: none;
@@ -377,7 +426,7 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 10px;
-            color: white;
+            color: var(--text-primary);
             font-family: "Inter", sans-serif;
             text-align: left;
         }
@@ -395,7 +444,7 @@
             border: 1px solid var(--border-color);
             padding: 16px;
             border-radius: 14px;
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 20px;
             outline: none;
             font-size: 15px;
@@ -479,6 +528,7 @@
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
             text-align: center;
+            color: white; /* Always light text on wallet card */
         }
         .wallet-actions {
             display: flex;
@@ -604,6 +654,7 @@
             font-size: 15px;
             line-height: 1.4;
             font-family: "Inter", sans-serif;
+            color: var(--text-primary);
         }
         .post-content-img {
             width: 100%;
@@ -658,7 +709,7 @@
             left: 50%;
             transform: translateX(-50%) translateY(20px);
             background: var(--surface-light);
-            color: white;
+            color: var(--text-primary);
             padding: 12px 25px;
             border-radius: 30px;
             border: 1px solid var(--primary-color);
@@ -702,7 +753,7 @@
         .ai-message.bot {
             align-self: flex-start;
             background: var(--surface-light);
-            color: white;
+            color: var(--text-primary);
             border-bottom-left-radius: 4px;
         }
         .ai-message b {
@@ -720,11 +771,11 @@
         .dot-loader {
             display: flex;
             gap: 4px;
-            padding: 10px;
+            padding: 0; /* Reduced padding for smaller bubble */
         }
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--text-secondary);
             border-radius: 50%;
             animation: dot-jump 1.4s infinite ease-in-out;
@@ -800,19 +851,70 @@
             margin-top: 20px;
             opacity: 0.6;
         }
-        /* Typing Indicator Specific Styles */
+        /* Typing Indicator Specific Styles - Smaller */
         .typing-bubble {
             background: var(--surface-light);
             border-radius: 18px 18px 18px 4px;
-            padding: 12px 18px;
+            padding: 6px 14px; /* Smaller padding */
             display: inline-flex;
             align-items: center;
             justify-content: center;
             width: fit-content;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+        
+        /* Contact Info Modal Specifics */
+        .contact-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .contact-close-btn {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .contact-avatar-lg {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 2px solid var(--primary-color);
+        }
+        .contact-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .contact-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .contact-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .contact-value {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
         }
     </style>
 </head>
-<body>
+<body class="">
     <div id="toast" class="toast"></div>
 
     <!-- View: Chat -->
@@ -824,14 +926,17 @@
         <div id="chat-list" class="scrollable" style="padding-top: 15px"></div>
         <div id="chat-room">
             <div class="chat-room-header">
-                <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
-                <div class="avatar-wrapper" style="margin-right:12px; margin-left:10px;">
-                    <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
-                    <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
+                <div class="chat-room-top">
+                    <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
+                    <div class="avatar-wrapper" style="margin-right:12px; margin-left:10px; cursor:pointer;" id="header-avatar-wrap">
+                        <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
+                        <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
+                    </div>
+                    <div style="flex:1; margin-left:5px; cursor:pointer;" id="header-text-wrap">
+                        <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
+                    </div>
                 </div>
-                <div style="flex:1; margin-left:5px">
-                    <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
-                </div>
+                <div class="touch-hint" id="touch-hint">touch to see more</div>
             </div>
             <div id="messages-area" class="messages-container"></div>
             <div class="input-bar">
@@ -889,12 +994,21 @@
                 <i class="material-icons-round edit-pencil" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
             </div>
 
+            <!-- Theme Switcher -->
+            <div class="setting-item" style="background: var(--surface-light); padding: 15px; border-radius: 12px; margin-bottom: 20px; border:none;">
+                <span class="setting-label">Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
             <button id="btn-verify-account" class="btn-primary" style="background: var(--surface-light); border: 1px dashed var(--verified-color); color: var(--verified-color);">
                 <i class="material-icons-round" style="vertical-align:middle; margin-right:5px">verified_user</i> Verify Account
             </button>
 
             <div class="wallet-card">
-                <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase">Eth Balance</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase">Eth Balance</div>
                 <div id="p-wallet-bal" style="font-size: 32px; font-weight: 800; margin: 8px 0; font-family: 'Inter', sans-serif">0.00 ETH</div>
                 <div id="p-wallet-addr" style="font-size: 12px; opacity: 0.6; word-break: break-all; font-family: monospace;">0x...</div>
                 <div class="wallet-actions">
@@ -926,7 +1040,7 @@
             <h3>Identity Verification</h3>
             <div style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Verify to unlock Blue Checkmark.</div>
             
-            <label style="display:block; margin-bottom:8px; font-size:13px; color:white;">1. Upload ID Card (Front)</label>
+            <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">1. Upload ID Card (Front)</label>
             <!-- Styled Upload Button Wrapper -->
             <label class="file-upload-wrapper" for="verify-id-input">
                 <i class="material-icons-round file-upload-icon">badge</i>
@@ -935,7 +1049,7 @@
             </label>
             <div id="verify-id-filename" style="color:var(--success-color); font-size:12px; margin-bottom:15px; display:none;">ID Selected</div>
 
-            <label style="display:block; margin-bottom:8px; font-size:13px; color:white;">2. Capture Face</label>
+            <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">2. Capture Face</label>
             <div class="camera-container">
                 <video id="face-video" autoplay playsinline muted></video>
                 <div id="scan-overlay" class="scan-overlay"></div>
@@ -944,6 +1058,36 @@
             <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
             <button class="btn-primary" id="btn-verify-submit" disabled>Verify Now</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Contact Info Modal -->
+    <div id="modal-contact-info" class="modal-overlay">
+        <div class="modal-content">
+            <div class="contact-header">
+                <button class="contact-close-btn" id="btn-close-contact"><i class="material-icons-round" style="font-size: 28px;">close</i></button>
+                <img src="" id="c-avatar" class="contact-avatar-lg">
+                <div class="contact-name">
+                    <span id="c-username">User</span>
+                    <i class="material-icons-round" id="c-badge" style="font-size: 16px; color: var(--verified-color); display:none;">check_circle</i>
+                </div>
+            </div>
+            <div class="contact-row">
+                <span class="contact-label">Email</span>
+                <span class="contact-value" id="c-email">Hidden</span>
+            </div>
+            <div class="contact-row">
+                <span class="contact-label">Joined</span>
+                <span class="contact-value" id="c-joined">---</span>
+            </div>
+            <div class="contact-row">
+                <span class="contact-label">Status</span>
+                <span class="contact-value" id="c-status">Offline</span>
+            </div>
+            <div class="contact-row" style="border-bottom:none;">
+                <span class="contact-label">Last Seen</span>
+                <span class="contact-value" id="c-last-seen">---</span>
+            </div>
         </div>
     </div>
 
@@ -1112,6 +1256,31 @@
             setTimeout(() => e.classList.remove("show"), 3000);
         }
 
+        // --- THEME LOGIC ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('crypa_theme');
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Default to dark (unchecked) if not set
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                themeToggle.checked = true;
+            } else {
+                document.body.classList.remove('light-mode');
+                themeToggle.checked = false;
+            }
+
+            themeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    document.body.classList.add('light-mode');
+                    localStorage.setItem('crypa_theme', 'light');
+                } else {
+                    document.body.classList.remove('light-mode');
+                    localStorage.setItem('crypa_theme', 'dark');
+                }
+            });
+        }
+
         document.querySelectorAll(".nav-item").forEach((n) => {
             n.onclick = () => {
                 document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
@@ -1132,6 +1301,8 @@
         });
 
         async function init() {
+            initTheme();
+            
             const cachedUsersJSON = localStorage.getItem('crypa_users_cache');
             if (cachedUsersJSON) {
                 try {
@@ -1144,7 +1315,6 @@
                     const d = s.val();
                     document.getElementById("p-username").innerText = d.username;
                     document.getElementById("p-avatar").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
-                    document.getElementById("edit-p-name").value = d.username;
                     document.getElementById("edit-p-preview").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
                     users[user.uid] = d;
                     localStorage.setItem('crypa_users_cache', JSON.stringify(users));
@@ -1288,6 +1458,46 @@
             });
         }
 
+        // Contact Info Logic
+        const contactModal = document.getElementById('modal-contact-info');
+        
+        function openContactInfo() {
+            const ud = users[otherUid];
+            if(!ud) return;
+
+            document.getElementById('c-avatar').src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+            document.getElementById('c-username').innerText = ud.username;
+            document.getElementById('c-email').innerText = ud.email || "Hidden";
+            document.getElementById('c-badge').style.display = ud.verified ? 'inline-block' : 'none';
+
+            // Joined Date (Check metadata or generic)
+            const joinedDate = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024"; 
+            document.getElementById('c-joined').innerText = joinedDate;
+
+            // Online Status
+            const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            document.getElementById('c-status').innerText = isOnline ? "Online" : "Offline";
+            document.getElementById('c-status').style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
+
+            // Last Seen
+            if (isOnline) {
+                document.getElementById('c-last-seen').innerText = "Now";
+            } else if (ud.lastSeen) {
+                const date = new Date(ud.lastSeen);
+                document.getElementById('c-last-seen').innerText = date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } else {
+                document.getElementById('c-last-seen').innerText = "Unknown";
+            }
+
+            contactModal.classList.add('open');
+        }
+
+        document.getElementById('header-avatar-wrap').onclick = openContactInfo;
+        document.getElementById('header-text-wrap').onclick = openContactInfo;
+        document.getElementById('touch-hint').onclick = openContactInfo;
+        document.getElementById('btn-close-contact').onclick = () => contactModal.classList.remove('open');
+
+
         function openChat(id, uid) {
             chatId = id;
             otherUid = uid;
@@ -1308,10 +1518,28 @@
             // Create typing indicator element
             const typingEl = document.createElement("div");
             typingEl.id = "typing-indicator";
-            typingEl.className = "message-bubble received hidden";
-            typingEl.style.marginBottom = "12px";
+            typingEl.className = "message-bubble received hidden"; // Use message-bubble base for consistency
             typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
             a.appendChild(typingEl);
+
+            // Mark messages as read
+            onValue(ref(db, `messages/${id}`), async (s) => {
+                if(s.exists()) {
+                    const msgs = s.val();
+                    // Mark messages from other user as read
+                    let updates = {};
+                    let needsUpdate = false;
+                    for(const key in msgs) {
+                        if(msgs[key].sender === otherUid && !msgs[key].read) {
+                            updates[`${key}/read`] = true;
+                            needsUpdate = true;
+                        }
+                    }
+                    if(needsUpdate) {
+                        await update(ref(db, `messages/${id}`), updates);
+                    }
+                }
+            });
 
             onValue(ref(db, `users/${user.uid}/deletedMessages`), (s) => {
                 if(s.exists()) deletedMessages = s.val();
@@ -1321,8 +1549,6 @@
 
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
                 if(!s.exists()) {
-                    // a.innerHTML = '<div style="text-align:center; padding:20px; color:#666">No messages yet.</div>';
-                    // Don't clear innerHTML because we have the typing indicator inside
                     return;
                 }
                 window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
@@ -1355,6 +1581,7 @@
                 if (deletedMessages[m.key]) return '';
                 const isMe = m.sender === user.uid;
                 const typeClass = isMe ? "sent" : "received";
+                
                 let contentHtml = "";
                 if (m.type === 'img') {
                     contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
@@ -1362,12 +1589,25 @@
                     contentHtml = `<div>${m.text}</div>`;
                 }
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
+                
+                // Checkmarks for sent messages
+                let statusHtml = "";
+                if(isMe) {
+                    const isRead = !!m.read;
+                    const iconClass = isRead ? "done_all" : "check";
+                    const colorClass = isRead ? "read" : "sent";
+                    statusHtml = `<i class="material-icons-round msg-status ${colorClass}" style="font-size: 14px;">${iconClass}</i>`;
+                }
+
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
 
                 return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
                     ${contentHtml}
                     ${deleteIconHtml}
-                    ${timeHtml}
+                    <div class="msg-meta">
+                        ${timeHtml}
+                        ${statusHtml}
+                    </div>
                 </div>`;
             }).join('');
             a.insertAdjacentHTML('beforeend', html);
@@ -1383,7 +1623,8 @@
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
 
             const mRef = push(ref(db, `messages/${chatId}`));
-            await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now() });
+            // Default read to false for sender's messages
+            await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now(), read: false });
             const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
             update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
             update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
@@ -1516,7 +1757,7 @@
 
             onValue(ref(db, 'posts'), (s) => {
                 if(!s.exists()) {
-                    document.getElementById('feed-content').innerHTML = '<div style="text-align:center; padding:20px; color:#666">No posts yet.</div>';
+                    document.getElementById('feed-content').innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
                     return;
                 }
 
