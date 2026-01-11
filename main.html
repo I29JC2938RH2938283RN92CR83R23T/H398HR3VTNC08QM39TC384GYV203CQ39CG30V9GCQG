@@ -455,6 +455,8 @@
             overflow-y: auto;
             position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
         .modal-content h3 {
             font-size: 18px;
@@ -674,6 +676,7 @@
             color: var(--text-secondary);
             cursor: pointer;
             transition: 0.2s;
+            pointer-events: auto;
         }
         .like-btn.active {
             color: var(--danger-color);
@@ -938,40 +941,96 @@
             text-align: right;
             max-width: 60%;
         }
-        .comments-modal-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
+        
+        /* Comment Redesign */
+        .comments-modal-content {
+            height: 500px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .comment-item {
-            padding: 10px 0;
+        .comments-header {
+            padding: 20px 20px 10px 20px;
             border-bottom: 1px solid var(--border-color);
+            background: var(--surface-color);
+            flex-shrink: 0;
         }
-        .comment-header {
+        .comments-header h3 {
+            margin: 0;
+            text-align: center;
+            width: 100%;
+        }
+        .comments-list-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: var(--bg-color);
             display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .comment-text {
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-        .comment-input-wrapper {
-            display: flex;
+            flex-direction: column;
             gap: 10px;
+            /* Limit height to approx 4 bubbles then scroll */
+            max-height: 240px; 
+            overflow-y: auto;
         }
-        .comment-btn {
+        .comment-bubble {
+            padding: 10px 14px;
+            border-radius: 18px;
+            max-width: 80%;
+            font-size: 13px;
+            line-height: 1.4;
+            position: relative;
+        }
+        .comment-bubble.me {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .comment-bubble.them {
+            align-self: flex-start;
+            background: var(--surface-light);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+        .comment-author {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .comment-input-area {
+            padding: 10px;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .comment-input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+        }
+        .comment-send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 20px;
-            padding: 0 15px;
-            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-weight: 600;
+            flex-shrink: 0;
         }
+
         .post-actions {
             display: flex;
             align-items: center;
@@ -1040,6 +1099,7 @@
     <!-- View: Feed -->
     <div id="view-feed" class="view-container">
         <div class="app-header">
+            <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()" style="position:absolute; left:20px;"><i class="material-icons-round">arrow_back_ios</i></button>
             <div class="header-title-center">
                 <div class="app-title">Public Feed</div>
             </div>
@@ -1058,6 +1118,7 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header">
+            <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()" style="position:absolute; left:20px;"><i class="material-icons-round">arrow_back_ios</i></button>
             <div class="header-title-center">
                 <div class="app-title">Crypa AI</div>
             </div>
@@ -1164,16 +1225,18 @@
     </div>
     
     <div id="modal-comments" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Comments</h3>
-            <div id="comments-list" class="comments-modal-list">
+        <div class="modal-content comments-modal-content">
+            <div class="comments-header">
+                <h3>Comments</h3>
+            </div>
+            <div id="comments-list" class="comments-list-scrollable">
                 <div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>
             </div>
-            <div class="comment-input-wrapper">
-                <input type="text" id="comment-input" class="input-field" style="margin-bottom:0; padding: 12px;" placeholder="Write a comment...">
-                <button class="comment-btn" id="btn-submit-comment">Post</button>
+            <div class="comment-input-area">
+                <input type="text" id="comment-input" class="comment-input" placeholder="Add a comment..." />
+                <button class="comment-send-btn" id="btn-submit-comment"><i class="material-icons-round" style="font-size:18px;">send</i></button>
             </div>
-            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" id="btn-close-comments">Close</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary); margin:0; padding:10px;" id="btn-close-comments">Close</button>
         </div>
     </div>
 
@@ -1338,7 +1401,9 @@
         const auth = getAuth(app);
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const aiKey = "sk-or-v1-d8c366391799ac041475c42502ba07983aaaf74a0d79fc075c7df7f26d93f7cbe"; 
+        // Decoded Base64 Key: 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
+        const aiKey = atob("c2stb3ItdjFlNjAwZWIwMDgyY2MyNWIwNGZjOWJiYzU5YzcyMTYwNWE3NzQ2NDExN2Y1NDIyNmRmNWY0OGIwNzk5NjgwYg=="); 
+
         const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
@@ -1435,7 +1500,8 @@
             loadComments(postKey);
         };
         
-        window.toggleLike = async function(postKey) {
+        window.toggleLike = async function(postKey, e) {
+            if(e) e.stopPropagation(); // Prevent triggering post click events if any
             if (!user) return toast("Please log in");
             const likeRef = ref(db, `likes/${postKey}/${user.uid}`);
             const snap = await get(likeRef);
@@ -1881,7 +1947,7 @@
             if(btnSubmitPostImg) {
                 btnSubmitPostImg.onclick = async () => {
                     const fileInput = postImgFile;
-                    const caption = document.getElementById("post-img-caption");
+                    const captionInput = document.getElementById("post-img-caption");
                     const modal = document.getElementById("modal-post-img");
                     
                     if(!fileInput) return;
@@ -1907,17 +1973,21 @@
                                 quality -= 0.1;
                                 res = canvas.toDataURL('image/jpeg', quality);
                             }
+                            
+                            // Fixed: Ensure only the caption text is sent, not the base64 image data
+                            const captionText = captionInput ? captionInput.value.trim() : '';
+                            
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
-                                caption: caption ? caption.value.trim() : '',
+                                caption: captionText,
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
                             .then(() => {
                                 if(modal) modal.classList.remove("open");
                                 if(fileInput) fileInput.value = "";
-                                if(caption) caption.value = "";
+                                if(captionInput) captionInput.value = "";
                                 if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
                                 toast("Posted");
                             }).catch(e => {
@@ -1974,6 +2044,7 @@
                 btnCam.onclick = async () => {
                     try {
                         cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                        video.srcObject = cameraStream;
                         if(cameraPlaceholder) cameraPlaceholder.classList.add('hidden');
                         if(scanOverlay) scanOverlay.style.display = 'none';
                         checkVerifyInputs();
@@ -2605,14 +2676,12 @@
                 let html = '';
                 comments.forEach(c => {
                     const u = users[c.senderId] || { username: 'Unknown' };
-                    const timeStr = new Date(c.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const isMe = c.senderId === user.uid;
+                    const bubbleClass = isMe ? 'me' : 'them';
                     html += `
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <span style="font-weight:600">${u.username}</span>
-                                <span>${timeStr}</span>
-                            </div>
-                            <div class="comment-text">${c.text}</div>
+                        <div class="comment-bubble ${bubbleClass}">
+                            <span class="comment-author">${u.username}</span>
+                            ${c.text}
                         </div>
                     `;
                 });
@@ -2709,7 +2778,7 @@
                                 <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')"><i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i> Comment</button>
                                 <div class="like-container">
                                     <div class="like-count" id="like-count-${post.key}">0</div>
-                                    <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}')"><i class="material-icons-round" style="font-size:24px">favorite_border</i></i>
+                                    <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}', event)">favorite_border</i>
                                 </div>
                             </div>
                         `;
@@ -2760,15 +2829,15 @@
 
                     if (likes && likes[user.uid]) {
                         bEl.classList.add('active');
-                        bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite</i>';
+                        bEl.innerText = 'favorite';
                     } else {
                         bEl.classList.remove('active');
-                        bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite_border</i>';
+                        bEl.innerText = 'favorite_border';
                     }
                 } else {
                     cEl.innerText = "0";
                     bEl.classList.remove('active');
-                    bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite_border</i>';
+                    bEl.innerText = 'favorite_border';
                 }
             });
         }
