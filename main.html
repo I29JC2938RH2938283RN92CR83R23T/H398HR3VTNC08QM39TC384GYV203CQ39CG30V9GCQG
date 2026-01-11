@@ -58,7 +58,9 @@
             flex-direction: column;
             transition: background-color 0s, color 0.3s;
         }
-        .hidden { display: none !important; }
+        .hidden {
+            display: none !important;
+        }
         .scrollable {
             flex: 1;
             overflow-y: auto;
@@ -72,9 +74,9 @@
             display: none;
             flex-direction: column;
         }
-        .view-container.active { display: flex; }
-        
-        /* Headers */
+        .view-container.active {
+            display: flex;
+        }
         .app-header {
             height: 65px;
             background-color: var(--surface-color);
@@ -96,11 +98,10 @@
             height: 100%;
         }
         .app-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
+            font-family: "Inter", sans-serif;
         }
-        
-        /* Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -116,7 +117,9 @@
             z-index: 2000;
             transition: transform 0.3s;
         }
-        body.chat-active .bottom-nav { transform: translateY(100%); }
+        body.chat-active .bottom-nav {
+            transform: translateY(100%);
+        }
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -126,13 +129,19 @@
             cursor: pointer;
             width: 25%;
             height: 100%;
+            transition: 0.2s;
             background: transparent;
             border: none;
         }
-        .nav-item.active { color: var(--primary-color); }
-        .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; }
-
-        /* Chat List */
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        .nav-item span {
+            font-size: 11px;
+            margin-top: 4px;
+            font-weight: 500;
+            font-family: "Inter", sans-serif;
+        }
         .chat-item {
             display: flex;
             align-items: center;
@@ -143,219 +152,886 @@
             cursor: pointer;
             position: relative;
         }
-        .avatar-wrapper { position: relative; margin-right: 15px; flex-shrink: 0; }
-        .chat-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #333; display: block; }
+        .avatar-wrapper {
+            position: relative;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #333;
+            display: block;
+        }
         .verified-badge {
-            position: absolute; bottom: 0; right: 0; width: 18px; height: 18px;
-            background: var(--verified-color); border: 2px solid var(--surface-light);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 12px; z-index: 2;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            background: var(--verified-color);
+            border: 2px solid var(--surface-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            z-index: 2;
         }
-        .chat-info { flex: 1; overflow: hidden; min-width: 0; }
-        .chat-name { font-weight: 600; font-size: 16px; margin-bottom: 2px; display: flex; align-items: center; }
-        .chat-msg { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-dots { color: var(--text-secondary); padding: 8px; border-radius: 50%; z-index: 5; }
-        
-        /* Dropdown Menu */
+        .verified-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--verified-color);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .online-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 14px;
+            height: 14px;
+            background: var(--success-color);
+            border: 2px solid var(--surface-light);
+            border-radius: 50%;
+            z-index: 3;
+        }
+        .chat-info {
+            flex: 1;
+            overflow: hidden;
+            min-width: 0;
+        }
+        .chat-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            font-family: "Inter", sans-serif;
+        }
+        .chat-msg {
+            color: var(--text-secondary);
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: "Inter", sans-serif;
+        }
+        .chat-dots {
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 50%;
+        }
         .dropdown-menu {
-            position: absolute; right: 40px; top: 40px;
-            background: var(--surface-color); border: 1px solid var(--border-color);
-            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 100; width: 170px; display: none; flex-direction: column; overflow: hidden;
+            position: absolute;
+            right: 10px;
+            top: 55px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 100;
+            width: 170px; 
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .dropdown-item { padding: 12px 15px; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .dropdown-item:hover { background: var(--surface-light); }
-        .dropdown-item.delete { color: var(--danger-color); }
-
-        /* Chat Room */
+        .dropdown-item {
+            padding: 12px 15px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dropdown-item:hover {
+            background: var(--surface-light);
+        }
+        .dropdown-item.delete {
+            color: var(--danger-color);
+        }
         #chat-room {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); z-index: 100; display: flex; flex-direction: column;
-            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        #chat-room.active { transform: translateX(0); }
-        .chat-room-header {
-            background-color: var(--surface-color); border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 15px; height: 65px;
-        }
-        .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-        
         .message-bubble {
-            max-width: 80%; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            position: relative; padding: 10px 16px; font-size: 15px; line-height: 1.4;
+            max-width: 80%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        #chat-room.active {
+            transform: translateX(0);
+        }
+        .chat-room-header {
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 15px;
+            position: relative;
+            height: 65px;
+        }
+        .chat-room-top {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 4px;
+            justify-content: center;
+        }
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .received, .bot {
-            align-self: flex-start; background: var(--msg-received-bg); color: var(--text-primary);
+            position: relative;
+            align-self: flex-start;
+            background: var(--msg-received-bg);
+            color: var(--text-primary);
             border-radius: 18px 18px 18px 4px;
+            padding: 10px 16px;
+            font-family: "Inter", sans-serif;
         }
         .sent, .user {
-            align-self: flex-end; background: var(--msg-sent-bg); color: white;
+            align-self: flex-end;
+            background: var(--msg-sent-bg);
+            color: white;
             border-radius: 18px 18px 4px 18px;
+            padding: 10px 16px;
+            font-family: "Inter", sans-serif;
         }
-        .sent-blocked { background-color: var(--text-secondary); opacity: 0.5; transition: opacity 1s; }
-        
-        .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; }
-        .msg-time { font-size: 10px; opacity: 0.7; }
-        .msg-tick { font-size: 14px; color: rgba(255,255,255,0.8); }
-        .msg-delete-icon {
-            position: absolute; top: -8px; right: -8px; background: var(--danger-color);
-            color: white; border-radius: 50%; width: 20px; height: 20px; display: none;
-            align-items: center; justify-content: center; font-size: 12px; cursor: pointer; z-index: 5;
+        .sent-blocked {
+            background-color: var(--text-secondary);
+            opacity: 0.5;
         }
-        .message-bubble:active .msg-delete-icon { display: flex; }
-        
+        .delete-msg-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 5;
+        }
+        .message-bubble:hover .delete-msg-icon {
+            opacity: 1;
+        }
+        .msg-img {
+            max-width: 200px;
+            border-radius: 12px;
+            margin-top: 5px;
+            cursor: pointer;
+            display: block;
+        }
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .msg-time {
+            font-size: 10px;
+            opacity: 0.7;
+            font-family: "Inter", sans-serif;
+        }
+        .msg-status {
+            font-size: 14px;
+            line-height: 10px;
+            font-family: 'Material Icons Round';
+            color: var(--success-color);
+        }
         .input-bar {
-            background: var(--surface-color); padding: 12px 15px; display: flex; align-items: center;
-            gap: 8px; border-top: 1px solid var(--border-color); z-index: 9999;
+            background: var(--surface-color);
+            padding: 12px 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            border-top: 1px solid var(--border-color);
+            z-index: 9999;
+            position: relative;
+        }
+        .chat-footer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
         }
         .text-input {
-            flex: 1; background: var(--bg-color); border: 1px solid var(--border-color);
-            border-radius: 24px; padding: 10px 16px; color: var(--text-primary);
-            font-size: 15px; outline: none;
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            min-height: 44px;
+            font-family: "Inter", sans-serif;
+        }
+        #ai-input.text-input {
+             border-radius: 30px;
         }
         .action-btn {
-            width: 40px; height: 40px; border-radius: 50%; border: none; display: flex;
-            align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
-            background: transparent; color: var(--text-secondary);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: 0.1s;
+            background: transparent;
+            color: var(--text-secondary);
         }
-        .btn-send { background: var(--primary-color); color: white; }
-
-        /* Calling UI */
-        #call-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 5000; display: none; flex-direction: column;
-            align-items: center; justify-content: space-between; padding: 60px 20px;
+        .action-btn:active {
+            transform: scale(0.9);
         }
-        .call-avatar {
-            width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--surface-light);
-            margin-bottom: 20px; animation: pulse 2s infinite;
+        .btn-send {
+            background: var(--primary-color);
+            color: white;
         }
-        .call-status { font-size: 18px; color: var(--text-secondary); margin-bottom: 10px; }
-        .call-name { font-size: 28px; font-weight: 700; color: white; }
-        .call-controls { display: flex; gap: 40px; margin-bottom: 40px; }
-        .call-btn {
-            width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; border: none; cursor: pointer; color: white;
+        .btn-money {
+            background: #fbbf24;
+            color: #000;
         }
-        .btn-decline { background: var(--danger-color); }
-        .btn-accept { background: var(--success-color); animation: shake 1.5s infinite; }
-        .btn-mute, .btn-speaker { background: var(--surface-light); }
-        .btn-mute.active, .btn-speaker.active { background: white; color: black; }
-
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 107, 242, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(91, 107, 242, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 107, 242, 0); } }
-        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } }
-
-        /* Profile & Modals */
-        .profile-card {
-            background: var(--surface-light); border-radius: 20px; padding: 20px;
-            margin-bottom: 20px; display: flex; align-items: center; position: relative;
-        }
-        .wallet-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px;
-            padding: 25px; margin-bottom: 20px; border: 1px solid var(--border-color);
-            text-align: center; color: white;
-        }
-        .wallet-actions { display: flex; gap: 10px; margin-top: 15px; width: 100%; }
-        .wallet-btn {
-            flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 1000; display: none;
-            align-items: center; justify-content: center; backdrop-filter: blur(5px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.2s;
+            backdrop-filter: blur(5px);
         }
-        .modal-overlay.open { display: flex; }
+        .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
         .modal-content {
-            background: var(--surface-color); width: 90%; max-width: 320px;
-            border-radius: 24px; padding: 25px 20px; max-height: 85vh; overflow-y: auto;
+            background: var(--surface-color);
+            width: 90%;
+            max-width: 320px; 
+            border-radius: 24px;
+            padding: 25px 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .modal-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-family: "Inter", sans-serif;
+            text-align: left;
+        }
+        .modal-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-family: "Inter", sans-serif;
+            text-align: left;
         }
         .input-field {
-            width: 100%; background: var(--bg-color); border: 1px solid var(--border-color);
-            padding: 16px; border-radius: 14px; color: var(--text-primary); margin-bottom: 15px;
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 14px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            outline: none;
+            font-size: 15px;
+            font-family: "Inter", sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            border-color: var(--primary-color);
         }
         .btn-primary {
-            width: 100%; background: var(--primary-color); color: white; padding: 16px;
-            border: none; border-radius: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px;
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            font-family: "Inter", sans-serif;
+            transition: background 0.2s;
         }
-
-        /* Feed */
-        .post-card { background: var(--surface-color); margin-bottom: 15px; padding-bottom: 15px; }
-        .post-img-content { width: 100%; height: auto; display: block; }
-        .post-actions { display: flex; align-items: center; gap: 15px; padding: 10px 15px; }
-        
-        /* Toast */
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            border: 2px dashed var(--border-color);
+            background: var(--bg-color);
+            border-radius: 14px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .file-upload-wrapper:hover {
+            border-color: var(--primary-color);
+            background: rgba(91, 107, 242, 0.05);
+        }
+        .file-upload-icon {
+            font-size: 40px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-family: "Inter", sans-serif;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .profile-card {
+            background: var(--surface-light);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .wallet-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            color: white;
+        }
+        .wallet-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .wallet-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 13px;
+            white-space: nowrap;
+            font-family: "Inter", sans-serif;
+        }
+        .withdraw-btn {
+            background: #ef4444;
+            color: white;
+        }
+        .receive-btn {
+            background: #22c55e;
+            color: white;
+        }
+        .camera-container {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        #face-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--primary-color);
+            animation: scan-pulse 2s infinite;
+            display: none;
+        }
+        @keyframes scan-pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        .feed-fab {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            gap: 20px;
+            z-index: 9999;
+            position: relative;
+        }
+        .fab-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        .fab-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        .post-card {
+            background: var(--surface-color);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            gap: 10px;
+        }
+        .like-container {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 5px;
+        }
+        .like-btn {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .like-btn.active {
+            color: var(--danger-color);
+        }
+        .like-btn i {
+            font-size: 24px;
+        }
+        .like-count {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .post-content-text {
+            padding: 0 12px 5px;
+            font-size: 15px;
+            line-height: 1.4;
+            font-family: "Inter", sans-serif;
+            color: var(--text-primary);
+        }
+        .post-content-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #000;
+        }
+        .money-post-card {
+            aspect-ratio: 1/1;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            border-radius: 20px;
+            margin: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #000;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .money-amount {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 10px 0;
+            font-family: "Inter", sans-serif;
+        }
+        .money-claim-btn {
+            background: #000;
+            color: #fbbf24;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+            font-family: "Inter", sans-serif;
+        }
+        .feed-loader {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-family: "Inter", sans-serif;
+        }
         .toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 10px 20px; border-radius: 20px;
-            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 4000;
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--surface-light);
+            color: var(--text-primary);
+            padding: 12px 25px;
+            border-radius: 30px;
+            border: 1px solid var(--primary-color);
+            font-size: 14px;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 1001;
+            pointer-events: none;
+            font-family: "Inter", sans-serif;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.4;
+            min-width: 200px;
+            max-width: 80vw;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        #ai-messages {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        .ai-message {
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            font-family: "Inter", sans-serif;
+        }
+        .ai-message.user {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .ai-message.bot {
+            align-self: flex-start;
+            background: var(--surface-light);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+        .ai-message b {
+            font-weight: 700;
+            color: #fff;
+        }
+        .ai-message code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #ff9f43;
+        }
+        .dot-loader {
+            display: flex;
+            gap: 4px;
+            padding: 0;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: dot-jump 1.4s infinite ease-in-out;
+        }
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes dot-jump {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            width: 100%;
+        }
+        .setting-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: "Inter", sans-serif;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #374151;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .typing-bubble {
+            background: var(--surface-light);
+            border-radius: 16px;
+            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+        .contact-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .contact-close-btn {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .contact-avatar-lg {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 2px solid var(--primary-color);
+        }
+        .contact-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .contact-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .contact-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .contact-value {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+        }
+        .comments-modal-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .comment-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .comment-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        .comment-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0 12px 10px;
+        }
+        .comment-trigger-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .comment-trigger-btn:hover {
+            color: var(--primary-color);
         }
     </style>
 </head>
-<body>
+<body class="">
     <div id="toast" class="toast"></div>
 
-    <!-- Ringtone Audio -->
-    <audio id="ringtone" loop>
-        <source src="https://raw.githubusercontent.com/I29JC2938RH2938283RN92CR83R23T/H398HR3VTNC08QM39TC384GYV203CQ39CG30V9GCQG/refs/heads/main/Music_fx_simple_melody_with_one_percussion_g.wav" type="audio/wav">
-    </audio>
-
-    <!-- Call Screen -->
-    <div id="call-screen">
-        <div style="text-align:center; margin-top:50px;">
-            <img src="" id="call-ui-avatar" class="call-avatar">
-            <div id="call-ui-status" class="call-status">Calling...</div>
-            <div id="call-ui-name" class="call-name">User</div>
-        </div>
-        
-        <!-- Incoming Controls -->
-        <div class="call-controls" id="incoming-controls" style="display:none">
-            <button class="call-btn btn-decline" id="btn-reject-call"><i class="material-icons-round">call_end</i></button>
-            <button class="call-btn btn-accept" id="btn-answer-call"><i class="material-icons-round">call</i></button>
-        </div>
-
-        <!-- Active/Outgoing Controls -->
-        <div class="call-controls" id="active-controls" style="display:none">
-            <button class="call-btn btn-speaker" id="btn-toggle-speaker"><i class="material-icons-round">volume_up</i></button>
-            <button class="call-btn btn-mute" id="btn-toggle-mute"><i class="material-icons-round">mic_off</i></button>
-            <button class="call-btn btn-decline" id="btn-end-call" style="background:var(--danger-color)"><i class="material-icons-round">call_end</i></button>
-        </div>
-    </div>
-
-    <!-- View: Chat List -->
+    <!-- View: Chat -->
     <div id="view-chat" class="view-container active">
         <div class="app-header">
-            <button class="action-btn" id="btn-new-chat"><i class="material-icons-round">add_circle</i></button>
+            <button class="action-btn" id="btn-new-chat" style="position:absolute; left:20px;"><i class="material-icons-round">add_circle</i></button>
             <div class="header-title-center">
                 <div class="app-title">Messages</div>
             </div>
-            <div style="width:44px;"></div>
+            <div style="width:44px;"></div> 
         </div>
-        <div id="chat-list" class="scrollable" style="padding-top: 10px;"></div>
-        
-        <!-- Chat Room -->
+        <div id="chat-list" class="scrollable" style="padding-top: 15px; position:relative;"></div>
         <div id="chat-room">
             <div class="chat-room-header">
-                <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
-                <div style="display:flex; flex-direction:column; align-items:center;">
-                    <div id="curr-chat-name" style="font-weight:700; font-size:16px;"></div>
+                <div class="chat-room-top">
+                    <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
+                    <div class="avatar-wrapper" style="margin-right:12px; margin-left:10px;">
+                        <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
+                        <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
+                    </div>
+                    <div style="flex:1; margin-left:5px;">
+                        <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
+                    </div>
                 </div>
-                <button class="action-btn" id="btn-call-user"><i class="material-icons-round">call</i></button>
             </div>
-            
             <div id="messages-area" class="messages-container"></div>
             
-            <div id="blocked-bar" class="input-bar hidden" style="justify-content:center; background:#222;">
-                <button class="btn-primary" id="btn-bar-unblock" style="width:auto; margin:0 5px; background:var(--success-color)">Unblock</button>
-                <button class="btn-primary" id="btn-bar-delete" style="width:auto; margin:0 5px; background:var(--danger-color)">Delete</button>
+            <div id="chat-footer" class="chat-footer-controls hidden">
+                <button class="btn-primary" id="btn-unblock-chat" style="background: var(--success-color);">Unblock</button>
+                <button class="btn-primary" id="btn-delete-chat-full" style="background: var(--danger-color);">Delete Chat</button>
             </div>
 
             <div class="input-bar" id="input-bar-wrapper">
                 <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
-                <button class="action-btn" id="btn-attach"><i class="material-icons-round">add_photo_alternate</i></button>
+                <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
                 <input type="file" id="file-input" accept="image/*" class="hidden" />
-                <input type="text" id="msg-input" class="text-input" placeholder="Type message..." />
+                <textarea id="msg-input" class="text-input" rows="1" placeholder="Type here..."></textarea>
                 <button class="action-btn btn-send" id="btn-send-msg"><i class="material-icons-round">send</i></button>
             </div>
         </div>
@@ -364,10 +1040,14 @@
     <!-- View: Feed -->
     <div id="view-feed" class="view-container">
         <div class="app-header">
-            <div class="header-title-center"><div class="app-title">Feed</div></div>
+            <div class="header-title-center">
+                <div class="app-title">Public Feed</div>
+            </div>
             <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
         </div>
-        <div id="feed-content" class="scrollable hidden"></div> <!-- Hidden initially to prevent flash -->
+        <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
+            <div id="feed-loader" class="feed-loader hidden">Loading more posts...</div>
+        </div>
         <div class="feed-fab">
             <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
             <div class="fab-btn" id="btn-post-img"><i class="material-icons-round">image</i></div>
@@ -378,12 +1058,14 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header">
-            <div class="header-title-center"><div class="app-title">Crypa AI</div></div>
-            <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">cleaning_services</i></button>
+            <div class="header-title-center">
+                <div class="app-title">Crypa AI</div>
+            </div>
+            <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
         </div>
         <div id="ai-messages" class="scrollable"></div>
         <div class="input-bar">
-            <textarea id="ai-input" class="text-input" rows="1" placeholder="Ask AI..."></textarea>
+            <textarea id="ai-input" class="text-input" rows="1" placeholder="Ask anything..."></textarea>
             <button class="action-btn btn-send" id="btn-ai-send"><i class="material-icons-round">bolt</i></button>
         </div>
     </div>
@@ -391,7 +1073,9 @@
     <!-- View: Profile -->
     <div id="view-profile" class="view-container">
         <div class="app-header">
-            <div class="header-title-center"><div class="app-title">Profile</div></div>
+            <div class="header-title-center">
+                <div class="app-title">Account</div>
+            </div>
         </div>
         <div class="scrollable" style="padding: 20px">
             <div class="profile-card">
@@ -401,27 +1085,39 @@
                 </div>
                 <div>
                     <div id="p-username" style="font-size: 18px; font-weight: 700">User</div>
-                    <div style="font-size: 12px; color: #22c55e; margin-top: 4px">Active</div>
+                    <div style="font-size: 12px; color: #22c55e; margin-top: 4px">Active Member</div>
                 </div>
                 <i class="material-icons-round" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
             </div>
 
+            <div class="setting-item" style="background: var(--surface-light); padding: 15px; border-radius: 12px; margin-bottom: 20px; border:none;">
+                <span class="setting-label">Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button id="btn-verify-account" class="btn-primary" style="background: var(--surface-light); border: 1px dashed var(--verified-color); color: var(--verified-color);">
+                <i class="material-icons-round" style="vertical-align:middle; margin-right:5px">verified_user</i> Verify Account
+            </button>
+
             <div class="wallet-card">
-                <div style="font-size: 11px; opacity: 0.7; text-transform: uppercase">Eth Balance</div>
-                <div id="p-wallet-bal" style="font-size: 32px; font-weight: 800; margin: 8px 0; font-family: 'Inter', sans-serif">0.0000</div>
+                <div style="font-size: 11px; color: rgba(255,255,255,0.7); text-transform: uppercase">Eth Balance</div>
+                <div id="p-wallet-bal" style="font-size: 32px; font-weight: 800; margin: 8px 0; font-family: 'Inter', sans-serif">0.00 ETH</div>
                 <div id="p-wallet-addr" style="font-size: 12px; opacity: 0.6; word-break: break-all; font-family: monospace;">0x...</div>
                 <div class="wallet-actions">
-                    <button class="wallet-btn withdraw-btn" id="p-withdraw" style="background:#ef4444; color:white">Withdraw</button>
-                    <button class="wallet-btn receive-btn" id="p-receive" style="background:#22c55e; color:white">Receive</button>
+                    <button class="wallet-btn withdraw-btn" id="p-withdraw"><i class="material-icons-round">north_east</i> Withdraw</button>
+                    <button class="wallet-btn receive-btn" id="p-receive"><i class="material-icons-round">south_west</i> Receive</button>
                 </div>
             </div>
 
-            <div class="setting-item">
-                <span class="setting-label">Dark Mode</span>
-                <label class="switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label>
-            </div>
+            <button class="btn-primary" id="btn-privacy-modal"><i class="material-icons-round" style="vertical-align: middle; margin-right: 8px">verified_user</i> Privacy</button>
+            <button class="btn-primary" style="background: transparent; border: 1px solid var(--border-color)" id="btn-logout">Sign Out</button>
             
-            <button class="btn-primary" style="background:transparent; border:1px solid var(--border-color); margin-top:20px" id="btn-logout">Sign Out</button>
+            <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-top: 20px; opacity: 0.6;">
+                Developed by Itumo Ilunginus Itumo Longinus ILC
+            </div>
         </div>
     </div>
 
@@ -434,58 +1130,198 @@
     </div>
 
     <!-- Modals -->
-    <div id="modal-delete-chat" class="modal-overlay">
-        <div class="modal-content" style="text-align:center">
-            <h3>This chat has been deleted</h3>
-            <p>You deleted this chat from your history.</p>
-            <button class="btn-primary" style="background:var(--danger-color)" id="btn-force-delete">Close & Remove</button>
+    <div id="modal-verify" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Identity Verification</h3>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Verify to unlock Blue Checkmark.</div>
+            
+            <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">1. Upload ID Card (Front)</label>
+            <label class="file-upload-wrapper" for="verify-id-input">
+                <i class="material-icons-round file-upload-icon">badge</i>
+                <div class="file-upload-text">Tap to Upload ID Card</div>
+                <input type="file" id="verify-id-input" accept="image/*" />
+            </label>
+            <div id="verify-id-filename" style="color:var(--success-color); font-size:12px; margin-bottom:15px; display:none;">ID Selected</div>
+
+            <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">2. Capture Face</label>
+            <div class="camera-container">
+                <video id="face-video" autoplay playsinline muted></video>
+                <div id="scan-overlay" class="scan-overlay"></div>
+                <div id="camera-placeholder" class="flex-center" style="height:100%; color:#666; font-size:12px;">Camera Off</div>
+            </div>
+            <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
+            <button class="btn-primary" id="btn-verify-submit" disabled>Verify Now</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
-    <div id="modal-about-user" class="modal-overlay">
+    <div id="modal-chat-deleted" class="modal-overlay">
+        <div class="modal-content" style="text-align:center">
+            <h3>This chat has been deleted</h3>
+            <p>The other person has removed this chat.</p>
+            <button class="btn-primary" id="btn-delete-confirm-receiver" style="background:var(--danger-color)">Delete</button>
+        </div>
+    </div>
+    
+    <div id="modal-comments" class="modal-overlay">
         <div class="modal-content">
-            <h3>About User</h3>
-            <div id="about-stats-content" style="margin:20px 0; font-size:14px; line-height:1.6;"></div>
-            <button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
+            <h3>Comments</h3>
+            <div id="comments-list" class="comments-modal-list">
+                <div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>
+            </div>
+            <div class="comment-input-wrapper">
+                <input type="text" id="comment-input" class="input-field" style="margin-bottom:0; padding: 12px;" placeholder="Write a comment...">
+                <button class="comment-btn" id="btn-submit-comment">Post</button>
+            </div>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" id="btn-close-comments">Close</button>
+        </div>
+    </div>
+
+    <div id="modal-contact-info" class="modal-overlay">
+        <div class="modal-content">
+            <div class="contact-header">
+                <button class="contact-close-btn" id="btn-close-contact"><i class="material-icons-round" style="font-size: 28px;">close</i></button>
+                <img src="" id="c-avatar" class="contact-avatar-lg">
+                <div class="contact-name">
+                    <span id="c-username">User</span>
+                    <i class="material-icons-round" id="c-badge" style="font-size: 16px; color: var(--verified-color); display:none;">check_circle</i>
+                </div>
+            </div>
+            <div id="c-email-row" class="contact-row" style="display:none;">
+                <span class="contact-label">Email</span>
+                <span class="contact-value" id="c-email">Hidden</span>
+            </div>
+            <div id="c-joined-row" class="contact-row" style="display:none;">
+                <span class="contact-label">Joined</span>
+                <span class="contact-value" id="c-joined">---</span>
+            </div>
+            <div id="c-total-chats-row" class="contact-row" style="display:none;">
+                <span class="contact-label">Total Chats</span>
+                <span class="contact-value" id="c-total-chats">...</span>
+            </div>
+            <div class="contact-row">
+                <span class="contact-label">Status</span>
+                <span class="contact-value" id="c-status">Offline</span>
+            </div>
+            <div class="contact-row" style="border-bottom:none;">
+                <span class="contact-label">Last Seen</span>
+                <span class="contact-value" id="c-last-seen">---</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-transfer" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Send Crypto</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Internal transfer to contact</p>
+            <input type="number" id="t-amount" class="input-field" placeholder="Amount ETH" step="0.0001"/>
+            <button class="btn-primary" id="btn-do-transfer">Send Now</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-post-text" class="modal-overlay">
+        <div class="modal-content">
+            <h3>New Text Post</h3>
+            <textarea id="post-text-content" class="input-field" rows="4" placeholder="Say something..."></textarea>
+            <button class="btn-primary" id="btn-submit-post-text">Post</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-post-img" class="modal-overlay">
+        <div class="modal-content">
+            <h3>New Image Post</h3>
+            <label class="file-upload-wrapper" for="post-img-file">
+                <i class="material-icons-round file-upload-icon">cloud_upload</i>
+                <div class="file-upload-text">Tap to Select Image</div>
+                <input type="file" id="post-img-file" accept="image/*" />
+            </label>
+            
+            <div id="img-preview-container" class="hidden" style="margin-bottom: 20px; text-align: center;">
+                <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
+            </div>
+
+            <textarea id="post-img-caption" class="input-field" rows="2" placeholder="Caption (optional)"></textarea>
+            <button class="btn-primary" id="btn-submit-post-img">Post</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-post-money" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Post Crypto (Giveaway)</h3>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Post ETH. First person to click 'Get Now' receives it.</p>
+            <input type="number" id="post-money-amount" class="input-field" placeholder="Amount ETH" step="0.0001"/>
+            <button class="btn-primary" style="background: #fbbf24; color:#000" id="btn-submit-post-money">Publish</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
     <div id="modal-withdraw" class="modal-overlay">
         <div class="modal-content">
-            <h3>Withdraw ETH</h3>
-            <input type="text" id="w-addr" class="input-field" placeholder="0x Address" />
-            <input type="number" id="w-amt" class="input-field" placeholder="Amount ETH" />
-            <button class="btn-primary" id="btn-do-withdraw">Send</button>
-            <button class="btn-primary" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+            <h3>On-Chain Withdraw</h3>
+            <input type="text" id="w-addr" class="input-field" placeholder="0x Recipient Address" />
+            <input type="number" id="w-amt" class="input-field" placeholder="Amount ETH" step="0.0001"/>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px;">Note: You must have enough ETH to cover the transaction gas fee.</p>
+            <button class="btn-primary" id="btn-do-withdraw">Broadcast TX</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-receive" class="modal-overlay">
+        <div class="modal-content" style="text-align: center">
+            <h3>Your Wallet</h3>
+            <div id="r-addr" style="background: var(--bg-color); padding: 20px; border-radius: 12px; word-break: break-all; font-family: monospace; font-size: 13px; margin: 20px 0; border: 1px dashed var(--primary-color); color: var(--primary-color);"></div>
+            <button class="btn-primary" id="btn-copy">Copy Address</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Done</button>
         </div>
     </div>
 
     <div id="modal-edit-profile" class="modal-overlay">
         <div class="modal-content">
             <h3>Edit Profile</h3>
+            <div style="text-align: center; margin-bottom: 25px">
+                <img src="" id="edit-p-preview" class="chat-avatar" style="width: 80px; height: 80px; margin: 0 auto 10px; display: block;" />
+                <button class="btn-primary" style="font-size: 12px; padding: 10px; width:auto; display:inline-block;" id="btn-change-avatar">Change Photo</button>
+                <input type="file" id="avatar-input" accept="image/*" class="hidden" />
+            </div>
             <input type="text" id="edit-p-name" class="input-field" placeholder="Username" />
-            <input type="text" id="edit-p-avatar" class="input-field" placeholder="Avatar URL" />
             <button class="btn-primary" id="btn-save-profile">Save</button>
-            <button class="btn-primary" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
     <div id="modal-new-chat" class="modal-overlay">
         <div class="modal-content">
-            <h3>New Chat</h3>
-            <input type="text" id="search-input" class="input-field" placeholder="Search user..." />
+            <h3>Start Chat</h3>
+            <input type="text" id="search-input" class="input-field" placeholder="Search username..." />
             <div id="search-results"></div>
-            <button class="btn-primary" style="background:transparent; color:gray" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary); margin-top: 10px" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
         </div>
     </div>
 
-    <!-- Feed Modals (kept from original) -->
-    <div id="modal-post-text" class="modal-overlay"><div class="modal-content"><h3>Post Text</h3><textarea id="post-text-content" class="input-field"></textarea><button class="btn-primary" id="btn-submit-post-text">Post</button><button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')" style="background:transparent; color:gray">Cancel</button></div></div>
-    
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-content" style="text-align: center">
+            <h3 id="confirm-title">Delete Message?</h3>
+            <p id="confirm-body" style="margin: 10px 0 25px; font-size: 14px; color: var(--text-secondary);">This action cannot be undone.</p>
+            <button class="btn-primary" style="background: var(--danger-color)" id="btn-confirm-yes">Delete</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" id="btn-confirm-no">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-privacy" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Privacy Settings</h3>
+            <div id="privacy-list" style="margin-bottom:20px; margin-top:10px;"></div>
+            <button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
-        import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, push, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAAy3uUW0adMIMfPVRZXZkOHipi3y1v7gs",
@@ -500,427 +1336,1490 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-        const provider = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
+        const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
+
+        const aiKey = "sk-or-v1-d8c366391799ac041475c42502ba07983aaaf74a0d79fc075c7df7f26d93f7cbe"; 
+        const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
-        let wallet = null;
         let chatId = null;
         let otherUid = null;
+        let wallet = {};
         let users = {};
-        let currentCall = null;
-        let aiHistory = [{ role: "system", content: "You are Crypa AI." }];
+        let cameraStream = null;
+        let isVerified = false;
+        let deletedMessages = {};
+        let feedCache = [];
+        let allPostsRaw = [];
+        let feedOffset = 0;
+        const POST_CHUNK_SIZE = 5;
+        const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+        let currentMsgListener = null;
+        let typingTimeout = null;
+        let currentChatDetails = null; 
+        let currentCommentPostId = null;
+        let chatsDataSnapshot = null; 
 
-        // --- Auth & Init ---
-        onAuthStateChanged(auth, async (u) => {
+        const aiHistory = [
+            { role: "system", content: systemPrompt }
+        ];
+
+        function formatLikes(count) {
+            if(count < 1000) return count;
+            return (count / 1000).toFixed(count > 10000 ? 0 : 1) + 'k';
+        }
+
+        function toast(m) {
+            const e = document.getElementById("toast");
+            if(e) {
+                e.innerText = m;
+                e.classList.add("show");
+                setTimeout(() => e.classList.remove("show"), 3000);
+            }
+        }
+
+        window.toggleDropdown = function(id) {
+            const el = document.getElementById(`dropdown-${id}`);
+            if (el) {
+                const isVisible = el.style.display === 'flex';
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+                if (!isVisible) el.style.display = 'flex';
+            }
+        };
+        
+        window.openContactInfoDropdown = function(uid, chatCount) {
+            const ud = users[uid];
+            if(!ud) return;
+            const cAvatar = document.getElementById('c-avatar');
+            const cUsername = document.getElementById('c-username');
+            const cBadge = document.getElementById('c-badge');
+            const cTotalChats = document.getElementById('c-total-chats');
+            
+            if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+            if(cUsername) cUsername.innerText = ud.username;
+            if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
+            
+            // Total Chats Logic
+            if(cTotalChats && chatCount) {
+                cTotalChats.innerText = chatCount + " Chats";
+                document.getElementById('c-total-chats-row').style.display = 'flex';
+            }
+
+            // Hide Rows Logic
+            if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
+            if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
+
+            const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            const cStatus = document.getElementById('c-status');
+            if(cStatus) {
+                cStatus.innerText = isOnline ? "Online" : "Offline";
+                cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
+            }
+            const cLastSeen = document.getElementById('c-last-seen');
+            if (cLastSeen) {
+                if (isOnline) {
+                    cLastSeen.innerText = "Now";
+                } else if (ud.lastSeen) {
+                    cLastSeen.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    cLastSeen.innerText = "Unknown";
+                }
+            }
+            const modal = document.getElementById('modal-contact-info');
+            if(modal) modal.classList.add('open');
+        };
+
+        window.openComments = function(postKey) {
+            currentCommentPostId = postKey;
+            document.getElementById('modal-comments').classList.add('open');
+            loadComments(postKey);
+        };
+        
+        window.toggleLike = async function(postKey) {
+            if (!user) return toast("Please log in");
+            const likeRef = ref(db, `likes/${postKey}/${user.uid}`);
+            const snap = await get(likeRef);
+            if (snap.exists()) {
+                await remove(likeRef);
+            } else {
+                await set(likeRef, true);
+            }
+        };
+        
+        window.claimMoney = async function(postKey, amount, authorId) {
+            const snap = await get(ref(db, `posts/${postKey}`));
+            if(!snap.exists()) {
+                toast('Already claimed');
+                loadFeed();
+                return;
+            }
+            const rSnap = await get(ref(db, `users/${user.uid}/wallets/eth`));
+            const newBal = (parseFloat(rSnap.val().balance || 0) + parseFloat(amount)).toFixed(4);
+            await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
+            await remove(ref(db, `posts/${postKey}`));
+            toast(`You got ${amount} ETH!`);
+            setupWallet();
+            loadFeed();
+        };
+        
+        window.confirmDeleteMsg = function(mKey) {
+            document.getElementById("modal-confirm").classList.add("open");
+            const yesBtn = document.getElementById("btn-confirm-yes");
+            if(yesBtn) {
+                yesBtn.onclick = function() {
+                    set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
+                    const el = document.getElementById(`msg-bubble-${mKey}`);
+                    if(el) el.remove();
+                    document.getElementById("modal-confirm").classList.remove("open");
+                };
+            }
+        };
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('crypa_theme');
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                themeToggle.checked = true;
+            } else {
+                document.body.classList.remove('light-mode');
+                themeToggle.checked = false;
+            }
+
+            if(themeToggle) {
+                themeToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        document.body.classList.add('light-mode');
+                        localStorage.setItem('crypa_theme', 'light');
+                    } else {
+                        document.body.classList.remove('light-mode');
+                        localStorage.setItem('crypa_theme', 'dark');
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Navigation
+            const navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach((n) => {
+                n.onclick = () => {
+                    const target = n.dataset.target;
+                    if(!target) return;
+                    navItems.forEach((i) => i.classList.remove("active"));
+                    n.classList.add("active");
+                    const view = document.getElementById(target);
+                    if(view) {
+                        document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
+                        view.classList.add("active");
+                        if (target === 'view-feed') loadFeed(true);
+                    }
+                };
+            });
+
+            // Chat List & Buttons
+            const btnNewChat = document.getElementById('btn-new-chat');
+            const btnRefreshFeed = document.getElementById('btn-refresh-feed');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnBackChat = document.getElementById('btn-back-chat');
+            const btnSendMsg = document.getElementById('btn-send-msg');
+            const btnAttach = document.getElementById('btn-attach');
+            const fileInput = document.getElementById('file-input');
+            const btnMoneyModal = document.getElementById('btn-money-modal');
+            const btnDoTransfer = document.getElementById('btn-do-transfer');
+            const pWithdraw = document.getElementById('p-withdraw');
+            const btnDoWithdraw = document.getElementById('btn-do-withdraw');
+            const pReceive = document.getElementById('p-receive');
+            const btnCopy = document.getElementById('btn-copy');
+            const btnEditP = document.getElementById('btn-edit-p');
+            const btnChangeAvatar = document.getElementById('btn-change-avatar');
+            const avatarInput = document.getElementById('avatar-input');
+            const btnSaveProfile = document.getElementById('btn-save-profile');
+            const btnVerifyAccount = document.getElementById('btn-verify-account');
+            const btnCam = document.getElementById('btn-camera-toggle');
+            const idInput = document.getElementById('verify-id-input');
+            const btnVerifySubmit = document.getElementById('btn-verify-submit');
+            const btnPostText = document.getElementById('btn-post-text');
+            const btnSubmitPostText = document.getElementById('btn-submit-post-text');
+            const btnPostImg = document.getElementById('btn-post-img');
+            const postImgFile = document.getElementById('post-img-file');
+            const imgPreviewContainer = document.getElementById('img-preview-container');
+            const postImgPreview = document.getElementById('post-img-preview');
+            const btnSubmitPostImg = document.getElementById('btn-submit-post-img');
+            const btnPostMoney = document.getElementById('btn-post-money');
+            const postMoneyAmount = document.getElementById('post-money-amount');
+            const btnSubmitPostMoney = document.getElementById('btn-submit-post-money');
+            const btnCloseContact = document.getElementById('btn-close-contact');
+            const btnCloseComments = document.getElementById('btn-close-comments');
+            const btnSubmitComment = document.getElementById('btn-submit-comment');
+            const commentInput = document.getElementById('comment-input');
+            const btnConfirmNo = document.getElementById('btn-confirm-no');
+            const btnPrivacyModal = document.getElementById('btn-privacy-modal');
+            const privacyList = document.getElementById('privacy-list');
+            const btnUnblockChat = document.getElementById('btn-unblock-chat');
+            const btnDeleteChatFull = document.getElementById('btn-delete-chat-full');
+            const btnDeleteConfirmReceiver = document.getElementById('btn-delete-confirm-receiver');
+            const btnAiSend = document.getElementById("btn-ai-send");
+            const btnAiClear = document.getElementById("btn-ai-clear");
+            const aiInput = document.getElementById("ai-input");
+            const aiMessages = document.getElementById("ai-messages");
+
+            // AI Logic
+            if(btnAiSend) {
+                btnAiSend.onclick = async () => {
+                    if (!aiInput) return;
+                    const t = aiInput.value.trim();
+                    if (!t) return;
+                    aiHistory.push({ role: "user", content: t });
+                    renderAI();
+                    aiInput.value = "";
+                    const l = document.createElement("div");
+                    l.className = "ai-message bot";
+                    l.id = "ai-loader";
+                    l.innerHTML = '<div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+                    if(aiMessages) aiMessages.appendChild(l);
+                    if(aiMessages) aiMessages.scrollTop = aiMessages.scrollHeight;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                    try {
+                        const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                            method: "POST",
+                            headers: {
+                                Authorization: `Bearer ${aiKey}`,
+                                "Content-Type": "application/json",
+                                "HTTP-Referer": window.location.href,
+                                "X-Title": "Crypa Pro"
+                            },
+                            body: JSON.stringify({
+                                model: "mistralai/devstral-2512:free",
+                                messages: aiHistory
+                            }),
+                            signal: controller.signal
+                        });
+
+                        clearTimeout(timeoutId);
+                        const loader = document.getElementById("ai-loader");
+                        if(loader) loader.remove();
+
+                        if (!r.ok) {
+                            const errText = await r.text();
+                            console.error("AI Error Details:", errText);
+                            throw new Error(`API Error: ${r.status}`);
+                        }
+
+                        const d = await r.json();
+                        if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
+                            console.error("Invalid API Response:", d);
+                            toast("AI Busy or Unavailable");
+                            return;
+                        }
+
+                        let rawContent = d.choices[0].message.content;
+                        
+                        if (!rawContent || rawContent.trim().length < 2) {
+                            console.error("AI returned empty/short content");
+                            toast("AI response was empty. Please try again.");
+                            return;
+                        }
+
+                        let cleanContent = parseAIContent(rawContent);
+                        aiHistory.push({ role: "assistant", content: cleanContent });
+                        renderAI();
+                    } catch (e) {
+                        clearTimeout(timeoutId);
+                        console.error("AI Error:", e);
+                        const loader = document.getElementById("ai-loader");
+                        if(loader) loader.remove();
+                        
+                        if (e.name === 'AbortError') {
+                            toast("Request Timed Out (15s)");
+                        } else {
+                            toast("Connection Failed");
+                        }
+                    }
+                };
+            }
+            if(btnAiClear && aiMessages) {
+                btnAiClear.onclick = () => {
+                    aiHistory.length = 1;
+                    renderAI();
+                };
+            }
+
+            // Profile & Settings
+            if(btnPrivacyModal && privacyList) {
+                btnPrivacyModal.onclick = () => {
+                    const modal = document.getElementById('modal-privacy');
+                    if(modal) modal.classList.add("open");
+                    buildPrivacyUI();
+                };
+            }
+            
+            if(btnLogout) {
+                btnLogout.onclick = () => {
+                    signOut(auth).then(() => {
+                        window.location.href = "index.html";
+                    });
+                };
+            }
+
+            // Chat Logic
+            if(btnNewChat) {
+                btnNewChat.onclick = () => {
+                    const modal = document.getElementById("modal-new-chat");
+                    const searchResults = document.getElementById("search-results");
+                    if(modal) modal.classList.add("open");
+                    if(searchResults) searchResults.innerHTML = "";
+                };
+            }
+            
+            if(document.getElementById('search-input')) {
+                document.getElementById('search-input').oninput = (e) => {
+                    const v = e.target.value.toLowerCase();
+                    const r = document.getElementById("search-results");
+                    r.innerHTML = "";
+                    if (v.length < 2) return;
+                    Object.keys(users).forEach((uid) => {
+                        if (users[uid].username.toLowerCase().includes(v) && uid !== user.uid) {
+                            const d = document.createElement("div");
+                            d.className = "chat-item";
+                            d.style.margin = "5px 0";
+                            d.innerHTML = `<img src="${users[uid].avatar || "https://ui-avatars.com/api/?name=" + users[uid].username}" class="chat-avatar" style="width:35px;height:35px"><div>${users[uid].username}</div>`;
+                            d.onclick = () => {
+                                const cid = [user.uid, uid].sort().join("_");
+                                set(ref(db, `chats/${cid}`), { members: [user.uid, uid], timestamp: Date.now() });
+                                const modal = document.getElementById("modal-new-chat");
+                                if(modal) modal.classList.remove('open');
+                                openChat(cid, uid);
+                            };
+                            r.appendChild(d);
+                        }
+                    });
+                };
+            }
+
+            if(btnBackChat) {
+                btnBackChat.onclick = () => {
+                    const room = document.getElementById("chat-room");
+                    const body = document.body;
+                    if(room) room.classList.remove("active");
+                    if(body) body.classList.remove("chat-active");
+                    if(chatId && user) {
+                        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+                    }
+                };
+            }
+            if(btnSendMsg) {
+                btnSendMsg.onclick = () => {
+                    if(!document.getElementById("msg-input")) return;
+                    const t = document.getElementById("msg-input").value.trim();
+                    sendMsg(t);
+                };
+            }
+            if(btnAttach && fileInput) {
+                btnAttach.onclick = () => fileInput.click();
+            }
+            if(btnMoneyModal && document.getElementById('modal-transfer')) {
+                btnMoneyModal.onclick = () => document.getElementById('modal-transfer').classList.add("open");
+            }
+            if(btnDoTransfer) {
+                btnDoTransfer.onclick = async () => {
+                    if(!document.getElementById("t-amount")) return;
+                    const a = parseFloat(document.getElementById("t-amount").value);
+                    if (!a || a > parseFloat(wallet.balance)) return toast("Insufficient Balance");
+                    const newSenderB = (parseFloat(wallet.balance) - a).toFixed(4);
+                    await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newSenderB });
+                    const rSnap = await get(ref(db, `users/${otherUid}/wallets/eth`));
+                    const newRecB = (parseFloat(rSnap.val()?.balance || 0) + a).toFixed(4);
+                    await update(ref(db, `users/${otherUid}/wallets/eth`), { balance: newRecB });
+                    sendMsg(`💸 Sent ${a} ETH`);
+                    document.getElementById("modal-transfer").classList.remove("open");
+                    setupWallet();
+                };
+            }
+            if(pWithdraw) {
+                pWithdraw.onclick = () => document.getElementById("modal-withdraw").classList.add("open");
+            }
+            if(btnDoWithdraw) {
+                btnDoWithdraw.onclick = async () => {
+                    const wAddr = document.getElementById("w-addr");
+                    const wAmt = document.getElementById("w-amt");
+                    if(!wAddr || !wAmt) return;
+                    const toAddress = wAddr.value;
+                    const amountStr = wAmt.value;
+                    if (!ethers.isAddress(toAddress)) return toast("Invalid Address");
+                    if (!amountStr || parseFloat(amountStr) <= 0) return toast("Invalid Amount");
+
+                    const btn = btnDoWithdraw;
+                    const originalText = btn.innerText;
+                    btn.innerText = "Signing...";
+                    btn.disabled = true;
+
+                    try {
+                        const pk = localStorage.getItem(`pk_${user.uid}`);
+                        if (!pk) throw new Error("Wallet not found in local storage");
+
+                        const walletInstance = new ethers.Wallet(pk);
+                        const connectedWallet = walletInstance.connect(rpc);
+                        const amountWei = ethers.parseEther(amountStr);
+
+                        toast("Broadcasting Transaction...");
+                        const tx = await connectedWallet.sendTransaction({ to: toAddress, value: amountWei });
+                        console.log("Transaction Hash:", tx.hash);
+                        toast(`Success! Hash: ${tx.hash.substring(0, 10)}...`);
+
+                        document.getElementById("modal-withdraw").classList.remove("open");
+                        setupWallet();
+                    } catch (e) {
+                        console.error(e);
+                        toast("Transaction Failed: " + e.message);
+                    } finally {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                };
+            }
+            if(pReceive) {
+                pReceive.onclick = () => {
+                    const modal = document.getElementById("modal-receive");
+                    const rAddr = document.getElementById('r-addr');
+                    if(modal) modal.classList.add('open');
+                    if(rAddr && wallet) rAddr.innerText = wallet.address;
+                };
+            }
+            if(btnCopy) {
+                btnCopy.onclick = () => {
+                    navigator.clipboard.writeText(wallet.address);
+                    toast("Copied");
+                };
+            }
+            if(btnEditP) {
+                btnEditP.onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
+            }
+            if(btnChangeAvatar && avatarInput) {
+                btnChangeAvatar.onclick = () => avatarInput.click();
+                avatarInput.onchange = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        const prev = document.getElementById("edit-p-preview");
+                        if(prev) prev.src = ev.target.result;
+                    };
+                    r.readAsDataURL(f);
+                };
+            }
+            if(btnSaveProfile) {
+                btnSaveProfile.onclick = async () => {
+                    if(!document.getElementById("edit-p-name")) return;
+                    const n = document.getElementById("edit-p-name").value;
+                    const prev = document.getElementById("edit-p-preview");
+                    const av = prev ? prev.src : "";
+                    await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
+                    document.getElementById("modal-edit-profile").classList.remove("open");
+                    toast("Updated");
+                };
+            }
+
+            // Feed & Posts
+            if(btnRefreshFeed) btnRefreshFeed.onclick = () => loadFeed(false);
+            
+            if(btnPostText && document.getElementById('modal-post-text') && document.getElementById('post-text-content')) {
+                btnPostText.onclick = () => {
+                    const modal = document.getElementById("modal-post-text");
+                    if(modal) modal.classList.add("open");
+                };
+            }
+            if(btnSubmitPostText) {
+                btnSubmitPostText.onclick = () => {
+                    const modal = document.getElementById("modal-post-text");
+                    const content = document.getElementById("post-text-content");
+                    if(modal && content) {
+                        const txt = content.value.trim();
+                        if(!txt) return;
+                        toast("Posting...");
+                        push(ref(db, 'posts'), {
+                            type: 'text',
+                            content: txt,
+                            authorId: user.uid,
+                            timestamp: Date.now()
+                        })
+                        .then(() => {
+                            modal.classList.remove("open");
+                            content.value = '';
+                            toast("Posted");
+                        }).catch(e => { console.error(e); toast("Failed to post"); });
+                    }
+                };
+            }
+            
+            if(btnPostImg) {
+                btnPostImg.onclick = () => {
+                    const modal = document.getElementById("modal-post-img");
+                    if(modal) modal.classList.add("open");
+                };
+            }
+            if(postImgFile && imgPreviewContainer && postImgPreview) {
+                postImgFile.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) {
+                        imgPreviewContainer.classList.add('hidden');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        postImgPreview.src = ev.target.result;
+                        imgPreviewContainer.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                };
+            }
+            if(btnSubmitPostImg) {
+                btnSubmitPostImg.onclick = async () => {
+                    const fileInput = postImgFile;
+                    const caption = document.getElementById("post-img-caption");
+                    const modal = document.getElementById("modal-post-img");
+                    
+                    if(!fileInput) return;
+                    const file = fileInput.files[0];
+                    if(!file) return;
+
+                    toast("Posting...");
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            let quality = 0.5;
+                            let res = img.src;
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 500;
+                            canvas.height = (canvas.width / img.width) * img.height;
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            res = canvas.toDataURL('image/jpeg', quality);
+                            while(res.length > 50000 && quality > 0.1) {
+                                quality -= 0.1;
+                                res = canvas.toDataURL('image/jpeg', quality);
+                            }
+                            push(ref(db, 'posts'), {
+                                type: 'img',
+                                content: res,
+                                caption: caption ? caption.value.trim() : '',
+                                authorId: user.uid,
+                                timestamp: Date.now()
+                            })
+                            .then(() => {
+                                if(modal) modal.classList.remove("open");
+                                if(fileInput) fileInput.value = "";
+                                if(caption) caption.value = "";
+                                if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
+                                toast("Posted");
+                            }).catch(e => {
+                                console.error(e);
+                                toast("Upload Failed");
+                            });
+                        };
+                    };
+                };
+            }
+            
+            if(btnPostMoney) {
+                btnPostMoney.onclick = () => {
+                    const modal = document.getElementById("modal-post-money");
+                    if(modal) modal.classList.add("open");
+                };
+            }
+            if(btnSubmitPostMoney && postMoneyAmount) {
+                btnSubmitPostMoney.onclick = async () => {
+                    const amt = parseFloat(postMoneyAmount.value);
+                    const modal = document.getElementById("modal-post-money");
+                    if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
+                    const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
+                    await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
+                    setupWallet();
+                    await push(ref(db, 'posts'), {
+                        type: 'money',
+                        amount: amt,
+                        authorId: user.uid,
+                        timestamp: Date.now()
+                    })
+                    .then(() => {
+                        if(modal) modal.classList.remove("open");
+                        toast('Crypto Posted!');
+                    }).catch(e => {
+                        toast("Failed");
+                    });
+                };
+            }
+
+            // Verification
+            if(btnVerifyAccount) {
+                btnVerifyAccount.onclick = () => {
+                    const modal = document.getElementById('modal-verify');
+                    if(modal) modal.classList.add("open");
+                };
+            }
+            const video = document.getElementById('face-video');
+            const scanOverlay = document.getElementById('scan-overlay');
+            const cameraPlaceholder = document.getElementById('camera-placeholder');
+            const idFilename = document.getElementById('verify-id-filename');
+
+            if(btnCam && video && scanOverlay && cameraPlaceholder) {
+                btnCam.onclick = async () => {
+                    try {
+                        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                        if(cameraPlaceholder) cameraPlaceholder.classList.add('hidden');
+                        if(scanOverlay) scanOverlay.style.display = 'none';
+                        checkVerifyInputs();
+                    } catch(e) {
+                        toast('Camera access denied');
+                    }
+                };
+            }
+            if(idInput && idFilename) {
+                idInput.onchange = () => {
+                    const file = idInput.files[0];
+                    if(file && idFilename) {
+                        idFilename.style.display = 'block';
+                        idFilename.innerText = file.name;
+                    } else {
+                         if(idFilename) idFilename.style.display = 'none';
+                    }
+                    checkVerifyInputs();
+                };
+            }
+            function checkVerifyInputs() {
+                if(btnVerifySubmit && idInput && cameraStream) {
+                    btnVerifySubmit.removeAttribute('disabled');
+                }
+            }
+            if(btnVerifySubmit) {
+                btnVerifySubmit.onclick = async () => {
+                    const content = document.querySelector('#modal-verify .modal-content');
+                    if(btnVerifySubmit) btnVerifySubmit.innerText = "Analyzing...";
+                    if(scanOverlay) scanOverlay.style.display = 'block';
+                    setTimeout(async () => {
+                        if(scanOverlay) scanOverlay.style.display = 'none';
+                        await update(ref(db, `users/${user.uid}`), { verified: true });
+                        updateVerifiedUI(true);
+                        isVerified = true;
+                        if(content) {
+                            content.innerHTML = `
+                                <div style="text-align:center">
+                                    <i class="material-icons-round" style="font-size:60px; color:var(--success-color); margin-bottom:15px">check_circle</i>
+                                    <h3>You're now Verified</h3>
+                                    <p style="color:var(--text-secondary); margin-bottom:20px;">Your identity has been confirmed.</p>
+                                </div>
+                            `;
+                        }
+                        setTimeout(() => {
+                            const modal = document.getElementById('modal-verify');
+                            if(modal) modal.classList.remove('open');
+                            location.reload();
+                        }, 2000);
+                    }, 2500);
+                };
+            }
+
+            // Comments
+            if(btnCloseComments) {
+                btnCloseComments.onclick = () => {
+                    const modal = document.getElementById("modal-comments");
+                    if(modal) {
+                        modal.classList.remove("open");
+                        currentCommentPostId = null;
+                    }
+                };
+            }
+            if(btnSubmitComment && commentInput) {
+                btnSubmitComment.onclick = () => {
+                    if(!currentCommentPostId) return;
+                    const txt = commentInput.value.trim();
+                    if(!txt) return;
+                    push(ref(db, `comments/${currentCommentPostId}`), {
+                        senderId: user.uid,
+                        text: txt,
+                        time: Date.now()
+                    }).then(() => {
+                        commentInput.value = '';
+                        toast("Commented");
+                    });
+                };
+            }
+
+            // Chat Footer
+            if(btnUnblockChat) {
+                btnUnblockChat.onclick = async () => {
+                    if(!chatId) return;
+                    await update(ref(db, `chats/${chatId}`), { blockedBy: null });
+                    const chatFooter = document.getElementById('chat-footer');
+                    const inputBarWrapper = document.getElementById('input-bar-wrapper');
+                    if(chatFooter) chatFooter.classList.add('hidden');
+                    if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
+                    toast("Unblocked");
+                };
+            }
+            if(btnDeleteChatFull) {
+                btnDeleteChatFull.onclick = async () => {
+                    if(!chatId) return;
+                    await remove(ref(db, `chats/${chatId}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+                    await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
+                    
+                    const room = document.getElementById("chat-room");
+                    const body = document.body;
+                    if(room) room.classList.remove("active");
+                    if(body) body.classList.remove("chat-active");
+                    
+                    loadChats();
+                };
+            }
+            if(btnDeleteConfirmReceiver) {
+                btnDeleteConfirmReceiver.onclick = async () => {
+                    if(!chatId) return;
+                    await remove(ref(db, `chats/${chatId}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+                    
+                    const room = document.getElementById("chat-room");
+                    const modal = document.getElementById('modal-chat-deleted');
+                    const body = document.body;
+                    
+                    if(room) room.classList.remove("active");
+                    if(body) body.classList.remove("chat-active");
+                    if(modal) modal.classList.remove('open');
+                    loadChats();
+                };
+            }
+            if(btnCloseContact) {
+                btnCloseContact.onclick = () => {
+                    const modal = document.getElementById('modal-contact-info');
+                    if(modal) modal.classList.remove('open');
+                };
+            }
+
+            // Confirm Modal
+            if(btnConfirmNo) {
+                btnConfirmNo.onclick = () => {
+                    const modal = document.getElementById("modal-confirm");
+                    if(modal) modal.classList.remove("open");
+                };
+            }
+        }); // End DOMContentLoaded
+
+        onAuthStateChanged(auth, (u) => {
             if (u) {
                 user = u;
-                await initWallet();
-                initApp();
+                init();
             } else {
-                // Auto-login for demo functionality if no user
-                signInAnonymously(auth);
+                window.location.href = "index.html";
             }
         });
 
-        async function initWallet() {
-            // Real Wallet with LocalStorage
-            let pk = localStorage.getItem(`crypa_pk_${user.uid}`);
-            if (!pk) {
-                const w = ethers.Wallet.createRandom();
-                pk = w.privateKey;
-                localStorage.setItem(`crypa_pk_${user.uid}`, pk);
+        async function init() {
+            initTheme();
+            
+            const cachedUsersJSON = localStorage.getItem('crypa_users_cache');
+            if (cachedUsersJSON) {
+                try {
+                    users = JSON.parse(cachedUsersJSON);
+                } catch(e) {}
             }
-            wallet = new ethers.Wallet(pk, provider);
-            
-            // Sync public address
-            update(ref(db, `users/${user.uid}`), {
-                walletAddress: wallet.address,
-                lastOnline: Date.now()
-            });
-            
-            document.getElementById("p-wallet-addr").innerText = wallet.address;
-            refreshBalance();
-        }
 
-        async function refreshBalance() {
-            try {
-                const bal = await provider.getBalance(wallet.address);
-                document.getElementById("p-wallet-bal").innerText = parseFloat(ethers.formatEther(bal)).toFixed(4);
-            } catch(e) { console.log("RPC Error", e); }
-        }
-
-        function initApp() {
-            // Load Users
-            onValue(ref(db, 'users'), s => {
-                if(s.exists()) users = s.val();
-                if(users[user.uid]) {
-                    document.getElementById("p-username").innerText = users[user.uid].username || "User";
-                    document.getElementById("p-avatar").src = users[user.uid].avatar || `https://ui-avatars.com/api/?name=${user.uid}`;
-                }
-            });
-
-            loadChats();
-            loadFeed();
-            initCalling();
-
-            // Presence
-            setInterval(() => {
-                if(user) update(ref(db, `users/${user.uid}/lastOnline`), Date.now());
-            }, 10000);
-        }
-
-        // --- Chat Logic ---
-        function loadChats() {
-            const list = document.getElementById("chat-list");
-            onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
-                list.innerHTML = "";
-                if(!s.exists()) return;
-
-                const chats = s.val();
-                for(let cid in chats) {
-                    // Check if deleted
-                    const chatMeta = await get(ref(db, `chats/${cid}`));
-                    if(!chatMeta.exists()) continue;
-
-                    const meta = chatMeta.val();
-                    const oid = meta.members.find(id => id !== user.uid);
-                    const ou = users[oid] || {username:"Unknown", avatar:""};
-                    const isBlockedByMe = meta.blockedBy === user.uid;
-                    const amBlocked = meta.blockedBy === oid;
-
-                    const div = document.createElement("div");
-                    div.className = "chat-item";
-                    div.innerHTML = `
-                        <div class="avatar-wrapper">
-                            <img src="${ou.avatar || `https://ui-avatars.com/api/?name=${ou.username}`}" class="chat-avatar">
-                            ${ou.verified ? '<div class="verified-badge"><i class="material-icons-round" style="font-size:10px">check</i></div>' : ''}
-                        </div>
-                        <div class="chat-info">
-                            <div class="chat-name">${ou.username}</div>
-                            <div class="chat-msg" style="${amBlocked ? 'color:red' : ''}">${amBlocked ? 'You are blocked' : (chats[cid].lastMessage || 'No messages')}</div>
-                        </div>
-                        <div class="chat-dots" id="dots-${cid}"><i class="material-icons-round">more_vert</i></div>
-                        <div class="dropdown-menu" id="menu-${cid}">
-                            <div class="dropdown-item" id="act-about-${cid}"><i class="material-icons-round">info</i> About User</div>
-                            <div class="dropdown-item" id="act-block-${cid}"><i class="material-icons-round">block</i> ${isBlockedByMe ? 'Unblock' : 'Block Chat'}</div>
-                            <div class="dropdown-item delete" id="act-delete-${cid}"><i class="material-icons-round">delete</i> Delete Chat</div>
-                        </div>
-                    `;
-
-                    div.onclick = (e) => {
-                        if(!e.target.closest('.chat-dots') && !e.target.closest('.dropdown-menu')) {
-                            openChat(cid, oid);
-                        }
-                    };
-
-                    const dots = div.querySelector(`#dots-${cid}`);
-                    const menu = div.querySelector(`#menu-${cid}`);
+            onValue(ref(db, `users/${user.uid}`), (s) => {
+                if (s.exists()) {
+                    const d = s.val();
+                    const pUsername = document.getElementById("p-username");
+                    const pAvatar = document.getElementById("p-avatar");
+                    const pBadge = document.getElementById("p-badge");
+                    const vBtn = document.getElementById('btn-verify-account');
                     
-                    dots.onclick = () => {
-                        document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
-                        menu.style.display = 'flex';
-                    };
-
-                    div.querySelector(`#act-delete-${cid}`).onclick = () => deleteChatAction(cid);
-                    div.querySelector(`#act-block-${cid}`).onclick = () => blockChatAction(cid, oid, isBlockedByMe);
-                    div.querySelector(`#act-about-${cid}`).onclick = () => aboutUserAction(cid, oid);
-
-                    list.appendChild(div);
+                    if(pUsername) pUsername.innerText = d.username;
+                    if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+                    if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
+                    if(vBtn) vBtn.classList.toggle('hidden', d.verified);
+                    
+                    users[user.uid] = d;
+                    localStorage.setItem('crypa_users_cache', JSON.stringify(users));
+                    isVerified = !!d.verified;
                 }
             });
-        }
 
-        async function openChat(cid, oid) {
-            // Check if chat exists in my list (handle deletion)
-            const myChatRef = await get(ref(db, `user_chats/${user.uid}/${cid}`));
-            if(!myChatRef.exists()) {
-                document.getElementById('modal-delete-chat').classList.add('open');
-                document.getElementById('btn-force-delete').onclick = () => document.getElementById('modal-delete-chat').classList.remove('open');
-                return;
+            const as = await get(ref(db, "users"));
+            if (as.exists()) {
+                const dbUsers = as.val();
+                users = { ...users, ...dbUsers };
+                localStorage.setItem('crypa_users_cache', JSON.stringify(users));
             }
 
-            chatId = cid;
-            otherUid = oid;
-            document.getElementById("chat-room").classList.add("active");
-            document.getElementById("curr-chat-name").innerText = users[oid]?.username || "User";
-            document.querySelectorAll('.dropdown-menu').forEach(m => m.style.display = 'none');
-
-            // Handle Block UI
-            onValue(ref(db, `chats/${cid}/blockedBy`), s => {
-                const blockedBy = s.val();
-                const inputWrap = document.getElementById("input-bar-wrapper");
-                const blockBar = document.getElementById("blocked-bar");
-                
-                if(blockedBy === user.uid) {
-                    inputWrap.classList.add("hidden");
-                    blockBar.classList.remove("hidden");
-                    document.getElementById("btn-bar-unblock").onclick = () => blockChatAction(cid, oid, true);
-                    document.getElementById("btn-bar-delete").onclick = () => deleteChatAction(cid);
-                } else {
-                    inputWrap.classList.remove("hidden");
-                    blockBar.classList.add("hidden");
-                }
-            });
-
-            // Load Messages
-            const area = document.getElementById("messages-area");
-            onValue(ref(db, `messages/${cid}`), s => {
-                area.innerHTML = "";
-                if(s.exists()) {
-                    s.forEach(child => {
-                        const m = { key: child.key, ...child.val() };
-                        const isMe = m.sender === user.uid;
-                        
-                        // Delivery Ticks
-                        let ticks = "";
-                        if(isMe) {
-                            ticks = m.read ? '<i class="material-icons-round msg-tick" style="color:#4ade80">done_all</i>' 
-                                           : '<i class="material-icons-round msg-tick">done</i>';
-                        } else if (!m.read) {
-                            update(ref(db, `messages/${cid}/${m.key}`), {read: true});
-                        }
-
-                        const div = document.createElement("div");
-                        div.className = `message-bubble ${isMe ? 'sent' : 'received'}`;
-                        div.innerHTML = `
-                            ${m.type === 'img' ? `<img src="${m.text}" style="max-width:100%; border-radius:10px">` : `<div>${m.text}</div>`}
-                            <div class="msg-meta">
-                                <span class="msg-time">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                                ${ticks}
-                            </div>
-                            <div class="msg-delete-icon" onclick="window.deleteMsg('${cid}', '${m.key}')"><i class="material-icons-round">delete</i></div>
-                        `;
-                        area.appendChild(div);
-                    });
-                    area.scrollTop = area.scrollHeight;
-                }
-            });
-        }
-
-        window.deleteMsg = (cid, mid) => {
-            remove(ref(db, `messages/${cid}/${mid}`));
-        };
-
-        // --- Chat Actions ---
-        async function deleteChatAction(cid) {
-            await remove(ref(db, `user_chats/${user.uid}/${cid}`));
-            // Note: Messages persist for the other user.
-            document.getElementById("chat-room").classList.remove("active");
+            setupWallet();
             loadChats();
+            buildPrivacyUI();
+            renderAI();
         }
 
-        function blockChatAction(cid, oid, unblock) {
-            set(ref(db, `chats/${cid}/blockedBy`), unblock ? null : user.uid);
+        function updateVerifiedUI(verified) {
+            const pBadge = document.getElementById('p-badge');
+            const vBtn = document.getElementById('btn-verify-account');
+            if (pBadge) pBadge.classList.toggle('hidden', !verified);
+            if (vBtn) vBtn.classList.toggle('hidden', verified);
         }
 
-        async function aboutUserAction(cid, oid) {
-            const u = users[oid];
-            if(!u) return;
-            
-            let msgCount = 0;
-            const msgs = await get(ref(db, `messages/${cid}`));
-            if(msgs.exists()) {
-                msgs.forEach(c => { if(c.val().sender === oid) msgCount++; });
-            }
-
-            const html = `
-                <b>Username:</b> ${u.username}<br>
-                <b>Verified:</b> ${u.verified ? "Yes" : "No"}<br>
-                <b>Messages sent:</b> ${msgCount}<br>
-                <b>Joined:</b> ${new Date(u.createdAt || Date.now()).toLocaleDateString()}<br>
-            `;
-            document.getElementById("about-stats-content").innerHTML = html;
-            document.getElementById("modal-about-user").classList.add("open");
-        }
-
-        // --- Sending ---
-        document.getElementById("btn-send-msg").onclick = async () => {
-            const input = document.getElementById("msg-input");
-            const txt = input.value.trim();
-            if(!txt || !chatId) return;
-
-            // Check if blocked by other
-            const meta = await get(ref(db, `chats/${chatId}`));
-            if(meta.exists() && meta.val().blockedBy === otherUid) {
-                // Ghost message
-                const area = document.getElementById("messages-area");
-                const div = document.createElement("div");
-                div.className = "message-bubble sent sent-blocked";
-                div.innerText = txt;
-                area.appendChild(div);
-                area.scrollTop = area.scrollHeight;
-                input.value = "";
-                setTimeout(() => div.style.opacity = 0, 1000);
-                setTimeout(() => div.remove(), 2000);
-                return;
-            }
-
-            push(ref(db, `messages/${chatId}`), {
-                sender: user.uid, text: txt, type: 'text', time: Date.now(), read: false
-            });
-            update(ref(db, `user_chats/${user.uid}/${chatId}`), { lastMessage: txt });
-            update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMessage: txt });
-            input.value = "";
-        };
-
-        // --- Calling System ---
-        function initCalling() {
-            onValue(ref(db, `calls/${user.uid}`), s => {
-                if(s.exists()) {
-                    const data = s.val();
-                    if(data.status === 'ringing') showIncomingCall(data);
-                    else if (data.status === 'ended') endCallUI();
-                }
-            });
-        }
-
-        document.getElementById("btn-call-user").onclick = async () => {
-            if(!otherUid) return;
-            const u = users[otherUid];
-            if(!u.lastOnline || Date.now() - u.lastOnline > 30000) {
-                toast("User is offline");
-                return;
-            }
-
-            currentCall = otherUid;
-            document.getElementById("call-ui-name").innerText = u.username;
-            document.getElementById("call-ui-avatar").src = u.avatar || "";
-            document.getElementById("call-ui-status").innerText = "Calling...";
-            
-            document.getElementById("call-screen").style.display = "flex";
-            document.getElementById("incoming-controls").style.display = "none";
-            document.getElementById("active-controls").style.display = "flex";
-
-            set(ref(db, `calls/${otherUid}`), { caller: user.uid, status: 'ringing' });
-            
-            // Listen for answer
-            onValue(ref(db, `calls/${otherUid}`), s => {
-                const d = s.val();
-                if(!d) { endCallUI(); return; }
-                if(d.status === 'connected') document.getElementById("call-ui-status").innerText = "Connected";
-            });
-        };
-
-        function showIncomingCall(data) {
-            const caller = users[data.caller] || {username:"Unknown"};
-            document.getElementById("call-ui-name").innerText = caller.username;
-            document.getElementById("call-ui-avatar").src = caller.avatar || "";
-            document.getElementById("call-ui-status").innerText = "Incoming Call...";
-            
-            document.getElementById("call-screen").style.display = "flex";
-            document.getElementById("incoming-controls").style.display = "flex";
-            document.getElementById("active-controls").style.display = "none";
-            
-            document.getElementById("ringtone").currentTime = 0;
-            document.getElementById("ringtone").play().catch(e=>{});
-        }
-
-        document.getElementById("btn-answer-call").onclick = () => {
-            document.getElementById("ringtone").pause();
-            update(ref(db, `calls/${user.uid}`), { status: 'connected' });
-            document.getElementById("incoming-controls").style.display = "none";
-            document.getElementById("active-controls").style.display = "flex";
-            document.getElementById("call-ui-status").innerText = "Connected";
-        };
-
-        document.getElementById("btn-reject-call").onclick = () => {
-            document.getElementById("ringtone").pause();
-            update(ref(db, `calls/${user.uid}`), { status: 'ended' });
-            setTimeout(() => {
-                remove(ref(db, `calls/${user.uid}`));
-                endCallUI();
-            }, 1000);
-        };
-
-        document.getElementById("btn-end-call").onclick = () => {
-            if(currentCall) {
-                remove(ref(db, `calls/${currentCall}`));
-                currentCall = null;
+        async function setupWallet() {
+            const localPk = localStorage.getItem(`pk_${user.uid}`);
+            if (localPk) {
+                wallet = new ethers.Wallet(localPk);
+                try {
+                    const b = await rpc.getBalance(wallet.address);
+                    wallet.balance = parseFloat(ethers.formatEther(b)).toFixed(4);
+                    update(ref(db, `users/${user.uid}/wallets/eth`), { balance: wallet.balance });
+                } catch(e) {}
             } else {
-                update(ref(db, `calls/${user.uid}`), { status: 'ended' });
-                setTimeout(() => remove(ref(db, `calls/${user.uid}`)), 500);
+                const s = await get(ref(db, `users/${user.uid}/wallets/eth`));
+                if (!s.exists()) {
+                    const w = ethers.Wallet.createRandom();
+                    wallet = { address: w.address, balance: "0.00" };
+                    localStorage.setItem(`pk_${user.uid}`, w.privateKey);
+                    await set(ref(db, `users/${user.uid}/wallets/eth`), wallet);
+                } else {
+                    const wData = s.val();
+                    const freshW = ethers.Wallet.createRandom();
+                    wallet = { address: freshW.address, balance: wData.balance };
+                    localStorage.setItem(`pk_${user.uid}`, freshW.privateKey);
+                    await update(ref(db, `users/${user.uid}/wallets/eth`), { address: wallet.address });
+                    try {
+                        const b = await rpc.getBalance(wallet.address);
+                        wallet.balance = parseFloat(ethers.formatEther(b)).toFixed(4);
+                        update(ref(db, `users/${user.uid}/wallets/eth`), { balance: wallet.balance });
+                    } catch(e) {}
+                }
             }
-            endCallUI();
-        };
-
-        function endCallUI() {
-            document.getElementById("call-screen").style.display = "none";
-            document.getElementById("ringtone").pause();
+            const pWalletBal = document.getElementById("p-wallet-bal");
+            const pWalletAddr = document.getElementById("p-wallet-addr");
+            const rAddr = document.getElementById('r-addr');
+            if(pWalletBal) pWalletBal.innerText = `${wallet.balance} ETH`;
+            if(pWalletAddr) pWalletAddr.innerText = wallet.address;
+            if(rAddr) rAddr.innerText = wallet.address;
         }
 
-        // --- Feed Logic ---
-        function loadFeed() {
-            onValue(ref(db, 'posts'), s => {
-                const c = document.getElementById("feed-content");
-                c.innerHTML = "";
-                c.classList.remove("hidden"); // Fix flash
-                if(!s.exists()) { c.innerHTML = "<div style='text-align:center; padding:20px; color:gray'>No posts yet.</div>"; return; }
-                
-                const posts = Object.values(s.val()).reverse(); // Simplified for brevity
-                posts.forEach(p => {
-                    const u = users[p.authorId] || {username:"User"};
-                    const div = document.createElement("div");
-                    div.className = "post-card";
-                    div.innerHTML = `
-                        <div class="post-header">
-                            <img src="${u.avatar || ''}" class="chat-avatar" style="width:30px;height:30px">
-                            <b>${u.username}</b>
-                        </div>
-                        <div class="post-content-text">${p.content || ''}</div>
-                    `;
-                    c.appendChild(div);
-                });
-            });
-        }
-
-        // --- Profile Actions ---
-        document.getElementById("p-withdraw").onclick = () => document.getElementById("modal-withdraw").classList.add("open");
-        document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
-        document.getElementById("btn-edit-p").onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
-        
-        document.getElementById("btn-save-profile").onclick = () => {
-            update(ref(db, `users/${user.uid}`), {
-                username: document.getElementById("edit-p-name").value,
-                avatar: document.getElementById("edit-p-avatar").value
-            });
-            document.getElementById("modal-edit-profile").classList.remove("open");
-        };
-
-        document.getElementById("btn-do-withdraw").onclick = async () => {
-            const to = document.getElementById("w-addr").value;
-            const amt = document.getElementById("w-amt").value;
-            if(!ethers.isAddress(to)) return toast("Invalid Address");
-            
-            try {
-                const tx = await wallet.sendTransaction({
-                    to: to,
-                    value: ethers.parseEther(amt)
-                });
-                toast("Tx Sent: " + tx.hash.substring(0,6));
-                document.getElementById("modal-withdraw").classList.remove("open");
-            } catch(e) { toast("Error: " + e.message); }
-        };
-
-        // --- Navigation ---
-        document.querySelectorAll(".nav-item").forEach(n => {
-            n.onclick = () => {
-                document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
-                n.classList.add("active");
-                document.querySelectorAll(".view-container").forEach(v => v.classList.remove("active"));
-                document.getElementById(n.dataset.target).classList.add("active");
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('.chat-dots')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
             }
         });
 
-        document.getElementById("btn-back-chat").onclick = () => document.getElementById("chat-room").classList.remove("active");
-        
-        function toast(m) {
-            const t = document.getElementById("toast");
-            t.innerText = m; t.style.opacity = 1;
-            setTimeout(() => t.style.opacity = 0, 3000);
+        function renderChatList(enrichedChats) {
+            const l = document.getElementById("chat-list");
+            if(l) l.innerHTML = "";
+            if (!enrichedChats) return;
+
+            const totalChats = Object.keys(enrichedChats).length;
+
+            for (const id in enrichedChats) {
+                const ouid = enrichedChats[id].otherUid;
+                if(!ouid) continue;
+                const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
+                if(document.getElementById(`chat-item-${id}`)) continue;
+
+                const item = document.createElement("div");
+                item.className = "chat-item";
+                item.id = `chat-item-${id}`;
+                item.onclick = (e) => {
+                    if(!e.target.closest('.chat-dots')) openChat(id, ouid);
+                };
+
+                const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
+                const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
+                const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+                const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
+                const hasNewMsg = enrichedChats[id].timestamp && ud.lastSeen && (enrichedChats[id].timestamp > ud.lastSeen);
+                const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
+
+                // Check if user blocked this contact
+                const isBlockedByMe = enrichedChats[id].blockedBy === user.uid;
+                const blockBtnHtml = isBlockedByMe
+                    ? `<div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', true)"><i class="material-icons-round">lock_open</i> Unblock</div>`
+                    : `<div class="dropdown-item delete" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', false)"><i class="material-icons-round">block</i> Block Chat</div>`;
+
+                let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
+                if(ud.verified) avatarContent += verifiedHTML;
+                if(isUserOnline) avatarContent += onlineHTML;
+
+                item.innerHTML = `
+                    <div class="avatar-wrapper">
+                        ${avatarContent}
+                        ${badgeHTML}
+                    </div>
+                    <div class="chat-info">
+                        <div class="chat-name">
+                            ${ud.username} ${pillHTML}
+                        </div>
+                        <div class="chat-msg">${enrichedChats[id].lastMessage}</div>
+                    </div>
+                    <div class="chat-dots" onclick="event.stopPropagation(); window.toggleDropdown('${id}')">
+                        <i class="material-icons-round">more_vert</i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-${id}">
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.openContactInfoDropdown('${ouid}')"><i class="material-icons-round">info</i> About Profile</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
+                        ${blockBtnHtml}
+                    </div>
+                `;
+                l.appendChild(item);
+            }
+            // Update Contact Info with total chats count
+            if(totalChats > 0 && document.getElementById('c-total-chats')) {
+                document.getElementById('c-total-chats').innerText = totalChats + " Chats";
+                document.getElementById('c-total-chats-row').style.display = 'flex';
+            }
         }
 
-        // Global
-        window.deleteMsg = deleteMsg;
+        function loadChats() {
+            if(!document.getElementById("view-chat").classList.contains("active")) return;
+            const cachedChatsJSON = localStorage.getItem('crypa_chats_list');
+            if (cachedChatsJSON) {
+                try {
+                    const cachedChats = JSON.parse(cachedChatsJSON);
+                    renderChatList(cachedChats);
+                } catch(e) {}
+            }
+
+            onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
+                const l = document.getElementById("chat-list");
+                if(l) l.innerHTML = "";
+                const d = s.val();
+                if (!d) return;
+
+                const enrichedChats = {};
+                for (const id in d) {
+                    const cs = await get(ref(db, `chats/${id}`));
+                    if (!cs.exists()) continue;
+                    const members = cs.val().members;
+                    const ouid = members.find((m) => m !== user.uid);
+                    enrichedChats[id] = { ...d[id], otherUid: ouid, blockedBy: cs.val().blockedBy };
+                }
+                localStorage.setItem('crypa_chats_list', JSON.stringify(enrichedChats));
+                renderChatList(enrichedChats);
+            });
+
+            onValue(ref(db, `users/${user.uid}`), (s) => {
+                if(s.exists()) users[user.uid] = s.val();
+            });
+        }
+
+        window.deleteMyChat = async (id, uid) => {
+            const chatSnap = await get(ref(db, `chats/${id}`));
+            if(chatSnap.exists()) {
+                let deletedList = chatSnap.val().deletedBy || [];
+                if(!deletedList.includes(user.uid)) {
+                    deletedList.push(user.uid);
+                    await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
+                }
+            }
+            await remove(ref(db, `user_chats/${user.uid}/${id}`));
+            const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
+            delete cached[id];
+            localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
+            const el = document.getElementById(`chat-item-${id}`);
+            if(el) el.remove();
+            window.toggleDropdown(id);
+        };
+
+        window.blockUser = async (id, uid, unblock) => {
+            if(unblock) {
+                 await update(ref(db, `chats/${id}`), { blockedBy: null });
+            } else {
+                 await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
+                 toast("User blocked");
+            }
+            // Reload specific menu item to reflect change
+            const item = document.getElementById(`chat-item-${id}`);
+            if(item) {
+                const btnDiv = item.querySelector('.dropdown-item:last-child');
+                if(btnDiv) {
+                    btnDiv.innerHTML = `<i class="material-icons-round">block</i> Block Chat`;
+                    btnDiv.onclick = () => window.blockUser(id, uid, false);
+                }
+            }
+        };
+
+        const contactModal = document.getElementById('modal-contact-info');
+        
+        function openContactInfo() {
+            const ud = users[otherUid];
+            if(!ud) return;
+
+            const cAvatar = document.getElementById('c-avatar');
+            const cUsername = document.getElementById('c-username');
+            const cBadge = document.getElementById('c-badge');
+            const cTotalChats = document.getElementById('c-total-chats');
+            
+            if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+            if(cUsername) cUsername.innerText = ud.username;
+            if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
+
+            const joinedDate = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024"; 
+            const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            const cStatus = document.getElementById('c-status');
+            if(cStatus) {
+                cStatus.innerText = isOnline ? "Online" : "Offline";
+                cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
+            }
+
+            const cLastSeen = document.getElementById('c-last-seen');
+            if (cLastSeen) {
+                if (isOnline) {
+                    cLastSeen.innerText = "Now";
+                } else if (ud.lastSeen) {
+                    cLastSeen.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    cLastSeen.innerText = "Unknown";
+                }
+            }
+            
+            // Hide Rows Logic
+            if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
+            if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
+            if(document.getElementById('c-total-chats-row')) document.getElementById('c-total-chats-row').style.display = 'none';
+
+            contactModal.classList.add('open');
+        }
+
+        function openChat(id, uid) {
+            chatId = id;
+            otherUid = uid;
+            const room = document.getElementById("chat-room");
+            const body = document.body;
+            if(room) room.classList.add("active");
+            if(body) body.classList.add("chat-active");
+
+            const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
+            const currName = document.getElementById("curr-chat-name");
+            const currAvatar = document.getElementById("curr-chat-avatar");
+            const badge = document.getElementById('curr-chat-badge');
+            
+            if(currName) currName.innerText = ud.username;
+            if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
+            if(badge) badge.classList.toggle('hidden', !ud.verified);
+
+            const chatFooter = document.getElementById('chat-footer');
+            const inputBarWrapper = document.getElementById('input-bar-wrapper');
+
+            if(chatFooter) chatFooter.classList.add('hidden');
+            if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
+
+            // Check Status
+            get(ref(db, `chats/${id}`)).then(s => {
+                if(!s.exists()) return; 
+                const data = s.val();
+                currentChatDetails = data;
+
+                if(data.deletedBy && data.deletedBy.includes(otherUid)) {
+                    const modal = document.getElementById('modal-chat-deleted');
+                    if(modal) modal.classList.add('open');
+                }
+
+                if(data.blockedBy === user.uid) {
+                    if(chatFooter) chatFooter.classList.remove('hidden');
+                    if(inputBarWrapper) inputBarWrapper.classList.add('hidden');
+                } else if (data.blockedBy === otherUid) {
+                    toast("You cannot message this user");
+                    if(inputBarWrapper) inputBarWrapper.classList.add('hidden');
+                }
+            });
+
+            if (currentMsgListener) currentMsgListener();
+            const a = document.getElementById("messages-area");
+            if(a) a.innerHTML = "";
+
+            const typingEl = document.createElement("div");
+            typingEl.id = "typing-indicator";
+            typingEl.className = "message-bubble received hidden";
+            typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+            if(a) a.appendChild(typingEl);
+
+            onValue(ref(db, `messages/${id}`), async (s) => {
+                if(s.exists()) {
+                    const msgs = s.val();
+                    let updates = {};
+                    let needsUpdate = false;
+                    for(const key in msgs) {
+                        if(msgs[key].sender === otherUid && !msgs[key].read) {
+                            updates[`${key}/read`] = true;
+                            needsUpdate = true;
+                        }
+                    }
+                    if(needsUpdate) {
+                        await update(ref(db, `messages/${id}`), updates);
+                    }
+                }
+            });
+
+            onValue(ref(db, `users/${user.uid}/deletedMessages`), (s) => {
+                if(s.exists()) deletedMessages = s.val();
+                else deletedMessages = {};
+                renderCachedMessages();
+            });
+
+            if (window.currentMsgsRaw && window.currentMsgsRaw.length > 0) {
+                renderCachedMessages();
+            }
+
+            currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
+                if(!s.exists()) return;
+                window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+                window.currentMsgsRaw.sort((a, b) => a.time - b.time);
+                renderCachedMessages();
+                update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
+            });
+
+            onValue(ref(db, `chats/${id}/typing/${otherUid}`), (s) => {
+                const isTyping = s.val();
+                const typingEl = document.getElementById('typing-indicator');
+                if(typingEl) {
+                    if(isTyping) {
+                        typingEl.classList.remove('hidden');
+                        if(a) a.scrollTop = a.scrollHeight;
+                    } else {
+                        typingEl.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        function renderCachedMessages() {
+            const a = document.getElementById("messages-area");
+            if (!a) return;
+
+            const typingEl = document.getElementById('typing-indicator');
+            if(a) a.innerHTML = ""; 
+            
+            const msgs = window.currentMsgsRaw || [];
+
+            const html = msgs.map(m => {
+                if (deletedMessages[m.key]) return '';
+                const isMe = m.sender === user.uid;
+                const typeClass = isMe ? "sent" : "received";
+                
+                let contentHtml = "";
+                if (m.type === 'img') {
+                    contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
+                } else if (m.text) {
+                    contentHtml = `<div>${m.text}</div>`;
+                }
+                const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
+                
+                let statusHtml = "";
+                if(isMe) {
+                    statusHtml = `<i class="material-icons-round msg-status" style="font-family: 'Material Icons Round'; font-size: 14px; color: var(--success-color);">done</i>`;
+                }
+
+                const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
+
+                return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
+                    ${contentHtml}
+                    ${deleteIconHtml}
+                    <div class="msg-meta">
+                        ${timeHtml}
+                        ${statusHtml}
+                    </div>
+                </div>`;
+            }).join('');
+            if(a) a.insertAdjacentHTML('beforeend', html);
+
+            if(typingEl) {
+                a.appendChild(typingEl);
+            }
+            if(a) a.scrollTop = a.scrollHeight;
+        }
+
+        async function sendMsg(txt, type = "text") {
+            if (!txt || !chatId) return;
+            
+            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
+                toast("You are blocked by this user");
+                return;
+            }
+
+            const i = document.getElementById("msg-input");
+            if(i) i.value = "";
+            
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+
+            if (currentChatDetails && currentChatDetails.blockedBy === user.uid) {
+                const a = document.getElementById("messages-area");
+                const bubble = document.createElement("div");
+                bubble.className = "message-bubble sent sent-blocked";
+                bubble.style.alignSelf = "flex-end";
+                bubble.innerHTML = `
+                    <div>${txt}</div>
+                    <div class="msg-meta">
+                        <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>`;
+                a.appendChild(bubble);
+                if(a) a.scrollTop = a.scrollHeight;
+                setTimeout(() => {
+                    bubble.style.opacity = '0';
+                    if(bubble) bubble.remove();
+                }, 1000);
+                return;
+            }
+
+            const mRef = push(ref(db, `messages/${chatId}`));
+            await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now(), read: false });
+            const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
+            update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
+            update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
+        }
+
+        const msgInput = document.getElementById("msg-input");
+        if(msgInput) {
+            msgInput.addEventListener("input", () => {
+                if (!chatId) return;
+                set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+                }, 2000);
+            });
+        }
+
+        function loadComments(postKey) {
+            const list = document.getElementById('comments-list');
+            if(list) list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>';
+            onValue(ref(db, `comments/${postKey}`), (s) => {
+                if(!s.exists()) {
+                    list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No comments yet.</div>';
+                    return;
+                }
+                const comments = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+                comments.sort((a, b) => a.time - b.time);
+                
+                let html = '';
+                comments.forEach(c => {
+                    const u = users[c.senderId] || { username: 'Unknown' };
+                    const timeStr = new Date(c.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    html += `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span style="font-weight:600">${u.username}</span>
+                                <span>${timeStr}</span>
+                            </div>
+                            <div class="comment-text">${c.text}</div>
+                        </div>
+                    `;
+                });
+                if(list) list.innerHTML = html;
+            });
+        }
+
+        // FEED LOGIC
+        function loadFeed(useCache = false) {
+            const container = document.getElementById('feed-content');
+            if (!container) return;
+
+            if(useCache && feedCache.length > 0) {
+                renderNextChunk();
+                return;
+            }
+
+            onValue(ref(db, 'posts'), (s) => {
+                const container = document.getElementById('feed-content');
+                if (!container) return;
+
+                if(!s.exists()) {
+                    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
+                    return;
+                }
+
+                const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+                const now = Date.now();
+
+                const activePosts = posts.filter(p => {
+                    const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
+                    const isMoney = p.type === 'money';
+                    return !isOld || isMoney;
+                });
+
+                posts.forEach(p => {
+                    const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
+                    const isMoney = p.type === 'money';
+                    if (isOld && !isMoney && p.authorId === user.uid) {
+                        remove(ref(db, `posts/${p.key}`));
+                    }
+                });
+
+                allPostsRaw = activePosts;
+                allPostsRaw.sort(() => Math.random() - 0.5);
+                feedOffset = 0;
+                if(container) container.innerHTML = '';
+                renderNextChunk();
+            });
+        }
+
+        function renderNextChunk() {
+            const container = document.getElementById('feed-content');
+            if (!container) return;
+
+            let chunksLoaded = 0;
+            const MAX_CHUNKS_AT_ONCE = 5;
+
+            while (chunksLoaded < MAX_CHUNKS_AT_ONCE && feedOffset < allPostsRaw.length) {
+                const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
+                feedOffset += POST_CHUNK_SIZE;
+                chunksLoaded++;
+
+                chunk.forEach(post => {
+                    if(!post) return;
+
+                    const el = document.createElement("div");
+                    let uData = users[post.authorId];
+                    if(!uData) uData = { username: 'Unknown', avatar: '', verified: false };
+
+                    const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
+
+                    if (post.type === 'money') {
+                        el.className = 'money-post-card';
+                        el.innerHTML = `
+                            <div style="z-index:2">
+                                <div style="font-size:12px; opacity:0.8">Crypto Post!</div>
+                                <div class="money-amount">${post.amount} ETH</div>
+                                <div style="margin-bottom:10px">By ${uData.username}</div>
+                                <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
+                            </div>
+                            <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
+                        `;
+                    } else {
+                        el.className = 'post-card';
+                        let contentHTML = '';
+                        if (post.type === 'img') {
+                            contentHTML = `<img src="${post.content}" class="post-content-img">`;
+                        }
+                        contentHTML += `<div class="post-content-text">${post.content || ''}</div>`;
+                        
+                        const actionsHTML = `
+                            <div class="post-actions">
+                                <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')"><i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i> Comment</button>
+                                <div class="like-container">
+                                    <div class="like-count" id="like-count-${post.key}">0</div>
+                                    <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}')"><i class="material-icons-round" style="font-size:24px">favorite_border</i></i>
+                                </div>
+                            </div>
+                        `;
+
+                        el.innerHTML = `
+                            <div class="post-header">
+                                <div class="avatar-wrapper">
+                                    <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
+                                    ${vBadge}
+                                </div>
+                                <div style="font-weight:600">${uData.username}</div>
+                            </div>
+                            ${contentHTML}
+                            ${actionsHTML}
+                        `;
+                    }
+                    
+                    updateLikeUI(post.key);
+                    container.appendChild(el);
+                });
+            }
+
+            const loader = document.getElementById('feed-loader');
+            if (loader) {
+                if (feedOffset >= allPostsRaw.length) {
+                    loader.classList.add('hidden');
+                } else {
+                    loader.classList.remove('hidden');
+                }
+            }
+        }
+
+        function updateLikeUI(postKey) {
+            const countEl = document.getElementById(`like-count-${postKey}`);
+            const btnEl = document.getElementById(`like-btn-${postKey}`);
+            
+            if(!countEl || !btnEl) return;
+
+            onValue(ref(db, `likes/${postKey}`), (snapshot) => {
+                const cEl = document.getElementById(`like-count-${postKey}`);
+                const bEl = document.getElementById(`like-btn-${postKey}`);
+                if(!cEl || !bEl) return;
+
+                if(snapshot.exists()) {
+                    const likes = snapshot.val();
+                    const count = likes ? Object.keys(likes).length : 0;
+                    cEl.innerText = formatLikes(count);
+
+                    if (likes && likes[user.uid]) {
+                        bEl.classList.add('active');
+                        bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite</i>';
+                    } else {
+                        bEl.classList.remove('active');
+                        bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite_border</i>';
+                    }
+                } else {
+                    cEl.innerText = "0";
+                    bEl.classList.remove('active');
+                    bEl.innerHTML = '<i class="material-icons-round" style="font-size:24px">favorite_border</i>';
+                }
+            });
+        }
+
+        const feedContainer = document.getElementById('feed-content');
+        if(feedContainer) {
+            feedContainer.addEventListener('scroll', () => {
+                if(feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - 50) {
+                    renderNextChunk();
+                }
+            });
+        }
+
+        function parseAIContent(text) {
+            if (!text) return "";
+            let cleanText = text.replace(/<[^>]*>/g, '');
+            cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
+            return cleanText.replace(/\n/g, '<br>');
+        }
+
+        function buildPrivacyUI() {
+            const l = document.getElementById("privacy-list");
+            const s = ["Read Receipts", "Online Status", "2FA Security", "Wallet Privacy", "Incognito Mode"];
+            if(l) {
+                l.innerHTML = "";
+                s.forEach((t) => {
+                    const i = document.createElement("div");
+                    i.className = "setting-item";
+                    i.innerHTML = `<span class="setting-label">${t}</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`;
+                    l.appendChild(i);
+                });
+            }
+        }
+
+        function renderAI() {
+            const a = document.getElementById("ai-messages");
+            if(a) {
+                a.innerHTML = "";
+                aiHistory.forEach((m) => {
+                    if (m.role === "system") return;
+                    const d = document.createElement("div");
+                    d.className = `ai-message ${m.role === "user" ? "user" : "bot"}`;
+                    d.innerHTML = m.role === 'assistant' ? parseAIContent(m.content) : m.content;
+                    a.appendChild(d);
+                });
+                a.scrollTop = a.scrollHeight;
+            }
+        }
+
     </script>
 </body>
 </html>
