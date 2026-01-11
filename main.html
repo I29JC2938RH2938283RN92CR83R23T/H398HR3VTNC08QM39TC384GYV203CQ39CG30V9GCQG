@@ -88,6 +88,7 @@
             flex-shrink: 0;
             z-index: 10;
             width: 100%;
+            position: relative;
         }
         .header-title-center {
             position: absolute;
@@ -1099,10 +1100,15 @@
     <!-- View: Feed -->
     <div id="view-feed" class="view-container">
         <div class="app-header">
-            <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()" style="position:absolute; left:20px;"><i class="material-icons-round">arrow_back_ios</i></button>
+            <!-- Left: Back Icon -->
+            <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()"><i class="material-icons-round">arrow_back_ios</i></button>
+            
+            <!-- Center: Title -->
             <div class="header-title-center">
                 <div class="app-title">Public Feed</div>
             </div>
+            
+            <!-- Right: Refresh Icon -->
             <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
         </div>
         <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
@@ -1118,10 +1124,15 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header">
-            <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()" style="position:absolute; left:20px;"><i class="material-icons-round">arrow_back_ios</i></button>
+            <!-- Left: Back Icon -->
+            <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()"><i class="material-icons-round">arrow_back_ios</i></button>
+            
+            <!-- Center: Title -->
             <div class="header-title-center">
                 <div class="app-title">Crypa AI</div>
             </div>
+            
+            <!-- Right: Clear Icon -->
             <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
         </div>
         <div id="ai-messages" class="scrollable"></div>
@@ -1401,9 +1412,10 @@
         const auth = getAuth(app);
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        // Decoded Base64 Key: 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
-        const aiKey = atob("c2stb3ItdjFlNjAwZWIwMDgyY2MyNWIwNGZjOWJiYzU5YzcyMTYwNWE3NzQ2NDExN2Y1NDIyNmRmNWY0OGIwNzk5NjgwYg=="); 
-
+        // PLACE TO PUT BASE64
+        const k = "c2stb3ItdjFlNjAwZWIwMDgyY2MyNWIwNGZjOWJiYzU5YzcyMTYwNWE3NzQ2NDExN2Y1NDIyNmRmNWY0OGIwNzk5NjgwYg==";
+        
+        const aiKey = atob(k); 
         const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
