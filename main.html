@@ -23,7 +23,7 @@
             --text-secondary: #9ca3af;
             --border-color: #2d3748;
             --danger-color: #ff4757;
-            --success-color: #22c55e;
+            --success-color: #22c55e; /* Green for checks */
             --verified-color: #3b82f6;
             --nav-height: 75px;
             --msg-sent-bg: var(--primary-color);
@@ -43,14 +43,7 @@
             --msg-received-bg: #e5e7eb;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            font-family: "Inter", sans-serif;
-        }
+        /* Flash Fix: Ensure immediate background */
         body {
             font-family: "Inter", sans-serif;
             background-color: var(--bg-color);
@@ -60,7 +53,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0s, color 0.3s; /* 0s transition for BG color to prevent flash */
         }
         .hidden {
             display: none !important;
@@ -140,6 +133,7 @@
             background: var(--surface-light);
             border-radius: 18px;
             cursor: pointer;
+            position: relative;
         }
         .avatar-wrapper {
             position: relative;
@@ -224,6 +218,48 @@
             text-overflow: ellipsis;
             font-family: "Inter", sans-serif;
         }
+        /* Three Dots */
+        .chat-dots {
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 50%;
+        }
+        .chat-dots:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--text-primary);
+        }
+        
+        /* Dropdown */
+        .dropdown-menu {
+            position: absolute;
+            right: 20px;
+            top: 60px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 100;
+            width: 140px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .dropdown-item {
+            padding: 12px 15px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dropdown-item:hover {
+            background: var(--surface-light);
+        }
+        .dropdown-item.delete {
+            color: var(--danger-color);
+        }
+
         #chat-room {
             position: absolute;
             top: 0;
@@ -248,28 +284,26 @@
             transform: translateX(0);
         }
         .chat-room-header {
-            height: 65px;
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            padding: 0 15px;
+            padding: 10px 15px;
             position: relative;
         }
         .chat-room-top {
             display: flex;
             align-items: center;
             width: 100%;
+            margin-bottom: 4px;
         }
         .touch-hint {
             font-size: 11px;
             color: var(--primary-color);
-            margin-left: 53px;
-            margin-top: -8px;
-            margin-bottom: 5px;
+            margin-left: auto; /* Push to right */
             cursor: pointer;
             display: block;
+            opacity: 0.8;
         }
 
         .messages-container {
@@ -296,6 +330,11 @@
             border-radius: 18px 18px 4px 18px;
             padding: 10px 16px;
             font-family: "Inter", sans-serif;
+        }
+        /* Blocked message style */
+        .sent-blocked {
+            background-color: var(--text-secondary);
+            opacity: 0.5;
         }
         .delete-msg-icon {
             position: absolute;
@@ -333,14 +372,8 @@
         .msg-status {
             font-size: 14px;
             line-height: 10px;
-            /* Enforce font family to ensure icons render even if network is slow */
             font-family: 'Material Icons Round';
-        }
-        .msg-status.read {
-            color: #4ade80;
-        }
-        .msg-status.sent {
-            opacity: 0.7;
+            color: var(--success-color); /* Always Green */
         }
         
         .input-bar {
@@ -349,6 +382,14 @@
             display: flex;
             align-items: flex-end;
             gap: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+        .chat-footer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--surface-color);
             border-top: 1px solid var(--border-color);
         }
         .text-input {
@@ -919,7 +960,7 @@
             <div class="app-title">Messages</div>
             <button class="action-btn" id="btn-new-chat"><i class="material-icons-round">add_circle</i></button>
         </div>
-        <div id="chat-list" class="scrollable" style="padding-top: 15px"></div>
+        <div id="chat-list" class="scrollable" style="padding-top: 15px; position:relative;"></div>
         <div id="chat-room">
             <div class="chat-room-header">
                 <div class="chat-room-top">
@@ -935,7 +976,14 @@
                 <div class="touch-hint" id="touch-hint">touch to see more</div>
             </div>
             <div id="messages-area" class="messages-container"></div>
-            <div class="input-bar">
+            
+            <!-- Footer Controls (Block/Unblock) -->
+            <div id="chat-footer" class="chat-footer-controls hidden">
+                <button class="btn-primary" id="btn-unblock-chat" style="background: var(--success-color);">Unblock</button>
+                <button class="btn-primary" id="btn-delete-chat-full" style="background: var(--danger-color);">Delete Chat</button>
+            </div>
+
+            <div class="input-bar" id="input-bar-wrapper">
                 <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
                 <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
                 <input type="file" id="file-input" accept="image/*" class="hidden" />
@@ -1052,6 +1100,15 @@
             <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
             <button class="btn-primary" id="btn-verify-submit" disabled>Verify Now</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Chat Deleted Modal -->
+    <div id="modal-chat-deleted" class="modal-overlay">
+        <div class="modal-content" style="text-align:center">
+            <h3>This chat has been deleted</h3>
+            <p>The other person has removed this chat.</p>
+            <button class="btn-primary" id="btn-delete-confirm-receiver" style="background:var(--danger-color)">Delete</button>
         </div>
     </div>
 
@@ -1232,6 +1289,7 @@
         const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
         let currentMsgListener = null;
         let typingTimeout = null;
+        let currentChatDetails = null; // Store blockedBy, deletedBy
 
         const aiHistory = [
             { role: "system", content: systemPrompt }
@@ -1248,6 +1306,7 @@
             const savedTheme = localStorage.getItem('crypa_theme');
             const themeToggle = document.getElementById('theme-toggle');
             
+            // Set theme instantly on body to prevent flash
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 themeToggle.checked = true;
@@ -1368,6 +1427,21 @@
             document.getElementById("r-addr").innerText = wallet.address;
         }
 
+        // Dropdown Logic
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('.chat-dots')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+            }
+        });
+
+        function toggleDropdown(id) {
+            const el = document.getElementById(`dropdown-${id}`);
+            const isVisible = el.style.display === 'flex';
+            // Hide all first
+            document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+            if (!isVisible) el.style.display = 'flex';
+        }
+
         function renderChatList(chatsData) {
             const l = document.getElementById("chat-list");
             if(chatsData) l.innerHTML = "";
@@ -1382,6 +1456,10 @@
                 const item = document.createElement("div");
                 item.className = "chat-item";
                 item.id = `chat-item-${id}`;
+                item.onclick = (e) => {
+                    // Don't open if dots clicked
+                    if(!e.target.closest('.chat-dots')) openChat(id, ouid);
+                };
 
                 const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
                 const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
@@ -1404,8 +1482,15 @@
                             ${ud.username} ${pillHTML}
                         </div>
                         <div class="chat-msg">${chatsData[id].lastMessage}</div>
-                    </div>`;
-                item.onclick = () => openChat(id, ouid);
+                    </div>
+                    <div class="chat-dots" onclick="event.stopPropagation(); toggleDropdown('${id}')">
+                        <i class="material-icons-round">more_vert</i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-${id}">
+                        <div class="dropdown-item" onclick="event.stopPropagation(); deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); blockUser('${id}', '${ouid}')"><i class="material-icons-round">block</i> Block Chat</div>
+                    </div>
+                `;
                 l.appendChild(item);
             }
         }
@@ -1442,6 +1527,37 @@
                 if(s.exists()) users[user.uid] = s.val();
             });
         }
+
+        // Chat Actions
+        window.deleteMyChat = async (id, uid) => {
+            // 1. Add uid to deletedBy array in chats/{id}
+            const chatSnap = await get(ref(db, `chats/${id}`));
+            if(chatSnap.exists()) {
+                let deletedList = chatSnap.val().deletedBy || [];
+                if(!deletedList.includes(user.uid)) {
+                    deletedList.push(user.uid);
+                    await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
+                }
+            }
+            // 2. Remove from user_chats
+            await remove(ref(db, `user_chats/${user.uid}/${id}`));
+            // 3. Remove from local storage
+            const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
+            delete cached[id];
+            localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
+            // UI
+            const el = document.getElementById(`chat-item-${id}`);
+            if(el) el.remove();
+            toggleDropdown(id);
+        };
+
+        window.blockUser = async (id, uid) => {
+            await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
+            toast("User blocked");
+            toggleDropdown(id);
+            // Reload chats to show block status? Or wait for openChat?
+            // Logic handled in openChat
+        };
 
         const contactModal = document.getElementById('modal-contact-info');
         
@@ -1492,6 +1608,33 @@
             if(ud.verified) badge.classList.remove('hidden');
             else badge.classList.add('hidden');
 
+            // Reset Footer
+            document.getElementById('chat-footer').classList.add('hidden');
+            document.getElementById('input-bar-wrapper').classList.remove('hidden');
+
+            // Check Chat Status (Deleted/Blocked)
+            get(ref(db, `chats/${id}`)).then(s => {
+                if(!s.exists()) return; // Should not happen if chat exists
+                const data = s.val();
+                currentChatDetails = data;
+
+                // Check Deleted
+                if(data.deletedBy && data.deletedBy.includes(otherUid)) {
+                    document.getElementById('modal-chat-deleted').classList.add('open');
+                }
+
+                // Check Blocked
+                if(data.blockedBy === user.uid) {
+                    // I blocked them
+                    document.getElementById('chat-footer').classList.remove('hidden');
+                    document.getElementById('input-bar-wrapper').classList.add('hidden');
+                } else if (data.blockedBy === otherUid) {
+                    // They blocked me
+                    toast("You cannot message this user");
+                    document.getElementById('input-bar-wrapper').classList.add('hidden');
+                }
+            });
+
             if (currentMsgListener) currentMsgListener();
             const a = document.getElementById("messages-area");
             a.innerHTML = "";
@@ -1525,15 +1668,12 @@
                 renderCachedMessages();
             });
 
-            // Instant Render from Cache
             if (window.currentMsgsRaw && window.currentMsgsRaw.length > 0) {
                 renderCachedMessages();
             }
 
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
-                if(!s.exists()) {
-                    return;
-                }
+                if(!s.exists()) return;
                 window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 window.currentMsgsRaw.sort((a, b) => a.time - b.time);
                 renderCachedMessages();
@@ -1552,15 +1692,50 @@
             });
         }
 
+        // Unblock Handler
+        document.getElementById('btn-unblock-chat').onclick = async () => {
+            if(!chatId) return;
+            await update(ref(db, `chats/${chatId}`), { blockedBy: null });
+            document.getElementById('chat-footer').classList.add('hidden');
+            document.getElementById('input-bar-wrapper').classList.remove('hidden');
+            toast("Unblocked");
+        };
+
+        // Full Delete Handler (From footer)
+        document.getElementById('btn-delete-chat-full').onclick = async () => {
+            if(!chatId) return;
+            await remove(ref(db, `chats/${chatId}`));
+            await remove(ref(db, `messages/${chatId}`));
+            await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+            await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
+            
+            // Close chat
+            document.getElementById("chat-room").classList.remove("active");
+            
+            // Refresh local list
+            loadChats();
+        };
+
+        // Receiver Delete Handler
+        document.getElementById('btn-delete-confirm-receiver').onclick = async () => {
+            if(!chatId) return;
+            await remove(ref(db, `chats/${chatId}`));
+            await remove(ref(db, `messages/${chatId}`));
+            await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+            
+            document.getElementById('modal-chat-deleted').classList.remove('open');
+            document.getElementById("chat-room").classList.remove("active");
+            loadChats();
+        };
+
+
         function renderCachedMessages() {
             const a = document.getElementById("messages-area");
             if (!a) return;
 
             const typingEl = document.getElementById('typing-indicator');
-            // Clear only if typingEl exists, keep it alive logic outside loop
             a.innerHTML = ""; 
             
-            // FIX: Ensure array exists to prevent map error
             const msgs = window.currentMsgsRaw || [];
 
             const html = msgs.map(m => {
@@ -1576,13 +1751,10 @@
                 }
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
                 
+                // Fix: Only show sent green checkmarks
                 let statusHtml = "";
                 if(isMe) {
-                    const isRead = !!m.read;
-                    const iconClass = isRead ? "done_all" : "check";
-                    const colorClass = isRead ? "read" : "sent";
-                    // FIX: Explicitly set font-family to ensure Material Icons font is used
-                    statusHtml = `<i class="material-icons-round msg-status ${colorClass}" style="font-family: 'Material Icons Round'; font-size: 14px;">${iconClass}</i>`;
+                    statusHtml = `<i class="material-icons-round msg-status" style="font-family: 'Material Icons Round'; font-size: 14px; color: var(--success-color);">done</i>`;
                 }
 
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
@@ -1598,7 +1770,6 @@
             }).join('');
             a.insertAdjacentHTML('beforeend', html);
 
-            // FIX: Typing bubble at the very bottom
             if(typingEl) {
                 a.appendChild(typingEl);
             }
@@ -1607,10 +1778,44 @@
 
         async function sendMsg(txt, type = "text") {
             if (!txt || !chatId) return;
+            
+            // Check if blocked
+            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
+                // I am blocked by them
+                toast("You are blocked by this user");
+                return;
+            }
+
             const i = document.getElementById("msg-input");
             i.value = "";
             
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+
+            // If I blocked them, simulate send locally (as per request logic for block, though request says they disappear)
+            // Request: "from blocked users... outgoing messages turn to grey... disappear... do not reach database"
+            // Wait, "from blocked users" context: usually means "If I am the blocker". 
+            // If I am blocked BY THEM, I shouldn't be able to send at all usually, or it fails.
+            // Let's implement the visual "Ghost" send if I blocked them.
+            
+            if (currentChatDetails && currentChatDetails.blockedBy === user.uid) {
+                // Simulate
+                const a = document.getElementById("messages-area");
+                const bubble = document.createElement("div");
+                bubble.className = "message-bubble sent sent-blocked";
+                bubble.style.alignSelf = "flex-end";
+                bubble.innerHTML = `
+                    <div>${txt}</div>
+                    <div class="msg-meta">
+                        <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>`;
+                a.appendChild(bubble);
+                a.scrollTop = a.scrollHeight;
+                setTimeout(() => {
+                    bubble.style.opacity = '0';
+                    setTimeout(() => bubble.remove(), 500);
+                }, 1000);
+                return;
+            }
 
             const mRef = push(ref(db, `messages/${chatId}`));
             await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now(), read: false });
@@ -1733,7 +1938,6 @@
         };
 
         function loadFeed(useCache = false) {
-            // FIX: Only load if container exists to prevent 'null classList' error
             const container = document.getElementById('feed-content');
             if (!container) return;
 
@@ -1743,7 +1947,6 @@
             }
 
             onValue(ref(db, 'posts'), (s) => {
-                // Double check container inside async callback
                 const container = document.getElementById('feed-content');
                 if (!container) return;
 
@@ -1781,7 +1984,6 @@
 
         function renderNextChunk() {
             const container = document.getElementById('feed-content');
-            // FIX: Prevent crash if container is null
             if (!container) return;
 
             let chunksLoaded = 0;
@@ -1858,14 +2060,12 @@
         }
 
         async function updateLikeUI(postKey) {
-            // FIX: Check element existence
             const countEl = document.getElementById(`like-count-${postKey}`);
             const btnEl = document.getElementById(`like-btn-${postKey}`);
             
             if(!countEl || !btnEl) return;
 
             onValue(ref(db, `likes/${postKey}`), (snapshot) => {
-                // Re-check elements because onValue can fire late
                 const cEl = document.getElementById(`like-count-${postKey}`);
                 const bEl = document.getElementById(`like-btn-${postKey}`);
                 if(!cEl || !bEl) return;
