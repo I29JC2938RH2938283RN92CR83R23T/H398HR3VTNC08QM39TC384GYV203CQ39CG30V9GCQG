@@ -23,7 +23,7 @@
             --text-secondary: #9ca3af;
             --border-color: #2d3748;
             --danger-color: #ff4757;
-            --success-color: #22c55e; /* Green for checks */
+            --success-color: #22c55e;
             --verified-color: #3b82f6;
             --nav-height: 75px;
             --msg-sent-bg: var(--primary-color);
@@ -43,7 +43,6 @@
             --msg-received-bg: #e5e7eb;
         }
 
-        /* Flash Fix: Ensure immediate background */
         body {
             font-family: "Inter", sans-serif;
             background-color: var(--bg-color);
@@ -53,7 +52,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: background-color 0s, color 0.3s; /* 0s transition for BG color to prevent flash */
+            transition: background-color 0s, color 0.3s;
         }
         .hidden {
             display: none !important;
@@ -103,7 +102,13 @@
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
+            transition: transform 0.3s;
         }
+        /* Hide Nav when Chat is Full Screen */
+        #chat-room.active ~ .bottom-nav {
+            display: none;
+        }
+
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -239,7 +244,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             z-index: 100;
-            width: 140px;
+            width: 160px; /* Slightly wider for "About" text */
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -267,7 +272,7 @@
             width: 100%;
             height: 100%;
             background: var(--bg-color);
-            z-index: 50;
+            z-index: 50; /* Ensures full screen coverage */
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
@@ -296,14 +301,6 @@
             align-items: center;
             width: 100%;
             margin-bottom: 4px;
-        }
-        .touch-hint {
-            font-size: 11px;
-            color: var(--primary-color);
-            margin-left: auto; /* Push to right */
-            cursor: pointer;
-            display: block;
-            opacity: 0.8;
         }
 
         .messages-container {
@@ -454,16 +451,16 @@
         .modal-content {
             background: var(--surface-color);
             width: 90%;
-            max-width: 400px;
+            max-width: 320px; /* Made smaller */
             border-radius: 24px;
-            padding: 30px 25px;
+            padding: 25px 20px;
             max-height: 85vh;
             overflow-y: auto;
             position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         .modal-content h3 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             margin-bottom: 10px;
             color: var(--text-primary);
@@ -519,6 +516,12 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        /* Fix for Light Mode Log Out Text Visibility */
+        #btn-logout {
+            color: var(--text-primary) !important;
+            border-color: var(--text-secondary) !important;
+        }
+
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -534,6 +537,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box; /* Fix for out of box */
         }
         .file-upload-wrapper:hover {
             border-color: var(--primary-color);
@@ -671,6 +675,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            margin-top: 5px; /* Space between text and like button */
         }
         .like-btn {
             color: var(--text-secondary);
@@ -689,7 +694,7 @@
             color: var(--text-secondary);
         }
         .post-content-text {
-            padding: 0 12px 12px;
+            padding: 0 12px 5px; /* Reduced bottom padding */
             font-size: 15px;
             line-height: 1.4;
             font-family: "Inter", sans-serif;
@@ -799,7 +804,7 @@
             color: #fff;
         }
         .ai-message code {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.0.3);
             padding: 2px 4px;
             border-radius: 4px;
             font-family: monospace;
@@ -891,8 +896,8 @@
         }
         .typing-bubble {
             background: var(--surface-light);
-            border-radius: 18px 18px 18px 4px;
-            padding: 6px 14px;
+            border-radius: 12px; /* Pill shape */
+            padding: 4px 12px; /* Small pill */
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -949,6 +954,63 @@
             text-align: right;
             max-width: 60%;
         }
+        
+        /* Comments Section */
+        .comments-modal-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .comment-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .comment-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        .comment-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0 12px 10px;
+        }
+        .comment-trigger-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .comment-trigger-btn:hover {
+            color: var(--primary-color);
+        }
+
     </style>
 </head>
 <body class="">
@@ -965,15 +1027,14 @@
             <div class="chat-room-header">
                 <div class="chat-room-top">
                     <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
-                    <div class="avatar-wrapper" style="margin-right:12px; margin-left:10px; cursor:pointer;" id="header-avatar-wrap">
+                    <div class="avatar-wrapper" style="margin-right:12px; margin-left:10px;">
                         <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:38px;height:38px;" />
                         <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
                     </div>
-                    <div style="flex:1; margin-left:5px; cursor:pointer;" id="header-text-wrap">
+                    <div style="flex:1; margin-left:5px;">
                         <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 16px"></div>
                     </div>
                 </div>
-                <div class="touch-hint" id="touch-hint">touch to see more</div>
             </div>
             <div id="messages-area" class="messages-container"></div>
             
@@ -1064,7 +1125,7 @@
             <button class="btn-primary" style="background: transparent; border: 1px solid var(--border-color)" id="btn-logout">Sign Out</button>
             
             <div class="dev-credit">
-                Developed by Itumo Ilunginus Itumo Longinus ILC
+                Developed by Itumo Longinus ILC
             </div>
         </div>
     </div>
@@ -1109,6 +1170,21 @@
             <h3>This chat has been deleted</h3>
             <p>The other person has removed this chat.</p>
             <button class="btn-primary" id="btn-delete-confirm-receiver" style="background:var(--danger-color)">Delete</button>
+        </div>
+    </div>
+    
+    <!-- Comments Modal -->
+    <div id="modal-comments" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Comments</h3>
+            <div id="comments-list" class="comments-modal-list">
+                <div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>
+            </div>
+            <div class="comment-input-wrapper">
+                <input type="text" id="comment-input" class="input-field" style="margin-bottom:0; padding: 12px;" placeholder="Write a comment...">
+                <button class="comment-btn" id="btn-submit-comment">Post</button>
+            </div>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" id="btn-close-comments">Close</button>
         </div>
     </div>
 
@@ -1289,7 +1365,8 @@
         const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
         let currentMsgListener = null;
         let typingTimeout = null;
-        let currentChatDetails = null; // Store blockedBy, deletedBy
+        let currentChatDetails = null; 
+        let currentCommentPostId = null;
 
         const aiHistory = [
             { role: "system", content: systemPrompt }
@@ -1302,11 +1379,46 @@
             setTimeout(() => e.classList.remove("show"), 3000);
         }
 
+        // FIX: Global Scope for Inline Handlers
+        window.toggleDropdown = function(id) {
+            const el = document.getElementById(`dropdown-${id}`);
+            const isVisible = el && el.style.display === 'flex';
+            // Hide all first
+            document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+            if (el && !isVisible) el.style.display = 'flex';
+        };
+        
+        window.openContactInfoDropdown = function(uid) {
+            // Use existing openContactInfo logic but triggered from dropdown
+            if (chatId && otherUid === uid) {
+                 openContactInfo();
+            } else {
+                // If clicked from list, need to set temp vars or use global users
+                const ud = users[uid];
+                if(!ud) return;
+                document.getElementById('c-avatar').src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+                document.getElementById('c-username').innerText = ud.username;
+                document.getElementById('c-email').innerText = ud.email || "Hidden";
+                document.getElementById('c-badge').style.display = ud.verified ? 'inline-block' : 'none';
+                document.getElementById('c-joined').innerText = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024";
+                const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+                document.getElementById('c-status').innerText = isOnline ? "Online" : "Offline";
+                document.getElementById('c-status').style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
+                if (isOnline) {
+                    document.getElementById('c-last-seen').innerText = "Now";
+                } else if (ud.lastSeen) {
+                    document.getElementById('c-last-seen').innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    document.getElementById('c-last-seen').innerText = "Unknown";
+                }
+                document.getElementById('modal-contact-info').classList.add('open');
+            }
+        };
+
         function initTheme() {
             const savedTheme = localStorage.getItem('crypa_theme');
             const themeToggle = document.getElementById('theme-toggle');
             
-            // Set theme instantly on body to prevent flash
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 themeToggle.checked = true;
@@ -1434,14 +1546,6 @@
             }
         });
 
-        function toggleDropdown(id) {
-            const el = document.getElementById(`dropdown-${id}`);
-            const isVisible = el.style.display === 'flex';
-            // Hide all first
-            document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
-            if (!isVisible) el.style.display = 'flex';
-        }
-
         function renderChatList(chatsData) {
             const l = document.getElementById("chat-list");
             if(chatsData) l.innerHTML = "";
@@ -1483,12 +1587,13 @@
                         </div>
                         <div class="chat-msg">${chatsData[id].lastMessage}</div>
                     </div>
-                    <div class="chat-dots" onclick="event.stopPropagation(); toggleDropdown('${id}')">
+                    <div class="chat-dots" onclick="event.stopPropagation(); window.toggleDropdown('${id}')">
                         <i class="material-icons-round">more_vert</i>
                     </div>
                     <div class="dropdown-menu" id="dropdown-${id}">
-                        <div class="dropdown-item" onclick="event.stopPropagation(); deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
-                        <div class="dropdown-item" onclick="event.stopPropagation(); blockUser('${id}', '${ouid}')"><i class="material-icons-round">block</i> Block Chat</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.openContactInfoDropdown('${ouid}')"><i class="material-icons-round">info</i> About Profile</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}')"><i class="material-icons-round">block</i> Block Chat</div>
                     </div>
                 `;
                 l.appendChild(item);
@@ -1530,7 +1635,6 @@
 
         // Chat Actions
         window.deleteMyChat = async (id, uid) => {
-            // 1. Add uid to deletedBy array in chats/{id}
             const chatSnap = await get(ref(db, `chats/${id}`));
             if(chatSnap.exists()) {
                 let deletedList = chatSnap.val().deletedBy || [];
@@ -1539,24 +1643,19 @@
                     await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
                 }
             }
-            // 2. Remove from user_chats
             await remove(ref(db, `user_chats/${user.uid}/${id}`));
-            // 3. Remove from local storage
             const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
             delete cached[id];
             localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
-            // UI
             const el = document.getElementById(`chat-item-${id}`);
             if(el) el.remove();
-            toggleDropdown(id);
+            window.toggleDropdown(id);
         };
 
         window.blockUser = async (id, uid) => {
             await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
             toast("User blocked");
-            toggleDropdown(id);
-            // Reload chats to show block status? Or wait for openChat?
-            // Logic handled in openChat
+            window.toggleDropdown(id);
         };
 
         const contactModal = document.getElementById('modal-contact-info');
@@ -1591,7 +1690,6 @@
 
         document.getElementById('header-avatar-wrap').onclick = openContactInfo;
         document.getElementById('header-text-wrap').onclick = openContactInfo;
-        document.getElementById('touch-hint').onclick = openContactInfo;
         document.getElementById('btn-close-contact').onclick = () => contactModal.classList.remove('open');
 
 
@@ -1614,7 +1712,7 @@
 
             // Check Chat Status (Deleted/Blocked)
             get(ref(db, `chats/${id}`)).then(s => {
-                if(!s.exists()) return; // Should not happen if chat exists
+                if(!s.exists()) return; 
                 const data = s.val();
                 currentChatDetails = data;
 
@@ -1625,11 +1723,9 @@
 
                 // Check Blocked
                 if(data.blockedBy === user.uid) {
-                    // I blocked them
                     document.getElementById('chat-footer').classList.remove('hidden');
                     document.getElementById('input-bar-wrapper').classList.add('hidden');
                 } else if (data.blockedBy === otherUid) {
-                    // They blocked me
                     toast("You cannot message this user");
                     document.getElementById('input-bar-wrapper').classList.add('hidden');
                 }
@@ -1709,10 +1805,7 @@
             await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
             await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
             
-            // Close chat
             document.getElementById("chat-room").classList.remove("active");
-            
-            // Refresh local list
             loadChats();
         };
 
@@ -1751,7 +1844,7 @@
                 }
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
                 
-                // Fix: Only show sent green checkmarks
+                // Only show sent green checkmarks
                 let statusHtml = "";
                 if(isMe) {
                     statusHtml = `<i class="material-icons-round msg-status" style="font-family: 'Material Icons Round'; font-size: 14px; color: var(--success-color);">done</i>`;
@@ -1779,9 +1872,7 @@
         async function sendMsg(txt, type = "text") {
             if (!txt || !chatId) return;
             
-            // Check if blocked
             if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
-                // I am blocked by them
                 toast("You are blocked by this user");
                 return;
             }
@@ -1791,14 +1882,7 @@
             
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
 
-            // If I blocked them, simulate send locally (as per request logic for block, though request says they disappear)
-            // Request: "from blocked users... outgoing messages turn to grey... disappear... do not reach database"
-            // Wait, "from blocked users" context: usually means "If I am the blocker". 
-            // If I am blocked BY THEM, I shouldn't be able to send at all usually, or it fails.
-            // Let's implement the visual "Ghost" send if I blocked them.
-            
             if (currentChatDetails && currentChatDetails.blockedBy === user.uid) {
-                // Simulate
                 const a = document.getElementById("messages-area");
                 const bubble = document.createElement("div");
                 bubble.className = "message-bubble sent sent-blocked";
@@ -1937,6 +2021,63 @@
             toast("Copied");
         };
 
+        // COMMENTS FEATURE
+        window.openComments = (postKey) => {
+            currentCommentPostId = postKey;
+            document.getElementById('modal-comments').classList.add('open');
+            loadComments(postKey);
+        };
+
+        function loadComments(postKey) {
+            const list = document.getElementById('comments-list');
+            list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>';
+            onValue(ref(db, `comments/${postKey}`), (s) => {
+                if(!s.exists()) {
+                    list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No comments yet.</div>';
+                    return;
+                }
+                const comments = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
+                // Sort by timestamp
+                comments.sort((a, b) => a.time - b.time);
+                
+                let html = '';
+                comments.forEach(c => {
+                    const u = users[c.senderId] || { username: 'Unknown' };
+                    const timeStr = new Date(c.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    html += `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span style="font-weight:600">${u.username}</span>
+                                <span>${timeStr}</span>
+                            </div>
+                            <div class="comment-text">${c.text}</div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+            });
+        }
+
+        document.getElementById('btn-close-comments').onclick = () => {
+            document.getElementById('modal-comments').classList.remove('open');
+            currentCommentPostId = null;
+        };
+
+        document.getElementById('btn-submit-comment').onclick = () => {
+            const input = document.getElementById('comment-input');
+            const txt = input.value.trim();
+            if(!txt || !currentCommentPostId) return;
+            push(ref(db, `comments/${currentCommentPostId}`), {
+                senderId: user.uid,
+                text: txt,
+                time: Date.now()
+            }).then(() => {
+                input.value = '';
+                toast("Commented");
+            });
+        };
+
+        // FEED LOGIC
         function loadFeed(useCache = false) {
             const container = document.getElementById('feed-content');
             if (!container) return;
@@ -1984,6 +2125,7 @@
 
         function renderNextChunk() {
             const container = document.getElementById('feed-content');
+            // FIX: Check null
             if (!container) return;
 
             let chunksLoaded = 0;
@@ -2001,13 +2143,6 @@
 
                     const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
 
-                    const likeContainer = document.createElement('div');
-                    likeContainer.className = 'like-container';
-                    likeContainer.innerHTML = `
-                        <div class="like-count" id="like-count-${post.key}">0</div>
-                        <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}')">favorite_border</i>
-                    `;
-
                     if (post.type === 'money') {
                         el.className = 'money-post-card';
                         el.innerHTML = `
@@ -2019,22 +2154,25 @@
                             </div>
                             <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
                         `;
-                    } else if (post.type === 'img') {
-                        el.className = 'post-card';
-                        el.innerHTML = `
-                            <div class="post-header">
-                                <div class="avatar-wrapper">
-                                    <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
-                                    ${vBadge}
-                                </div>
-                                <div style="font-weight:600">${uData.username}</div>
-                                ${likeContainer.outerHTML}
-                            </div>
-                            <img src="${post.content}" class="post-content-img">
-                            <div class="post-content-text">${post.caption || ''}</div>
-                        `;
                     } else {
                         el.className = 'post-card';
+                        let contentHTML = '';
+                        if (post.type === 'img') {
+                            contentHTML = `<img src="${post.content}" class="post-content-img">`;
+                        }
+                        contentHTML += `<div class="post-content-text">${post.content || ''}</div>`;
+                        
+                        // Actions container
+                        const actionsHTML = `
+                            <div class="post-actions">
+                                <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')"><i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i> Comment</button>
+                                <div class="like-container">
+                                    <div class="like-count" id="like-count-${post.key}">0</div>
+                                    <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}')">favorite_border</i>
+                                </div>
+                            </div>
+                        `;
+
                         el.innerHTML = `
                             <div class="post-header">
                                 <div class="avatar-wrapper">
@@ -2042,9 +2180,9 @@
                                     ${vBadge}
                                 </div>
                                 <div style="font-weight:600">${uData.username}</div>
-                                ${likeContainer.outerHTML}
                             </div>
-                            <div class="post-content-text">${post.content}</div>
+                            ${contentHTML}
+                            ${actionsHTML}
                         `;
                     }
                     updateLikeUI(post.key);
@@ -2052,10 +2190,13 @@
                 });
             }
 
-            if (feedOffset >= allPostsRaw.length) {
-                document.getElementById('feed-loader').classList.add('hidden');
-            } else {
-                document.getElementById('feed-loader').classList.remove('hidden');
+            const loader = document.getElementById('feed-loader');
+            if (loader) {
+                if (feedOffset >= allPostsRaw.length) {
+                    loader.classList.add('hidden');
+                } else {
+                    loader.classList.remove('hidden');
+                }
             }
         }
 
@@ -2066,6 +2207,7 @@
             if(!countEl || !btnEl) return;
 
             onValue(ref(db, `likes/${postKey}`), (snapshot) => {
+                // Re-check elements because onValue can fire late
                 const cEl = document.getElementById(`like-count-${postKey}`);
                 const bEl = document.getElementById(`like-btn-${postKey}`);
                 if(!cEl || !bEl) return;
