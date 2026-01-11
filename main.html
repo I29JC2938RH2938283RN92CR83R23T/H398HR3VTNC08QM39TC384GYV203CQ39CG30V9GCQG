@@ -61,6 +61,11 @@
         .hidden {
             display: none !important;
         }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .scrollable {
             flex: 1;
             overflow-y: auto;
@@ -239,7 +244,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             z-index: 100;
-            width: 170px; 
+            width: 170px;
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -323,6 +328,10 @@
             padding: 10px 16px;
             font-family: "Inter", sans-serif;
         }
+        .sent-blocked {
+            background-color: var(--text-secondary);
+            opacity: 0.5;
+        }
         .delete-msg-icon {
             position: absolute;
             top: 5px;
@@ -368,6 +377,16 @@
             display: flex;
             align-items: flex-end;
             gap: 8px;
+            border-top: 1px solid var(--border-color);
+            z-index: 9999; /* Ensures above Nav */
+            position: relative;
+        }
+        .chat-footer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--surface-color);
             border-top: 1px solid var(--border-color);
         }
         .text-input {
@@ -580,6 +599,36 @@
             background: #22c55e;
             color: white;
         }
+        .camera-container {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        #face-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--primary-color);
+            animation: scan-pulse 2s infinite;
+            display: none;
+        }
+        @keyframes scan-pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
         .feed-fab {
             display: flex;
             justify-content: center;
@@ -587,6 +636,8 @@
             background: var(--surface-color);
             border-top: 1px solid var(--border-color);
             gap: 20px;
+            z-index: 9999; /* Above Nav */
+            position: relative;
         }
         .fab-btn {
             width: 50px;
@@ -684,6 +735,13 @@
             cursor: pointer;
             margin-top: 10px;
             font-size: 16px;
+            font-family: "Inter", sans-serif;
+        }
+        .feed-loader {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 12px;
             font-family: "Inter", sans-serif;
         }
         .toast {
@@ -939,11 +997,6 @@
         .comment-trigger-btn:hover {
             color: var(--primary-color);
         }
-        #btn-logout {
-            color: var(--text-primary) !important;
-            border-color: var(--text-secondary) !important;
-        }
-
     </style>
 </head>
 <body class="">
@@ -974,7 +1027,7 @@
             </div>
             <div id="messages-area" class="messages-container"></div>
             
-            <div id="chat-footer" class="hidden" style="display: flex; justify-content: center; gap: 10px; padding: 10px; background: var(--surface-color); border-top: 1px solid var(--border-color);">
+            <div id="chat-footer" class="chat-footer-controls hidden">
                 <button class="btn-primary" id="btn-unblock-chat" style="background: var(--success-color);">Unblock</button>
                 <button class="btn-primary" id="btn-delete-chat-full" style="background: var(--danger-color);">Delete Chat</button>
             </div>
@@ -998,7 +1051,7 @@
             <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
         </div>
         <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
-            <div id="feed-loader" class="hidden" style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 12px;">Loading more posts...</div>
+            <div id="feed-loader" class="feed-loader hidden">Loading more posts...</div>
         </div>
         <div class="feed-fab">
             <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
@@ -1039,7 +1092,7 @@
                     <div id="p-username" style="font-size: 18px; font-weight: 700">User</div>
                     <div style="font-size: 12px; color: #22c55e; margin-top: 4px">Active Member</div>
                 </div>
-                <i class="material-icons-round" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
+                <i class="material-icons-round edit-pencil" id="btn-edit-p" style="position: absolute; top: 15px; right: 15px; color: var(--primary-color); cursor: pointer;">edit</i>
             </div>
 
             <div class="setting-item" style="background: var(--surface-light); padding: 15px; border-radius: 12px; margin-bottom: 20px; border:none;">
@@ -1096,9 +1149,9 @@
             <div id="verify-id-filename" style="color:var(--success-color); font-size:12px; margin-bottom:15px; display:none;">ID Selected</div>
 
             <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">2. Capture Face</label>
-            <div class="camera-container" style="width: 100%; height: 200px; background: #000; border-radius: 12px; position: relative; overflow: hidden; margin-bottom: 15px;">
-                <video id="face-video" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
-                <div id="scan-overlay" class="scan-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid var(--primary-color); box-shadow: 0 0 20px var(--primary-color); animation: scan-pulse 2s infinite; display: none;"></div>
+            <div class="camera-container">
+                <video id="face-video" autoplay playsinline muted></video>
+                <div id="scan-overlay" class="scan-overlay"></div>
                 <div id="camera-placeholder" class="flex-center" style="height:100%; color:#666; font-size:12px;">Camera Off</div>
             </div>
             <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
@@ -1139,14 +1192,25 @@
                     <i class="material-icons-round" id="c-badge" style="font-size: 16px; color: var(--verified-color); display:none;">check_circle</i>
                 </div>
             </div>
-            <div class="contact-row">
+            
+            <!-- HIDDEN: Email Row -->
+            <div id="c-email-row" class="contact-row">
                 <span class="contact-label">Email</span>
                 <span class="contact-value" id="c-email">Hidden</span>
             </div>
-            <div class="contact-row">
+            
+            <!-- HIDDEN: Joined Row -->
+            <div id="c-joined-row" class="contact-row">
                 <span class="contact-label">Joined</span>
                 <span class="contact-value" id="c-joined">---</span>
             </div>
+
+            <!-- NEW: Total Chats Row -->
+            <div id="c-total-chats-row" class="contact-row" style="display:none;">
+                <span class="contact-label">Total Chats</span>
+                <span class="contact-value" id="c-total-chats">...</span>
+            </div>
+
             <div class="contact-row">
                 <span class="contact-label">Status</span>
                 <span class="contact-value" id="c-status">Offline</span>
@@ -1211,7 +1275,7 @@
             <h3>On-Chain Withdraw</h3>
             <input type="text" id="w-addr" class="input-field" placeholder="0x Recipient Address" />
             <input type="number" id="w-amt" class="input-field" placeholder="Amount ETH" step="0.0001"/>
-            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px;">Note: You must have enough ETH to cover transaction gas fee.</p>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 15px;">Note: You must have enough ETH to cover the transaction gas fee.</p>
             <button class="btn-primary" id="btn-do-withdraw">Broadcast TX</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
@@ -1286,9 +1350,8 @@
         const auth = getAuth(app);
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        // PLAIN TEXT CONFIG TO FIX 'atob' ERROR
         const aiKey = "sk-or-v1-d8c366391799ac041475c42502ba07983aaaf74a0d79fc075c7df7f26d93f7cbe"; 
-        const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and the Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
+        const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
         let chatId = null;
@@ -1307,10 +1370,17 @@
         let typingTimeout = null;
         let currentChatDetails = null; 
         let currentCommentPostId = null;
+        let chatsDataSnapshot = null; // Store snapshot for menu logic
 
         const aiHistory = [
             { role: "system", content: systemPrompt }
         ];
+
+        // Helper to format likes (1k, 1.1k)
+        function formatLikes(count) {
+            if(count < 1000) return count;
+            return (count / 1000).toFixed(count > 10000 ? 0 : 1) + 'k';
+        }
 
         function toast(m) {
             const e = document.getElementById("toast");
@@ -1321,7 +1391,6 @@
             }
         }
 
-        // FIX: Global Functions for Inline Handlers
         window.toggleDropdown = function(id) {
             const el = document.getElementById(`dropdown-${id}`);
             if (el) {
@@ -1331,29 +1400,36 @@
             }
         };
         
-        window.openContactInfoDropdown = function(uid) {
+        window.openContactInfoDropdown = function(uid, chatCount) {
             const ud = users[uid];
             if(!ud) return;
             const cAvatar = document.getElementById('c-avatar');
             const cUsername = document.getElementById('c-username');
-            const cEmail = document.getElementById('c-email');
             const cBadge = document.getElementById('c-badge');
-            const cJoined = document.getElementById('c-joined');
-            const cStatus = document.getElementById('c-status');
-            const cLastSeen = document.getElementById('c-last-seen');
+            const cTotalChats = document.getElementById('c-total-chats');
             
             if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
             if(cUsername) cUsername.innerText = ud.username;
-            if(cEmail) cEmail.innerText = ud.email || "Hidden";
             if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
-            if(cJoined) cJoined.innerText = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024";
             
+            // Total Chats Logic
+            if(cTotalChats) {
+                cTotalChats.innerText = chatCount + " Chats";
+                document.getElementById('c-total-chats-row').style.display = 'flex';
+            }
+
+            // Hide Rows Logic
+            document.getElementById('c-email-row').style.display = 'none';
+            document.getElementById('c-joined-row').style.display = 'none';
+
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            const cStatus = document.getElementById('c-status');
             if(cStatus) {
                 cStatus.innerText = isOnline ? "Online" : "Offline";
                 cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
             }
-            if(cLastSeen) {
+            const cLastSeen = document.getElementById('c-last-seen');
+            if (cLastSeen) {
                 if (isOnline) {
                     cLastSeen.innerText = "Now";
                 } else if (ud.lastSeen) {
@@ -1368,11 +1444,8 @@
 
         window.openComments = function(postKey) {
             currentCommentPostId = postKey;
-            const modal = document.getElementById('modal-comments');
-            if(modal) {
-                modal.classList.add('open');
-                loadComments(postKey);
-            }
+            document.getElementById('modal-comments').classList.add('open');
+            loadComments(postKey);
         };
         
         window.toggleLike = async function(postKey) {
@@ -1403,50 +1476,40 @@
         };
         
         window.confirmDeleteMsg = function(mKey) {
-            const modal = document.getElementById('modal-confirm');
-            if(modal) {
-                modal.classList.add("open");
-                const btnYes = document.getElementById("btn-confirm-yes");
-                if(btnYes) {
-                    btnYes.onclick = function() {
-                        set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
-                        const el = document.getElementById(`msg-bubble-${mKey}`);
-                        if(el) el.remove();
-                        modal.classList.remove("open");
-                    };
-                }
-            }
+            document.getElementById("modal-confirm").classList.add("open");
+            document.getElementById("btn-confirm-yes").onclick = function() {
+                set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
+                const el = document.getElementById(`msg-bubble-${mKey}`);
+                if(el) el.remove();
+                document.getElementById("modal-confirm").classList.remove("open");
+            };
         };
 
         function initTheme() {
             const savedTheme = localStorage.getItem('crypa_theme');
             const themeToggle = document.getElementById('theme-toggle');
             
-            if (savedTheme === 'light' && themeToggle) {
+            if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 themeToggle.checked = true;
-            } else if (themeToggle) {
+            } else {
                 document.body.classList.remove('light-mode');
                 themeToggle.checked = false;
             }
 
-            if(themeToggle) {
-                themeToggle.addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        document.body.classList.add('light-mode');
-                        localStorage.setItem('crypa_theme', 'light');
-                    } else {
-                        document.body.classList.remove('light-mode');
-                        localStorage.setItem('crypa_theme', 'dark');
-                    }
-                });
-            }
+            themeToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    document.body.classList.add('light-mode');
+                    localStorage.setItem('crypa_theme', 'light');
+                } else {
+                    document.body.classList.remove('light-mode');
+                    localStorage.setItem('crypa_theme', 'dark');
+                }
+            });
         }
 
-        // DOMContentLoaded WRAPPER TO PREVENT NULL ERRORS
         document.addEventListener('DOMContentLoaded', () => {
             
-            // Initialize AI Logic (Safe)
             const btnAiSend = document.getElementById("btn-ai-send");
             const btnAiClear = document.getElementById("btn-ai-clear");
             const aiInput = document.getElementById("ai-input");
@@ -1460,75 +1523,72 @@
                     aiHistory.push({ role: "user", content: t });
                     renderAI();
                     aiInput.value = "";
-                    if(aiMessages) {
-                        const l = document.createElement("div");
-                        l.className = "ai-message bot";
-                        l.id = "ai-loader";
-                        l.innerHTML = '<div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-                        aiMessages.appendChild(l);
-                        aiMessages.scrollTop = aiMessages.scrollHeight;
+                    const l = document.createElement("div");
+                    l.className = "ai-message bot";
+                    l.id = "ai-loader";
+                    l.innerHTML = '<div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+                    if(aiMessages) aiMessages.appendChild(l);
+                    if(aiMessages) aiMessages.scrollTop = aiMessages.scrollHeight;
 
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-                        try {
-                            const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                                method: "POST",
-                                headers: {
-                                    Authorization: `Bearer ${aiKey}`,
-                                    "Content-Type": "application/json",
-                                    "HTTP-Referer": window.location.href,
-                                    "X-Title": "Crypa Pro"
-                                },
-                                body: JSON.stringify({
-                                    model: "mistralai/devstral-2512:free",
-                                    messages: aiHistory
-                                }),
-                                signal: controller.signal
-                            });
+                    try {
+                        const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                            method: "POST",
+                            headers: {
+                                Authorization: `Bearer ${aiKey}`,
+                                "Content-Type": "application/json",
+                                "HTTP-Referer": window.location.href,
+                                "X-Title": "Crypa Pro"
+                            },
+                            body: JSON.stringify({
+                                model: "mistralai/devstral-2512:free",
+                                messages: aiHistory
+                            }),
+                            signal: controller.signal
+                        });
 
-                            clearTimeout(timeoutId);
-                            const loader = document.getElementById("ai-loader");
-                            if(loader) loader.remove();
+                        clearTimeout(timeoutId);
+                        const loader = document.getElementById("ai-loader");
+                        if(loader) loader.remove();
 
-                            if (!r.ok) {
-                                const errText = await r.text();
-                                console.error("AI Error Details:", errText);
-                                throw new Error(`API Error: ${r.status}`);
-                            }
-
-                            const d = await r.json();
-
-                            if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
-                                console.error("Invalid API Response:", d);
-                                toast("AI Busy or Unavailable");
-                                return;
-                            }
-
-                            let rawContent = d.choices[0].message.content;
-                            
-                            if (!rawContent || rawContent.trim().length < 2) {
-                                console.error("AI returned empty/short content");
-                                toast("AI response was empty. Please try again.");
-                                return;
-                            }
-
-                            let cleanContent = parseAIContent(rawContent);
-                            aiHistory.push({ role: "assistant", content: cleanContent });
-                            renderAI();
-                        } catch (e) {
-                            clearTimeout(timeoutId);
-                            console.error("AI Error:", e);
-                            const loader = document.getElementById("ai-loader");
-                            if(loader) loader.remove();
-                            
-                            if (e.name === 'AbortError') {
-                                toast("Request Timed Out (15s)");
-                            } else {
-                                toast("Connection Failed");
-                            }
+                        if (!r.ok) {
+                            const errText = await r.text();
+                            console.error("AI Error Details:", errText);
+                            throw new Error(`API Error: ${r.status}`);
                         }
-                    };
+
+                        const d = await r.json();
+                        if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
+                            console.error("Invalid API Response:", d);
+                            toast("AI Busy or Unavailable");
+                            return;
+                        }
+
+                        let rawContent = d.choices[0].message.content;
+                        
+                        if (!rawContent || rawContent.trim().length < 2) {
+                            console.error("AI returned empty/short content");
+                            toast("AI response was empty. Please try again.");
+                            return;
+                        }
+
+                        let cleanContent = parseAIContent(rawContent);
+                        aiHistory.push({ role: "assistant", content: cleanContent });
+                        renderAI();
+                    } catch (e) {
+                        clearTimeout(timeoutId);
+                        console.error("AI Error:", e);
+                        const loader = document.getElementById("ai-loader");
+                        if(loader) loader.remove();
+                        
+                        if (e.name === 'AbortError') {
+                            toast("Request Timed Out (15s)");
+                        } else {
+                            toast("Connection Failed");
+                        }
+                    }
                 };
             }
 
@@ -1539,7 +1599,6 @@
                 };
             }
 
-            // Other Event Listeners (Safe)
             const navItems = document.querySelectorAll(".nav-item");
             navItems.forEach((n) => {
                 n.onclick = () => {
@@ -1587,15 +1646,16 @@
             const postMoneyAmount = document.getElementById('post-money-amount');
             const btnSubmitPostMoney = document.getElementById('btn-submit-post-money');
             const btnCloseContact = document.getElementById('btn-close-contact');
-            const modalContactInfo = document.getElementById('modal-contact-info');
             const btnCloseComments = document.getElementById('btn-close-comments');
             const btnSubmitComment = document.getElementById('btn-submit-comment');
             const commentInput = document.getElementById('comment-input');
             const btnConfirmNo = document.getElementById('btn-confirm-no');
             const btnPrivacyModal = document.getElementById('btn-privacy-modal');
             const privacyList = document.getElementById('privacy-list');
-            
-            // Logic bindings
+            const btnUnblockChat = document.getElementById('btn-unblock-chat');
+            const btnDeleteChatFull = document.getElementById('btn-delete-chat-full');
+            const btnDeleteConfirmReceiver = document.getElementById('btn-delete-confirm-receiver');
+
             if(btnNewChat) {
                 btnNewChat.onclick = () => {
                     const modal = document.getElementById("modal-new-chat");
@@ -1620,8 +1680,7 @@
                             d.onclick = () => {
                                 const cid = [user.uid, uid].sort().join("_");
                                 set(ref(db, `chats/${cid}`), { members: [user.uid, uid], timestamp: Date.now() });
-                                const modal = document.getElementById("modal-new-chat");
-                                if(modal) modal.classList.remove('open');
+                                document.getElementById("modal-new-chat").classList.remove('open');
                                 openChat(cid, uid);
                             };
                             r.appendChild(d);
@@ -1641,9 +1700,8 @@
             if(btnBackChat) {
                 btnBackChat.onclick = () => {
                     const room = document.getElementById("chat-room");
-                    const body = document.body;
                     if(room) room.classList.remove("active");
-                    if(body) body.classList.remove("chat-active");
+                    document.body.classList.remove("chat-active");
                     if(chatId && user) {
                         set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
                     }
@@ -1657,7 +1715,7 @@
                 };
             }
             if(btnAttach && document.getElementById('file-input')) {
-                btnAttach.onclick = () => document.getElementById("file-input").click();
+                btnAttach.onclick = () => document.getElementById('file-input').click();
             }
             if(btnMoneyModal && document.getElementById('modal-transfer')) {
                 btnMoneyModal.onclick = () => document.getElementById('modal-transfer').classList.add("open");
@@ -1673,7 +1731,7 @@
                     const newRecB = (parseFloat(rSnap.val()?.balance || 0) + a).toFixed(4);
                     await update(ref(db, `users/${otherUid}/wallets/eth`), { balance: newRecB });
                     sendMsg(`💸 Sent ${a} ETH`);
-                    document.getElementById('modal-transfer').classList.remove("open");
+                    document.getElementById("modal-transfer").classList.remove("open");
                     setupWallet();
                 };
             }
@@ -1754,12 +1812,12 @@
                     const prev = document.getElementById("edit-p-preview");
                     const av = prev ? prev.src : "";
                     await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
-                    document.getElementById("modal-edit-profile").classList.remove("open");
+                    document.getElementById("modal-edit-profile").classList.remove('open');
                     toast("Updated");
                 };
             }
             if(btnVerifyAccount) {
-                btnVerifyAccount.onclick = () => document.getElementById("modal-verify").classList.add("open");
+                btnVerifyAccount.onclick = () => document.getElementById('modal-verify').classList.add('open');
             }
             if(btnCam && document.getElementById('face-video')) {
                 const scanOverlay = document.getElementById('scan-overlay');
@@ -1788,9 +1846,11 @@
                     checkVerifyInputs();
                 };
             }
+            function checkVerifyInputs() {
+                if(idInput.files.length > 0 && cameraStream) btnVerifySubmit.removeAttribute('disabled');
+            }
             if(btnVerifySubmit && document.getElementById('modal-verify')) {
                 btnVerifySubmit.onclick = async () => {
-                    const content = document.querySelector('#modal-verify .modal-content');
                     btnVerifySubmit.innerText = "Analyzing...";
                     if(scanOverlay) scanOverlay.style.display = 'block';
                     setTimeout(async () => {
@@ -1798,6 +1858,7 @@
                         await update(ref(db, `users/${user.uid}`), { verified: true });
                         updateVerifiedUI(true);
                         isVerified = true;
+                        const content = document.querySelector('#modal-verify .modal-content');
                         if(content) {
                             content.innerHTML = `
                                 <div style="text-align:center">
@@ -1808,8 +1869,7 @@
                             `;
                         }
                         setTimeout(() => {
-                            const modal = document.getElementById('modal-verify');
-                            if(modal) modal.classList.remove('open');
+                            document.getElementById('modal-verify').classList.remove('open');
                             location.reload();
                         }, 2000);
                     }, 2500);
@@ -1866,11 +1926,8 @@
             }
             if(btnSubmitPostImg) {
                 btnSubmitPostImg.onclick = async () => {
-                    if(!document.getElementById('post-img-file')) return;
                     const fileInput = document.getElementById("post-img-file");
-                    const caption = document.getElementById("post-img-caption");
-                    const modal = document.getElementById("modal-post-img");
-                    
+                    const caption = document.getElementById("post-img-caption").value.trim();
                     const file = fileInput.files[0];
                     if(!file) return;
 
@@ -1896,13 +1953,13 @@
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
-                                caption: caption ? caption.value.trim() : '',
+                                caption,
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
                             .then(() => {
-                                if(modal) modal.classList.remove("open");
-                                fileInput.value = "";
+                                document.getElementById('modal-post-img').classList.remove("open");
+                                document.getElementById("post-img-file").value = "";
                                 if(caption) caption.value = "";
                                 document.getElementById("img-preview-container").classList.add('hidden');
                                 toast("Posted");
@@ -1923,7 +1980,6 @@
             if(btnSubmitPostMoney && document.getElementById('modal-post-money') && document.getElementById('post-money-amount')) {
                 btnSubmitPostMoney.onclick = async () => {
                     const amt = parseFloat(document.getElementById('post-money-amount').value);
-                    const modal = document.getElementById("modal-post-money");
                     if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
                     const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
                     await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
@@ -1935,15 +1991,56 @@
                         timestamp: Date.now()
                     })
                     .then(() => {
-                        if(modal) modal.classList.remove('open');
+                        document.getElementById('modal-post-money').classList.remove('open');
                         toast('Crypto Posted!');
                     }).catch(e => {
                         toast("Failed");
                     });
                 };
             }
-            if(btnCloseContact && modalContactInfo) {
-                btnCloseContact.onclick = () => modalContactInfo.classList.remove('open');
+            if(btnUnblockChat) {
+                btnUnblockChat.onclick = async () => {
+                    if(!chatId) return;
+                    await update(ref(db, `chats/${chatId}`), { blockedBy: null });
+                    document.getElementById('chat-footer').classList.add('hidden');
+                    document.getElementById('input-bar-wrapper').classList.remove('hidden');
+                    toast("Unblocked");
+                };
+            }
+            if(btnDeleteChatFull) {
+                btnDeleteChatFull.onclick = async () => {
+                    if(!chatId) return;
+                    await remove(ref(db, `chats/${chatId}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+                    await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
+                    
+                    const room = document.getElementById("chat-room");
+                    if(room) room.classList.remove("active");
+                    document.body.classList.remove("chat-active");
+                    
+                    loadChats();
+                };
+            }
+            if(btnDeleteConfirmReceiver) {
+                btnDeleteConfirmReceiver.onclick = async () => {
+                    if(!chatId) return;
+                    await remove(ref(db, `chats/${chatId}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
+                    
+                    const room = document.getElementById("chat-room");
+                    const modal = document.getElementById('modal-chat-deleted');
+                    const body = document.body;
+                    
+                    if(room) room.classList.remove("active");
+                    if(body) body.classList.remove("chat-active");
+                    if(modal) modal.classList.remove('open');
+                    loadChats();
+                };
+            }
+            if(btnCloseContact && document.getElementById('modal-contact-info')) {
+                btnCloseContact.onclick = () => document.getElementById('modal-contact-info').classList.remove('open');
             }
             if(btnCloseComments && document.getElementById('modal-comments')) {
                 btnCloseComments.onclick = () => {
@@ -1975,14 +2072,13 @@
             if(btnPrivacyModal && privacyList) {
                 btnPrivacyModal.onclick = () => {
                     const modal = document.getElementById('modal-privacy');
-                    if(modal) modal.classList.add("open");
+                    if(modal) modal.classList.add('open');
                     buildPrivacyUI();
                 };
             }
 
         }); // End DOMContentLoaded
 
-        // Auth Logic
         onAuthStateChanged(auth, (u) => {
             if (u) {
                 user = u;
@@ -2005,19 +2101,13 @@
             onValue(ref(db, `users/${user.uid}`), (s) => {
                 if (s.exists()) {
                     const d = s.val();
-                    const pUsername = document.getElementById("p-username");
-                    const pAvatar = document.getElementById("p-avatar");
-                    const pBadge = document.getElementById("p-badge");
-                    const vBtn = document.getElementById('btn-verify-account');
-                    
-                    if(pUsername) pUsername.innerText = d.username;
-                    if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
-                    if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
-                    if(vBtn) vBtn.classList.toggle('hidden', d.verified);
-
+                    document.getElementById("p-username").innerText = d.username;
+                    document.getElementById("p-avatar").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+                    document.getElementById("edit-p-preview").src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
                     users[user.uid] = d;
                     localStorage.setItem('crypa_users_cache', JSON.stringify(users));
                     isVerified = !!d.verified;
+                    updateVerifiedUI(isVerified);
                 }
             });
 
@@ -2075,12 +2165,9 @@
                     } catch(e) {}
                 }
             }
-            const pWalletBal = document.getElementById("p-wallet-bal");
-            const pWalletAddr = document.getElementById("p-wallet-addr");
-            const rAddr = document.getElementById('r-addr');
-            if(pWalletBal) pWalletBal.innerText = `${wallet.balance} ETH`;
-            if(pWalletAddr) pWalletAddr.innerText = wallet.address;
-            if(rAddr) rAddr.innerText = wallet.address;
+            document.getElementById("p-wallet-bal").innerText = `${wallet.balance} ETH`;
+            document.getElementById("p-wallet-addr").innerText = wallet.address;
+            document.getElementById("r-addr").innerText = wallet.address;
         }
 
         document.addEventListener('click', (e) => {
@@ -2089,7 +2176,7 @@
             }
         });
 
-        function renderChatList(chatsData) {
+        function renderChatList(chatsData, allChatsCount) {
             const l = document.getElementById("chat-list");
             if(chatsData) l.innerHTML = "";
             if (!chatsData) return;
@@ -2111,6 +2198,14 @@
                 const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
                 const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
                 const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
+                const hasNewMsg = chatsData[id].timestamp && ud.lastSeen && (chatsData[id].timestamp > ud.lastSeen);
+                const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
+
+                // Check if current user blocked this chat owner
+                const isBlockedByMe = chatsData[id].blockedBy === user.uid;
+                const blockBtnHtml = isBlockedByMe
+                    ? `<div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', true)"><i class="material-icons-round">lock_open</i> Unblock</div>`
+                    : `<div class="dropdown-item delete" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', false)"><i class="material-icons-round">block</i> Block Chat</div>`;
 
                 let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
                 if(ud.verified) avatarContent += verifiedHTML;
@@ -2119,6 +2214,7 @@
                 item.innerHTML = `
                     <div class="avatar-wrapper">
                         ${avatarContent}
+                        ${badgeHTML}
                     </div>
                     <div class="chat-info">
                         <div class="chat-name">
@@ -2131,8 +2227,8 @@
                     </div>
                     <div class="dropdown-menu" id="dropdown-${id}">
                         <div class="dropdown-item" onclick="event.stopPropagation(); window.openContactInfoDropdown('${ouid}')"><i class="material-icons-round">info</i> About Profile</div>
-                        <div class="dropdown-item delete" onclick="event.stopPropagation(); window.deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
-                        <div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}')"><i class="material-icons-round">block</i> Block Chat</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
+                        ${blockBtnHtml}
                     </div>
                 `;
                 l.appendChild(item);
@@ -2145,7 +2241,9 @@
             if (cachedChatsJSON) {
                 try {
                     const cachedChats = JSON.parse(cachedChatsJSON);
-                    renderChatList(cachedChats);
+                    // Get total count from snapshot to pass to render
+                    const totalChatsCount = Object.keys(cachedChats).length;
+                    renderChatList(cachedChats, totalChatsCount);
                 } catch(e) {}
             }
 
@@ -2161,35 +2259,70 @@
                     if (!cs.exists()) continue;
                     const members = cs.val().members;
                     const ouid = members.find((m) => m !== user.uid);
-                    enrichedChats[id] = { ...d[id], otherUid: ouid };
+                    enrichedChats[id] = { ...d[id], otherUid: ouid, blockedBy: cs.val().blockedBy };
                 }
+                const totalChatsCount = Object.keys(enrichedChats).length;
                 localStorage.setItem('crypa_chats_list', JSON.stringify(enrichedChats));
-                renderChatList(enrichedChats);
+                renderChatList(enrichedChats, totalChatsCount);
+            });
+
+            onValue(ref(db, `users/${user.uid}`), (s) => {
+                if(s.exists()) users[user.uid] = s.val();
             });
         }
 
-        window.deleteMyChat = async (id, uid) => {
+        window.deleteMyChat = async (id, uid, unblock) => {
             const chatSnap = await get(ref(db, `chats/${id}`));
-            if(chatSnap.exists()) {
-                let deletedList = chatSnap.val().deletedBy || [];
-                if(!deletedList.includes(user.uid)) {
-                    deletedList.push(user.uid);
-                    await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
+            if(unblock) {
+                if(chatSnap.exists()) {
+                    await update(ref(db, `chats/${id}`), { blockedBy: null });
+                    // Trigger UI update manually for speed
+                    const item = document.getElementById(`chat-item-${id}`);
+                    if(item) {
+                        const btnDiv = item.querySelector('.dropdown-item:last-child');
+                        if(btnDiv) {
+                            btnDiv.innerHTML = `<i class="material-icons-round">block</i> Block Chat`;
+                            btnDiv.onclick = () => {
+                                window.blockUser(id, uid, false);
+                            };
+                        }
+                    }
                 }
+                toast("Unblocked");
+            } else {
+                if(chatSnap.exists()) {
+                    let deletedList = chatSnap.val().deletedBy || [];
+                    if(!deletedList.includes(user.uid)) {
+                        deletedList.push(user.uid);
+                        await update(ref(db, `chats/${id}`), { deletedBy: deletedList });
+                    }
+                }
+                await remove(ref(db, `user_chats/${user.uid}/${id}`));
+                const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
+                delete cached[id];
+                localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
+                const el = document.getElementById(`chat-item-${id}`);
+                if(el) el.remove();
             }
-            await remove(ref(db, `user_chats/${user.uid}/${id}`));
-            const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
-            delete cached[id];
-            localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
-            const el = document.getElementById(`chat-item-${id}`);
-            if(el) el.remove();
             window.toggleDropdown(id);
         };
 
-        window.blockUser = async (id, uid) => {
-            await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
-            toast("User blocked");
-            window.toggleDropdown(id);
+        window.blockUser = async (id, uid, unblock) => {
+            if(unblock) {
+                 await update(ref(db, `chats/${id}`), { blockedBy: null });
+            } else {
+                 await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
+                 toast("User blocked");
+            }
+            // Reload specific menu item to reflect change
+            const item = document.getElementById(`chat-item-${id}`);
+            if(item) {
+                const btnDiv = item.querySelector('.dropdown-item:last-child');
+                if(btnDiv) {
+                    btnDiv.innerHTML = `<i class="material-icons-round">lock_open</i> Unblock`;
+                    btnDiv.onclick = () => window.deleteMyChat(id, uid, true);
+                }
+            }
         };
 
         const contactModal = document.getElementById('modal-contact-info');
@@ -2198,29 +2331,25 @@
             const ud = users[otherUid];
             if(!ud) return;
 
-            const cAvatar = document.getElementById('c-avatar');
-            const cUsername = document.getElementById('c-username');
-            const cEmail = document.getElementById('c-email');
-            const cBadge = document.getElementById('c-badge');
-            const cJoined = document.getElementById('c-joined');
-            const cStatus = document.getElementById('c-status');
-            const cLastSeen = document.getElementById('c-last-seen');
-
-            if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
-            if(cUsername) cUsername.innerText = ud.username;
-            if(cEmail) cEmail.innerText = ud.email || "Hidden";
-            if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
+            document.getElementById('c-avatar').src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
+            document.getElementById('c-username').innerText = ud.username;
+            
+            // Reset visibility
+            document.getElementById('c-total-chats-row').style.display = 'none';
+            document.getElementById('c-email-row').style.display = 'none';
+            document.getElementById('c-joined-row').style.display = 'none';
+            document.getElementById('c-badge').style.display = ud.verified ? 'inline-block' : 'none';
 
             const joinedDate = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024"; 
-            if(cJoined) cJoined.innerText = joinedDate;
-
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
+            const cStatus = document.getElementById('c-status');
             if(cStatus) {
                 cStatus.innerText = isOnline ? "Online" : "Offline";
                 cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
             }
 
-            if(cLastSeen) {
+            const cLastSeen = document.getElementById('c-last-seen');
+            if (cLastSeen) {
                 if (isOnline) {
                     cLastSeen.innerText = "Now";
                 } else if (ud.lastSeen) {
@@ -2230,29 +2359,31 @@
                 }
             }
 
-            if(contactModal) contactModal.classList.add('open');
+            contactModal.classList.add('open');
         }
+
+        document.getElementById('header-avatar-wrap')?.onclick = openContactInfo;
+        document.getElementById('header-text-wrap')?.onclick = openContactInfo;
+        document.getElementById('btn-close-contact').onclick = () => contactModal.classList.remove('open');
 
 
         function openChat(id, uid) {
             chatId = id;
             otherUid = uid;
             const room = document.getElementById("chat-room");
-            const body = document.body;
             if(room) room.classList.add("active");
-            if(body) body.classList.add("chat-active");
+            document.body.classList.add("chat-active");
 
             const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
             const badge = document.getElementById('curr-chat-badge');
-            
             if(currName) currName.innerText = ud.username;
             if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
             if(badge) badge.classList.toggle('hidden', !ud.verified);
 
-            const chatFooter = document.getElementById("chat-footer");
-            const inputBarWrapper = document.getElementById("input-bar-wrapper");
+            const chatFooter = document.getElementById('chat-footer');
+            const inputBarWrapper = document.getElementById('input-bar-wrapper');
 
             if(chatFooter) chatFooter.classList.add('hidden');
             if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
@@ -2264,8 +2395,7 @@
                 currentChatDetails = data;
 
                 if(data.deletedBy && data.deletedBy.includes(otherUid)) {
-                    const modal = document.getElementById('modal-chat-deleted');
-                    if(modal) modal.classList.add('open');
+                    document.getElementById('modal-chat-deleted').classList.add('open');
                 }
 
                 if(data.blockedBy === user.uid) {
@@ -2324,57 +2454,15 @@
 
             onValue(ref(db, `chats/${id}/typing/${otherUid}`), (s) => {
                 const isTyping = s.val();
-                if(typingEl) {
-                    if(isTyping) {
-                        typingEl.classList.remove('hidden');
-                        if(a) a.scrollTop = a.scrollHeight;
-                    } else {
-                        typingEl.classList.add('hidden');
-                    }
+                const typingEl = document.getElementById('typing-indicator');
+                if(isTyping) {
+                    typingEl.classList.remove('hidden');
+                    if(a) a.scrollTop = a.scrollHeight;
+                } else {
+                    typingEl.classList.add('hidden');
                 }
             });
         }
-
-        document.getElementById('btn-unblock-chat').onclick = async () => {
-            if(!chatId) return;
-            await update(ref(db, `chats/${chatId}`), { blockedBy: null });
-            const chatFooter = document.getElementById('chat-footer');
-            const inputBarWrapper = document.getElementById('input-bar-wrapper');
-            if(chatFooter) chatFooter.classList.add('hidden');
-            if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
-            toast("Unblocked");
-        };
-
-        document.getElementById('btn-delete-chat-full').onclick = async () => {
-            if(!chatId) return;
-            await remove(ref(db, `chats/${chatId}`));
-            await remove(ref(db, `messages/${chatId}`));
-            await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
-            await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
-            
-            const room = document.getElementById("chat-room");
-            const body = document.body;
-            if(room) room.classList.remove("active");
-            if(body) body.classList.remove("chat-active");
-            
-            loadChats();
-        };
-
-        document.getElementById('btn-delete-confirm-receiver').onclick = async () => {
-            if(!chatId) return;
-            await remove(ref(db, `chats/${chatId}`));
-            await remove(ref(db, `messages/${chatId}`));
-            await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
-            
-            const room = document.getElementById("chat-room");
-            const modal = document.getElementById('modal-chat-deleted');
-            const body = document.body;
-            
-            if(room) room.classList.remove("active");
-            if(body) body.classList.remove("chat-active");
-            if(modal) modal.classList.remove('open');
-            loadChats();
-        };
 
         function renderCachedMessages() {
             const a = document.getElementById("messages-area");
@@ -2445,11 +2533,11 @@
                     <div class="msg-meta">
                         <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     </div>`;
-                if(a) a.appendChild(bubble);
+                a.appendChild(bubble);
                 if(a) a.scrollTop = a.scrollHeight;
                 setTimeout(() => {
-                    if(bubble) bubble.style.opacity = '0';
-                    setTimeout(() => { if(bubble) bubble.remove(); }, 500);
+                    bubble.style.opacity = '0';
+                    if(bubble) bubble.remove();
                 }, 1000);
                 return;
             }
@@ -2473,12 +2561,81 @@
             });
         }
 
+        window.confirmDeleteMsg = (mKey) => {
+            document.getElementById("modal-confirm").classList.add("open");
+            document.getElementById("btn-confirm-yes").onclick = function() {
+                set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
+                const el = document.getElementById(`msg-bubble-${mKey}`);
+                if(el) el.remove();
+                document.getElementById("modal-confirm").classList.remove("open");
+            };
+        };
+        if(document.getElementById("btn-confirm-no")) document.getElementById("btn-confirm-no").onclick = () => document.getElementById("modal-confirm").classList.remove("open");
+
+        document.getElementById("btn-money-modal").onclick = () => document.getElementById('modal-transfer').classList.add("open");
+
+        document.getElementById("btn-do-transfer").onclick = async () => {
+            const a = parseFloat(document.getElementById("t-amount").value);
+            if (!a || a > parseFloat(wallet.balance)) return toast("Insufficient Balance");
+            const newSenderB = (parseFloat(wallet.balance) - a).toFixed(4);
+            await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newSenderB });
+            const rSnap = await get(ref(db, `users/${otherUid}/wallets/eth`));
+            const newRecB = (parseFloat(rSnap.val()?.balance || 0) + a).toFixed(4);
+            await update(ref(db, `users/${otherUid}/wallets/eth`), { balance: newRecB });
+            sendMsg(`💸 Sent ${a} ETH`);
+            document.getElementById("modal-transfer").classList.remove("open");
+            setupWallet();
+        };
+
+        document.getElementById("p-withdraw").onclick = () => document.getElementById("modal-withdraw").classList.add("open");
+
+        document.getElementById("btn-do-withdraw").onclick = async () => {
+            const toAddress = document.getElementById("w-addr").value;
+            const amountStr = document.getElementById("w-amt").value;
+            if (!ethers.isAddress(toAddress)) return toast("Invalid Address");
+            if (!amountStr || parseFloat(amountStr) <= 0) return toast("Invalid Amount");
+
+            const btn = document.getElementById("btn-do-withdraw");
+            const originalText = btn.innerText;
+            btn.innerText = "Signing...";
+            btn.disabled = true;
+
+            try {
+                const pk = localStorage.getItem(`pk_${user.uid}`);
+                if (!pk) throw new Error("Wallet not found in local storage");
+
+                const walletInstance = new ethers.Wallet(pk);
+                const connectedWallet = walletInstance.connect(rpc);
+                const amountWei = ethers.parseEther(amountStr);
+
+                toast("Broadcasting Transaction...");
+                const tx = await connectedWallet.sendTransaction({ to: toAddress, value: amountWei });
+                console.log("Transaction Hash:", tx.hash);
+                toast(`Success! Hash: ${tx.hash.substring(0, 10)}...`);
+
+                document.getElementById("modal-withdraw").classList.remove("open");
+                setupWallet();
+            } catch (e) {
+                console.error(e);
+                toast("Transaction Failed: " + e.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById("p-receive").onclick = () => document.getElementById("modal-receive").classList.add("open");
+        document.getElementById("btn-copy").onclick = () => {
+            navigator.clipboard.writeText(wallet.address);
+            toast("Copied");
+        };
+
         function loadComments(postKey) {
             const list = document.getElementById('comments-list');
             if(list) list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>';
             onValue(ref(db, `comments/${postKey}`), (s) => {
                 if(!s.exists()) {
-                    if(list) list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No comments yet.</div>';
+                    list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No comments yet.</div>';
                     return;
                 }
                 const comments = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
@@ -2502,19 +2659,24 @@
             });
         }
 
-        function buildPrivacyUI() {
-            const l = document.getElementById("privacy-list");
-            const s = ["Read Receipts", "Online Status", "2FA Security", "Wallet Privacy", "Incognito Mode"];
-            if(l) {
-                l.innerHTML = "";
-                s.forEach((t) => {
-                    const i = document.createElement("div");
-                    i.className = "setting-item";
-                    i.innerHTML = `<span class="setting-label">${t}</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`;
-                    l.appendChild(i);
-                });
-            }
-        }
+        document.getElementById('btn-close-comments').onclick = () => {
+            document.getElementById('modal-comments').classList.remove('open');
+            currentCommentPostId = null;
+        };
+
+        document.getElementById('btn-submit-comment').onclick = () => {
+            const input = document.getElementById('comment-input');
+            const txt = input.value.trim();
+            if(!txt || !currentCommentPostId) return;
+            push(ref(db, `comments/${currentCommentPostId}`), {
+                senderId: user.uid,
+                text: txt,
+                time: Date.now()
+            }).then(() => {
+                input.value = '';
+                toast("Commented");
+            });
+        };
 
         // FEED LOGIC
         function loadFeed(useCache = false) {
@@ -2531,7 +2693,7 @@
                 if (!container) return;
 
                 if(!s.exists()) {
-                    if(container) container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
+                    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
                     return;
                 }
 
@@ -2559,6 +2721,8 @@
                 renderNextChunk();
             });
         }
+
+        document.getElementById('btn-refresh-feed').onclick = () => loadFeed(false);
 
         function renderNextChunk() {
             const container = document.getElementById('feed-content');
@@ -2600,7 +2764,6 @@
                         }
                         contentHTML += `<div class="post-content-text">${post.content || ''}</div>`;
                         
-                        // Actions container
                         const actionsHTML = `
                             <div class="post-actions">
                                 <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')"><i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i> Comment</button>
@@ -2653,7 +2816,8 @@
                 if(snapshot.exists()) {
                     const likes = snapshot.val();
                     const count = likes ? Object.keys(likes).length : 0;
-                    cEl.innerText = count;
+                    // Fix 5: Format likes > 999 as 1k, 1.1k
+                    cEl.innerText = formatLikes(count);
 
                     if (likes && likes[user.uid]) {
                         bEl.classList.add('active');
@@ -2679,7 +2843,184 @@
             });
         }
 
-        document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add("open");
+        document.getElementById('btn-post-text').onclick = () => document.getElementById('modal-post-text').classList.add('open');
+
+        document.getElementById('btn-submit-post-text').onclick = () => {
+            const txt = document.getElementById('post-text-content').value.trim();
+            if(!txt) return;
+            toast("Posting...");
+            push(ref(db, 'posts'), {
+                type: 'text',
+                content: txt,
+                authorId: user.uid,
+                timestamp: Date.now()
+            })
+            .then(() => {
+                document.getElementById('modal-post-text').classList.remove('open');
+                document.getElementById('post-text-content').value = '';
+                toast("Posted");
+            }).catch(e => { console.error(e); toast("Failed to post"); });
+        };
+
+        document.getElementById('btn-post-img').onclick = () => document.getElementById('modal-post-img').classList.add('open');
+
+        document.getElementById('post-img-file').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) {
+                document.getElementById("img-preview-container").classList.add('hidden');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById("post-img-preview").src = ev.target.result;
+                document.getElementById("img-preview-container").classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        document.getElementById('btn-submit-post-img').onclick = async () => {
+            const fileInput = document.getElementById("post-img-file");
+            const caption = document.getElementById("post-img-caption").value.trim();
+            const file = fileInput.files[0];
+            if(!file) return;
+
+            toast("Posting...");
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    let quality = 0.5;
+                    let res = img.src;
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 500;
+                    canvas.height = (canvas.width / img.width) * img.height;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    res = canvas.toDataURL('image/jpeg', quality);
+                    while(res.length > 50000 && quality > 0.1) {
+                        quality -= 0.1;
+                        res = canvas.toDataURL('image/jpeg', quality);
+                    }
+                    push(ref(db, 'posts'), {
+                        type: 'img',
+                        content: res,
+                        caption,
+                        authorId: user.uid,
+                        timestamp: Date.now()
+                    })
+                    .then(() => {
+                        document.getElementById('modal-post-img').classList.remove("open");
+                        document.getElementById("post-img-file").value = "";
+                        document.getElementById("post-img-caption").value = "";
+                        document.getElementById("img-preview-container").classList.add('hidden');
+                        toast("Posted");
+                    }).catch(e => {
+                        console.error(e);
+                        toast("Upload Failed");
+                    });
+                };
+            };
+        };
+
+        document.getElementById('btn-post-money').onclick = () => document.getElementById('modal-post-money').classList.add('open');
+
+        document.getElementById('btn-submit-post-money').onclick = async () => {
+            const amt = parseFloat(document.getElementById('post-money-amount').value);
+            if(!amt || amt > parseFloat(wallet.balance)) return toast('Insufficient Funds');
+            const newBal = (parseFloat(wallet.balance) - amt).toFixed(4);
+            await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
+            setupWallet();
+            await push(ref(db, 'posts'), {
+                type: 'money',
+                amount: amt,
+                authorId: user.uid,
+                timestamp: Date.now()
+            })
+            .then(() => {
+                document.getElementById('modal-post-money').classList.remove('open');
+                toast('Crypto Posted!');
+            }).catch(e => {
+                toast("Failed");
+            });
+        };
+
+        document.getElementById('btn-verify-account').onclick = () => document.getElementById('modal-verify').classList.add('open');
+
+        const video = document.getElementById('face-video');
+        const btnCam = document.getElementById('btn-camera-toggle');
+        const btnVerifySubmit = document.getElementById('btn-verify-submit');
+        const scanOverlay = document.getElementById('scan-overlay');
+        const idInput = document.getElementById('verify-id-input');
+        const idFilename = document.getElementById('verify-id-filename');
+
+        if(btnCam) {
+            btnCam.onclick = async () => {
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                    if(videoPlaceholder) videoPlaceholder.classList.add('hidden');
+                    if(scanOverlay) scanOverlay.style.display = 'none';
+                    checkVerifyInputs();
+                } catch(e) {
+                    toast('Camera access denied');
+                }
+            };
+        }
+
+        if(idInput && document.getElementById('verify-id-filename')) {
+            idInput.onchange = () => {
+                const file = idInput.files[0];
+                const filenameDiv = document.getElementById("verify-id-filename");
+                if(file && filenameDiv) {
+                    filenameDiv.style.display = 'block';
+                    filenameDiv.innerText = file.name;
+                } else {
+                     if(filenameDiv) filenameDiv.style.display = 'none';
+                }
+                checkVerifyInputs();
+            };
+        }
+
+        function checkVerifyInputs() {
+            if(idInput.files.length > 0 && cameraStream) btnVerifySubmit.removeAttribute('disabled');
+        }
+
+        if(btnVerifySubmit && document.getElementById('modal-verify')) {
+            btnVerifySubmit.onclick = async () => {
+                btnVerifySubmit.innerText = "Analyzing...";
+                if(scanOverlay) scanOverlay.style.display = 'block';
+                setTimeout(async () => {
+                    if(scanOverlay) scanOverlay.style.display = 'none';
+                    await update(ref(db, `users/${user.uid}`), { verified: true });
+                    updateVerifiedUI(true);
+                    isVerified = true;
+                    const content = document.querySelector('#modal-verify .modal-content');
+                    if(content) {
+                        content.innerHTML = `
+                            <div style="text-align:center">
+                                <i class="material-icons-round" style="font-size:60px; color:var(--success-color); margin-bottom:15px">check_circle</i>
+                                <h3>You're now Verified</h3>
+                                <p style="color:var(--text-secondary); margin-bottom:20px;">Your identity has been confirmed.</p>
+                            </div>
+                        `;
+                    }
+                    setTimeout(() => {
+                        document.getElementById('modal-verify').classList.remove('open');
+                        location.reload();
+                    }, 2000);
+                }, 2500);
+            };
+        }
+
+        function parseAIContent(text) {
+            if (!text) return "";
+            let cleanText = text.replace(/<[^>]*>/g, '');
+            cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
+            return cleanText.replace(/\n/g, '<br>');
+        }
 
         function renderAI() {
             const a = document.getElementById("ai-messages");
@@ -2696,16 +3037,45 @@
             }
         }
 
-        function parseAIContent(text) {
-            if (!text) return "";
-            let cleanText = text.replace(/<[^>]*>/g, '');
-            cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
-            return cleanText.replace(/\n/g, '<br>');
+        document.getElementById("btn-edit-p").onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
+        document.getElementById("btn-change-avatar").onclick = () => document.getElementById("avatar-input").click();
+        document.getElementById("avatar-input").onchange = (e) => {
+            const f = e.target.files[0];
+            if (!f) return;
+            const r = new FileReader();
+            r.onload = (ev) => (document.getElementById("edit-p-preview").src = ev.target.result);
+            r.readAsDataURL(f);
+        };
+        document.getElementById("btn-save-profile").onclick = async () => {
+            const n = document.getElementById("edit-p-name").value;
+            const av = document.getElementById("edit-p-preview").src;
+            await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
+            document.getElementById("modal-edit-profile").classList.remove('open');
+            toast("Updated");
+        };
+
+        document.getElementById("btn-logout").onclick = () => {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        };
+
+        document.getElementById("btn-privacy-modal").onclick = () => document.getElementById('modal-privacy').classList.add("open");
+
+        function buildPrivacyUI() {
+            const l = document.getElementById("privacy-list");
+            const s = ["Read Receipts", "Online Status", "2FA Security", "Wallet Privacy", "Incognito Mode"];
+            if(l) {
+                l.innerHTML = "";
+                s.forEach((t) => {
+                    const i = document.createElement("div");
+                    i.className = "setting-item";
+                    i.innerHTML = `<span class="setting-label">${t}</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label>`;
+                    l.appendChild(i);
+                });
+            }
         }
 
-        buildPrivacyUI();
     </script>
 </body>
 </html>
