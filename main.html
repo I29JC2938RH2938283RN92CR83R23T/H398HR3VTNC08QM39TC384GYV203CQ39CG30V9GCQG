@@ -278,7 +278,23 @@
             word-wrap: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             position: relative;
+            transition: background 0.2s;
         }
+        /* Big Emoji Override */
+        .big-emoji-msg {
+            background: transparent !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            font-size: 64px;
+            line-height: 1;
+            max-width: 300px;
+        }
+        .big-emoji-msg .msg-meta {
+            /* Hide meta for big emojis or move them nicely */
+            display: none; 
+        }
+
         #chat-room.active {
             transform: translateX(0);
         }
@@ -328,18 +344,30 @@
             background-color: var(--text-secondary);
             opacity: 0.5;
         }
-        .delete-msg-icon {
+        .delete-msg-icon, .reply-msg-icon {
             position: absolute;
             top: 5px;
-            right: 5px;
             color: rgba(255,255,255,0.5);
             font-size: 16px;
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.2s;
             z-index: 5;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            padding: 2px;
         }
-        .message-bubble:hover .delete-msg-icon {
+        /* Sent messages icons on right */
+        .sent .delete-msg-icon { right: 5px; }
+        .sent .reply-msg-icon { right: 30px; }
+        
+        /* Received messages icons on left (standard logic) or right if preferred */
+        /* User asked for "right next to delete". If received, delete is usually top-right. */
+        .received .delete-msg-icon { right: 5px; }
+        .received .reply-msg-icon { right: 30px; }
+
+        .message-bubble:hover .delete-msg-icon,
+        .message-bubble:hover .reply-msg-icon {
             opacity: 1;
         }
         .msg-img {
@@ -349,6 +377,12 @@
             cursor: pointer;
             display: block;
         }
+        /* Link Styles */
+        .msg-text-link {
+            color: #4facfe;
+            text-decoration: underline;
+        }
+
         .msg-meta {
             display: flex;
             align-items: center;
@@ -367,40 +401,52 @@
             font-family: 'Material Icons Round';
             color: var(--success-color);
         }
-        /* Link Handling Styles */
-        .msg-link-icon {
-            position: absolute;
-            top: 50%;
-            right: -35px;
-            transform: translateY(-50%);
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-        .msg-link-highlight a {
-            color: #4facfe;
-            text-decoration: underline;
-        }
         
         .input-bar {
             background: var(--surface-color);
             padding: 12px 15px;
             display: flex;
-            align-items: flex-end;
+            flex-direction: column; /* Stacked for reply bar */
             gap: 8px;
             border-top: 1px solid var(--border-color);
             z-index: 9999;
             position: relative;
         }
+        .replying-bar {
+            display: none;
+            align-items: center;
+            background: rgba(91, 107, 242, 0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 100%;
+            font-size: 12px;
+            color: var(--primary-color);
+            justify-content: space-between;
+        }
+        .replying-bar.active {
+            display: flex;
+        }
+        .replying-content {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+        .cancel-reply-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 2px;
+        }
+        .input-actions {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            width: 100%;
+        }
+
         .chat-footer-controls {
             display: flex;
             justify-content: center;
@@ -470,33 +516,6 @@
             display: flex;
             opacity: 1;
         }
-        /* Link Preview Modal Specifics */
-        .modal-fullscreen {
-            width: 100%;
-            height: 100%;
-            max-width: none;
-            max-height: none;
-            border-radius: 0;
-            background: var(--bg-color);
-            flex-direction: column;
-        }
-        .link-preview-header {
-            height: 60px;
-            background: var(--surface-color);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            border-bottom: 1px solid var(--border-color);
-            justify-content: space-between;
-        }
-        .link-preview-content {
-            flex: 1;
-            width: 100%;
-            height: calc(100% - 60px);
-            border: none;
-            background: #fff;
-        }
-
         .modal-content {
             background: var(--surface-color);
             width: 90%;
@@ -718,11 +737,9 @@
             gap: 10px;
         }
         .like-container {
-            margin-left: auto;
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-top: 5px;
         }
         .like-btn {
             color: var(--text-secondary);
@@ -996,7 +1013,7 @@
         
         /* Comment Redesign */
         .comments-modal-content {
-            height: 500px;
+            height: 85vh;
             padding: 0;
             display: flex;
             flex-direction: column;
@@ -1007,6 +1024,18 @@
             border-bottom: 1px solid var(--border-color);
             background: var(--surface-color);
             flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .comments-close-header-btn {
+            position: absolute;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
         }
         .comments-header h3 {
             margin: 0;
@@ -1021,7 +1050,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 240px; 
             overflow-y: auto;
         }
         .comment-bubble {
@@ -1051,12 +1079,13 @@
             display: block;
         }
         .comment-input-area {
-            padding: 10px;
+            padding: 15px;
             background: var(--surface-color);
             border-top: 1px solid var(--border-color);
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-shrink: 0;
         }
         .comment-input {
             flex: 1;
@@ -1085,22 +1114,26 @@
         .post-actions {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
             padding: 0 12px 10px;
+            justify-content: flex-start; /* Align left */
         }
         .comment-trigger-btn {
             display: flex;
             align-items: center;
-            gap: 4px;
             color: var(--text-secondary);
             font-size: 13px;
             cursor: pointer;
             background: none;
             border: none;
+            padding: 0;
             font-family: 'Inter', sans-serif;
         }
         .comment-trigger-btn:hover {
             color: var(--primary-color);
+        }
+        .comment-trigger-btn i {
+            font-size: 22px;
         }
     </style>
 </head>
@@ -1138,11 +1171,17 @@
             </div>
 
             <div class="input-bar" id="input-bar-wrapper">
-                <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
-                <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
-                <input type="file" id="file-input" accept="image/*" class="hidden" />
-                <textarea id="msg-input" class="text-input" rows="1" placeholder="Type here..."></textarea>
-                <button class="action-btn btn-send" id="btn-send-msg"><i class="material-icons-round">send</i></button>
+                <div id="replying-bar" class="replying-bar">
+                    <span class="replying-content">Replying to...</span>
+                    <button class="cancel-reply-btn" id="btn-cancel-reply"><i class="material-icons-round">close</i></button>
+                </div>
+                <div class="input-actions">
+                    <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
+                    <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
+                    <input type="file" id="file-input" accept="image/*" class="hidden" />
+                    <textarea id="msg-input" class="text-input" rows="1" placeholder="Type here..."></textarea>
+                    <button class="action-btn btn-send" id="btn-send-msg"><i class="material-icons-round">send</i></button>
+                </div>
             </div>
         </div>
     </div>
@@ -1289,6 +1328,7 @@
         <div class="modal-content comments-modal-content">
             <div class="comments-header">
                 <h3>Comments</h3>
+                <button class="comments-close-header-btn" id="btn-close-comments"><i class="material-icons-round" style="font-size: 24px;">close</i></button>
             </div>
             <div id="comments-list" class="comments-list-scrollable">
                 <div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>
@@ -1297,7 +1337,6 @@
                 <input type="text" id="comment-input" class="comment-input" placeholder="Add a comment..." />
                 <button class="comment-send-btn" id="btn-submit-comment"><i class="material-icons-round" style="font-size:18px;">send</i></button>
             </div>
-            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary); margin:0; padding:10px;" id="btn-close-comments">Close</button>
         </div>
     </div>
 
@@ -1440,20 +1479,6 @@
             <button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
         </div>
     </div>
-    
-    <!-- Link Preview Modal -->
-    <div id="modal-link-view" class="modal-overlay">
-        <div class="modal-content modal-fullscreen">
-            <div class="link-preview-header">
-                <div class="app-title" style="font-size:16px;">External Link</div>
-                <button class="action-btn" id="btn-close-link-view" style="width:32px; height:32px;"><i class="material-icons-round">close</i></button>
-            </div>
-            <iframe id="link-iframe" class="link-preview-content" src=""></iframe>
-            <div style="padding: 15px; background: var(--surface-color); text-align: center;">
-                <a id="link-external-btn" href="#" target="_blank" class="btn-primary" style="display:block; text-decoration:none;">Open in Browser</a>
-            </div>
-        </div>
-    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
@@ -1478,7 +1503,6 @@
         const k = "c2stb3ItdjEtN2Y3MjY3M2IyMzMzMDkyOThkNjM3ZmM2Mzg5NjZiNTViY2ZmZTMyNTdlMzFjNDIzMTNhODFmODQwZmQ3NmJmNw==";
         
         const aiKey = atob(k); 
-        // Updated Company Name and Prompt
         const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
@@ -1502,6 +1526,8 @@
 
         // Chat Image Attachment State
         let pendingChatImage = null;
+        // Reply State
+        let replyingTo = null; 
 
         const aiHistory = [
             { role: "system", content: systemPrompt }
@@ -1617,33 +1643,46 @@
             }
         };
 
-        window.openLinkPreview = function(url) {
-            const modal = document.getElementById('modal-link-view');
-            const iframe = document.getElementById('link-iframe');
-            const extBtn = document.getElementById('link-external-btn');
+        window.startReply = function(mKey, senderName, text) {
+            replyingTo = { key: mKey, sender: senderName, text: text };
+            const bar = document.getElementById('replying-bar');
+            const content = bar.querySelector('.replying-content');
             
-            if(iframe) iframe.src = url;
-            if(extBtn) extBtn.href = url;
+            content.innerText = `Replying to ${senderName}`;
+            bar.classList.add('active');
             
-            if(modal) modal.classList.add('open');
+            // Focus input
+            const input = document.getElementById('msg-input');
+            if(input) input.focus();
         }
 
-        // --- Link Parsing Helper ---
+        window.cancelReply = function() {
+            replyingTo = null;
+            const bar = document.getElementById('replying-bar');
+            bar.classList.remove('active');
+        }
+
+        // --- Helper: Check if text is only emojis (max 3) ---
+        function isOnlyEmojis(text) {
+            if (!text) return false;
+            const stripped = text.replace(/\s/g, '');
+            const emojiMatches = stripped.match(/\p{Emoji_Presentation}/gu);
+            if (!emojiMatches) return false;
+            
+            // Check if there are any non-emoji characters
+            const nonEmojiChars = stripped.replace(/\p{Emoji_Presentation}/gu, '');
+            if (nonEmojiChars.length > 0) return false;
+
+            // Check count (grapheme cluster aware roughly)
+            if (Array.from(stripped).length > 3) return false;
+
+            return true;
+        }
+
+        // --- Link Parsing Helper (Simplified) ---
         function parseMessageLinks(text) {
             const urlRegex = /(https?:\/\/[^\s]+)/g;
-            const matches = text.match(urlRegex);
-            
-            if (!matches) return { html: text, link: null, count: 0 };
-
-            if (matches.length > 1) {
-                // Multiple links: replace with hyperlinks
-                const safeHtml = text.replace(urlRegex, '<a href="$1" target="_blank" style="color:#4facfe; text-decoration:underline;">$1</a>');
-                return { html: safeHtml, link: null, count: matches.length };
-            } else {
-                // Single link: remove from text, return link separately for icon
-                const cleanText = text.replace(urlRegex, '').trim();
-                return { html: cleanText, link: matches[0], count: 1 };
-            }
+            return text.replace(urlRegex, '<a href="$1" target="_blank" class="msg-text-link">$1</a>');
         }
 
         function initTheme() {
@@ -1673,6 +1712,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             
+            // Reply Buttons
+            document.getElementById('btn-cancel-reply').onclick = window.cancelReply;
+
             // Navigation
             const navItems = document.querySelectorAll(".nav-item");
             navItems.forEach((n) => {
@@ -1882,6 +1924,7 @@
                     if(chatId && user) {
                         set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
                     }
+                    window.cancelReply(); // Cancel reply on back
                 };
             }
             
@@ -1914,7 +1957,7 @@
                     const t = msgInput.value.trim();
                     
                     if(pendingChatImage) {
-                        // Send the pending image
+                        // Send() pending image
                         sendMsg(pendingChatImage, "img");
                         pendingChatImage = null; // Reset
                         if(msgInput) msgInput.value = "";
@@ -2306,17 +2349,6 @@
                     if(modal) modal.classList.remove('open');
                 };
             }
-            
-            // Link Modal Close
-            const btnCloseLink = document.getElementById('btn-close-link-view');
-            if(btnCloseLink) {
-                btnCloseLink.onclick = () => {
-                     const modal = document.getElementById('modal-link-view');
-                     if(modal) modal.classList.remove('open');
-                     const iframe = document.getElementById('link-iframe');
-                     if(iframe) iframe.src = "";
-                };
-            }
 
             // Confirm Modal
             if(btnConfirmNo) {
@@ -2495,7 +2527,7 @@
         function loadChats() {
             if(!document.getElementById("view-chat").classList.contains("active")) return;
             
-            // 1. Priority: Load from LocalStorage
+            //1. Priority: Load from LocalStorage
             const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
             if (cachedChatsJSON) {
                 try {
@@ -2630,6 +2662,9 @@
             if(chatFooter) chatFooter.classList.add('hidden');
             if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
 
+            // Clear reply state
+            window.cancelReply();
+
             get(ref(db, `chats/${id}`)).then(s => {
                 if(!s.exists()) return; 
                 const data = s.val();
@@ -2720,22 +2755,29 @@
             const html = msgs.map(m => {
                 if (deletedMessages[m.key]) return '';
                 const isMe = m.sender === user.uid;
-                const typeClass = isMe ? "sent" : "received";
+                let typeClass = isMe ? "sent" : "received";
                 
+                // Big Emoji Logic
+                let isEmoji = false;
+                if (m.type === 'text' && isOnlyEmojis(m.text)) {
+                    typeClass = "big-emoji-msg";
+                    isEmoji = true;
+                }
+
                 let contentHtml = "";
-                let linkIconHtml = "";
+                let replyIconHtml = "";
                 
                 if (m.type === 'img') {
                     contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
                 } else if (m.text) {
-                    // Link Handling
-                    const linkData = parseMessageLinks(m.text);
-                    contentHtml = `<div class="${linkData.count > 1 ? 'msg-link-highlight' : ''}">${linkData.html}</div>`;
-                    
-                    // Single Link Icon
-                    if(linkData.count === 1 && linkData.link) {
-                        linkIconHtml = `<div class="msg-link-icon" onclick="window.openLinkPreview('${linkData.link}')"><i class="material-icons-round" style="font-size:16px">link</i></div>`;
-                    }
+                    contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
+                }
+                
+                // Add Reply Icon (Next to Delete)
+                // Only show if it's not a big emoji (to keep UI clean for big emojis)
+                if (!isEmoji) {
+                    const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
+                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${m.text.replace(/'/g, "\\'")}')">reply</i>`;
                 }
                 
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
@@ -2749,7 +2791,7 @@
 
                 return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
                     ${contentHtml}
-                    ${linkIconHtml}
+                    ${replyIconHtml}
                     ${deleteIconHtml}
                     <div class="msg-meta">
                         ${timeHtml}
@@ -2774,6 +2816,16 @@
             }
 
             const i = document.getElementById("msg-input");
+            
+            // Handle Reply State
+            let finalText = txt;
+            if (replyingTo && type === 'text') {
+                // We prepend a simple quote to the message for context
+                // Removing newlines to keep it compact
+                finalText = `> ${replyingTo.text}\n\n${txt}`;
+                window.cancelReply();
+            }
+
             if(i) i.value = "";
             
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
@@ -2798,7 +2850,7 @@
             }
 
             const mRef = push(ref(db, `messages/${chatId}`));
-            await set(mRef, { sender: user.uid, text: txt, type: type, time: Date.now(), read: false });
+            await set(mRef, { sender: user.uid, text: finalText, type: type, time: Date.now(), read: false });
             const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
             update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
             update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
@@ -2808,7 +2860,7 @@
         if(msgInput) {
             msgInput.addEventListener("input", () => {
                 if (!chatId) return;
-                // Only show typing if not just the image placeholder
+                // Only show typing if not just image placeholder
                 if(msgInput.value !== "[Image Attachment]") {
                     set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
                     clearTimeout(typingTimeout);
@@ -2938,14 +2990,16 @@
                         if (post.type === 'img') {
                             contentHTML = `<img src="${post.content}" class="post-content-img">`;
                         }
-                        // Note: Removed caption rendering for images as per request
                         if(post.type !== 'img' && post.content) {
                             contentHTML += `<div class="post-content-text">${post.content}</div>`;
                         }
                         
+                        // Updated Actions HTML (Left aligned, Icons only)
                         const actionsHTML = `
                             <div class="post-actions">
-                                <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')"><i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i> Comment</button>
+                                <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')">
+                                    <i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i>
+                                </button>
                                 <div class="like-container">
                                     <div class="like-count" id="like-count-${post.key}">0</div>
                                     <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}', event)">favorite_border</i>
@@ -2967,6 +3021,7 @@
                     }
                     
                     updateLikeUI(post.key);
+                    updateCommentUI(post.key);
                     container.appendChild(el);
                 });
             }
@@ -3008,6 +3063,24 @@
                     cEl.innerText = "0";
                     bEl.classList.remove('active');
                     bEl.innerText = 'favorite_border';
+                }
+            });
+        }
+
+        function updateCommentUI(postKey) {
+            const countEl = document.getElementById(`comment-count-${postKey}`);
+            if(!countEl) return;
+
+            onValue(ref(db, `comments/${postKey}`), (snapshot) => {
+                const currentEl = document.getElementById(`comment-count-${postKey}`);
+                if(!currentEl) return;
+
+                if(snapshot.exists()) {
+                    const comments = snapshot.val();
+                    const count = comments ? Object.keys(comments).length : 0;
+                    currentEl.innerText = count;
+                } else {
+                    currentEl.innerText = "0";
                 }
             });
         }
