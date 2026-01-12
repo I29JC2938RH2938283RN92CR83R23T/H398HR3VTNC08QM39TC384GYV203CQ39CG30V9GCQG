@@ -62,7 +62,7 @@
             display: none !important;
         }
         .scrollable {
-            flex: 1;
+            flex:1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -291,7 +291,6 @@
             max-width: 300px;
         }
         .big-emoji-msg .msg-meta {
-            /* Hide meta for big emojis or move them nicely */
             display: none; 
         }
 
@@ -357,12 +356,8 @@
             border-radius: 50%;
             padding: 2px;
         }
-        /* Sent messages icons on right */
         .sent .delete-msg-icon { right: 5px; }
         .sent .reply-msg-icon { right: 30px; }
-        
-        /* Received messages icons on left (standard logic) or right if preferred */
-        /* User asked for "right next to delete". If received, delete is usually top-right. */
         .received .delete-msg-icon { right: 5px; }
         .received .reply-msg-icon { right: 30px; }
 
@@ -377,7 +372,6 @@
             cursor: pointer;
             display: block;
         }
-        /* Link Styles */
         .msg-text-link {
             color: #4facfe;
             text-decoration: underline;
@@ -406,7 +400,7 @@
             background: var(--surface-color);
             padding: 12px 15px;
             display: flex;
-            flex-direction: column; /* Stacked for reply bar */
+            flex-direction: column;
             gap: 8px;
             border-top: 1px solid var(--border-color);
             z-index: 9999;
@@ -442,7 +436,7 @@
         }
         .input-actions {
             display: flex;
-            align-items: flex-end;
+            align-items: flex-end; /* Align to bottom */
             gap: 8px;
             width: 100%;
         }
@@ -628,6 +622,11 @@
             display: flex;
             align-items: center;
             position: relative;
+        }
+        /* Light mode logout fix */
+        body.light-mode #btn-logout {
+            color: #ef4444;
+            border-color: #fca5a5;
         }
         .wallet-card {
             background: linear-gradient(135deg, #1e293b, #0f172a);
@@ -1011,16 +1010,32 @@
             max-width: 60%;
         }
         
-        /* Comment Redesign */
+        /* Comment Redesign - Bottom Sheet */
+        #modal-comments {
+            align-items: flex-end; /* Align to bottom */
+            justify-content: center;
+        }
+        #modal-comments.open {
+            display: flex;
+        }
         .comments-modal-content {
             height: 85vh;
+            width: 100%;
+            max-width: 100%;
             padding: 0;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border-radius: 20px 20px 0 0;
+            background: var(--surface-color);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #modal-comments.open .comments-modal-content {
+            transform: translateY(0);
         }
         .comments-header {
-            padding: 20px 20px 10px 20px;
+            padding: 15px 20px;
             border-bottom: 1px solid var(--border-color);
             background: var(--surface-color);
             flex-shrink: 0;
@@ -1226,8 +1241,10 @@
         </div>
         <div id="ai-messages" class="scrollable"></div>
         <div class="input-bar">
-            <textarea id="ai-input" class="text-input" rows="1" placeholder="Ask anything..."></textarea>
-            <button class="action-btn btn-send" id="btn-ai-send"><i class="material-icons-round">bolt</i></button>
+            <div class="input-actions">
+                <textarea id="ai-input" class="text-input" rows="1" placeholder="Ask anything..."></textarea>
+                <button class="action-btn btn-send" id="btn-ai-send"><i class="material-icons-round">bolt</i></button>
+            </div>
         </div>
     </div>
 
@@ -1274,7 +1291,7 @@
             </div>
 
             <button class="btn-primary" id="btn-privacy-modal"><i class="material-icons-round" style="vertical-align: middle; margin-right: 8px">verified_user</i> Privacy</button>
-            <button class="btn-primary" style="background: transparent; border: 1px solid var(--border-color)" id="btn-logout">Sign Out</button>
+            <button class="btn-primary" id="btn-logout">Sign Out</button>
             
             <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-top: 20px; opacity: 0.6;">
                 Developed by Itumo Longinus ILC
@@ -1651,7 +1668,6 @@
             content.innerText = `Replying to ${senderName}`;
             bar.classList.add('active');
             
-            // Focus input
             const input = document.getElementById('msg-input');
             if(input) input.focus();
         }
@@ -1662,24 +1678,17 @@
             bar.classList.remove('active');
         }
 
-        // --- Helper: Check if text is only emojis (max 3) ---
         function isOnlyEmojis(text) {
             if (!text) return false;
             const stripped = text.replace(/\s/g, '');
             const emojiMatches = stripped.match(/\p{Emoji_Presentation}/gu);
             if (!emojiMatches) return false;
-            
-            // Check if there are any non-emoji characters
             const nonEmojiChars = stripped.replace(/\p{Emoji_Presentation}/gu, '');
             if (nonEmojiChars.length > 0) return false;
-
-            // Check count (grapheme cluster aware roughly)
             if (Array.from(stripped).length > 3) return false;
-
             return true;
         }
 
-        // --- Link Parsing Helper (Simplified) ---
         function parseMessageLinks(text) {
             const urlRegex = /(https?:\/\/[^\s]+)/g;
             return text.replace(urlRegex, '<a href="$1" target="_blank" class="msg-text-link">$1</a>');
@@ -1924,7 +1933,7 @@
                     if(chatId && user) {
                         set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
                     }
-                    window.cancelReply(); // Cancel reply on back
+                    window.cancelReply(); 
                 };
             }
             
@@ -1957,12 +1966,10 @@
                     const t = msgInput.value.trim();
                     
                     if(pendingChatImage) {
-                        // Send() pending image
                         sendMsg(pendingChatImage, "img");
-                        pendingChatImage = null; // Reset
+                        pendingChatImage = null;
                         if(msgInput) msgInput.value = "";
                     } else if (t && t !== "[Image Attachment]") {
-                        // Send text
                         sendMsg(t, "text");
                     }
                 };
@@ -2152,7 +2159,6 @@
                                 res = canvas.toDataURL('image/jpeg', quality);
                             }
                             
-                            // Fixed: Only send content (Base64), no caption
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
@@ -2536,7 +2542,7 @@
                 } catch(e) {}
             }
 
-            // 2. Load from Firebase (Sync)
+            //2. Load from Firebase (Sync)
             onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
                 const l = document.getElementById("chat-list");
                 const d = s.val();
@@ -2820,8 +2826,6 @@
             // Handle Reply State
             let finalText = txt;
             if (replyingTo && type === 'text') {
-                // We prepend a simple quote to the message for context
-                // Removing newlines to keep it compact
                 finalText = `> ${replyingTo.text}\n\n${txt}`;
                 window.cancelReply();
             }
@@ -2994,7 +2998,6 @@
                             contentHTML += `<div class="post-content-text">${post.content}</div>`;
                         }
                         
-                        // Updated Actions HTML (Left aligned, Icons only)
                         const actionsHTML = `
                             <div class="post-actions">
                                 <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')">
@@ -3020,9 +3023,10 @@
                         `;
                     }
                     
+                    // FIXED: Call updateLikeUI AFTER appendChild so the element exists
+                    container.appendChild(el);
                     updateLikeUI(post.key);
                     updateCommentUI(post.key);
-                    container.appendChild(el);
                 });
             }
 
