@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <!-- Ethers.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <!-- Face API.js -->
+    <!-- Face API.js (Optional, used for logic structure, but simulation used here for standalone demo) -->
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         :root {
@@ -498,7 +498,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.85);
-            z-index: 1000;
+            z-index: 10050; /* Increased to cover FABs */
             display: none;
             align-items: center;
             justify-content: center;
@@ -666,19 +666,29 @@
             background: #22c55e;
             color: white;
         }
+        
+        /* Verification Specific Styles */
         .camera-container {
-            width: 100%;
+            width: 200px;
             height: 200px;
             background: #000;
-            border-radius: 12px;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
             position: relative;
             overflow: hidden;
-            margin-bottom: 15px;
+            border: 4px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #face-video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+        #face-canvas {
+            display: none;
         }
         .scan-overlay {
             position: absolute;
@@ -689,13 +699,33 @@
             border: 2px solid var(--primary-color);
             box-shadow: 0 0 20px var(--primary-color);
             animation: scan-pulse 2s infinite;
+            border-radius: 50%;
             display: none;
+            pointer-events: none;
         }
         @keyframes scan-pulse {
             0% { opacity: 0.3; }
             50% { opacity: 1; }
             100% { opacity: 0.3; }
         }
+        .id-preview {
+            width: 100%;
+            height: 120px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px dashed var(--border-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .id-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
         .feed-fab {
             display: flex;
             justify-content: center;
@@ -823,7 +853,7 @@
             font-size: 14px;
             opacity: 0;
             transition: 0.3s;
-            z-index: 1001;
+            z-index: 10051;
             pointer-events: none;
             font-family: "Inter", sans-serif;
             white-space: normal;
@@ -1030,6 +1060,8 @@
             background: var(--surface-color);
             transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 10060; /* Higher than standard modal */
         }
         #modal-comments.open .comments-modal-content {
             transform: translateY(0);
@@ -1101,6 +1133,7 @@
             gap: 8px;
             align-items: center;
             flex-shrink: 0;
+            z-index: 10061; /* Ensure input is clickable */
         }
         .comment-input {
             flex: 1;
@@ -1277,7 +1310,7 @@
             </div>
 
             <button id="btn-verify-account" class="btn-primary" style="background: var(--surface-light); border: 1px dashed var(--verified-color); color: var(--verified-color);">
-                <i class="material-icons-round" style="vertical-align:middle; margin-right:5px">verified_user</i> Verify Account
+                <i class="material-icons-round" style="vertical-align:middle; margin-right:5px">verified_user</i> Verify Your Account
             </button>
 
             <div class="wallet-card">
@@ -1315,19 +1348,24 @@
             
             <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">1. Upload ID Card (Front)</label>
             <label class="file-upload-wrapper" for="verify-id-input">
-                <i class="material-icons-round file-upload-icon">badge</i>
-                <div class="file-upload-text">Tap to Upload ID Card</div>
+                <div id="id-preview-container" class="id-preview">
+                    <i class="material-icons-round" style="font-size:30px; color:var(--text-secondary)">badge</i>
+                </div>
+                <div class="file-upload-text" style="margin-top:10px">Tap to Upload ID Card</div>
                 <input type="file" id="verify-id-input" accept="image/*" />
             </label>
             <div id="verify-id-filename" style="color:var(--success-color); font-size:12px; margin-bottom:15px; display:none;">ID Selected</div>
 
-            <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">2. Capture Face</label>
+            <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">2. Face Identifier</label>
+            <div style="text-align:center; font-size:12px; color:var(--text-secondary); margin-bottom:5px;">Align face in circle</div>
             <div class="camera-container">
                 <video id="face-video" autoplay playsinline muted></video>
+                <canvas id="face-canvas"></canvas>
                 <div id="scan-overlay" class="scan-overlay"></div>
-                <div id="camera-placeholder" class="flex-center" style="height:100%; color:#666; font-size:12px;">Camera Off</div>
+                <div id="camera-placeholder" style="color:#666; font-size:12px; position: absolute;">Camera Off</div>
             </div>
             <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
+            
             <button class="btn-primary" id="btn-verify-submit" disabled>Verify Now</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
@@ -1540,6 +1578,10 @@
         let currentChatDetails = null; 
         let currentCommentPostId = null;
         let chatsDataSnapshot = null; 
+
+        // Verification State
+        let idCardData = null;
+        let faceData = null;
 
         // Chat Image Attachment State
         let pendingChatImage = null;
@@ -1787,6 +1829,50 @@
             const btnAiClear = document.getElementById("btn-ai-clear");
             const aiInput = document.getElementById("ai-input");
             const aiMessages = document.getElementById("ai-messages");
+
+            // --- PROFILE IMAGE FIX START ---
+            if(btnChangeAvatar && avatarInput) {
+                btnChangeAvatar.onclick = () => avatarInput.click();
+                avatarInput.onchange = (e) => {
+                    const f = e.target.files[0];
+                    if (!f) return;
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        const prev = document.getElementById("edit-p-preview");
+                        if(prev) prev.src = ev.target.result;
+                    };
+                    r.readAsDataURL(f);
+                };
+            }
+            if(btnSaveProfile) {
+                btnSaveProfile.onclick = async () => {
+                    if(!document.getElementById("edit-p-name")) return;
+                    const n = document.getElementById("edit-p-name").value;
+                    const prev = document.getElementById("edit-p-preview");
+                    const av = prev ? prev.src : "";
+                    
+                    if(!n) return toast("Username required");
+
+                    // Update UI Optimistically
+                    toast("Updating Profile...");
+                    
+                    try {
+                        await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
+                        document.getElementById("modal-edit-profile").classList.remove("open");
+                        toast("Profile Updated!");
+                        
+                        // Force immediate local update
+                        const pUsername = document.getElementById("p-username");
+                        const pAvatar = document.getElementById("p-avatar");
+                        if(pUsername) pUsername.innerText = n;
+                        if(pAvatar) pAvatar.src = av;
+                    } catch(e) {
+                        console.error(e);
+                        toast("Update Failed");
+                    }
+                };
+            }
+            // --- PROFILE IMAGE FIX END ---
 
             // AI Logic
             if(btnAiSend) {
@@ -2049,33 +2135,6 @@
                     toast("Copied");
                 };
             }
-            if(btnEditP) {
-                btnEditP.onclick = () => document.getElementById("modal-edit-profile").classList.add("open");
-            }
-            if(btnChangeAvatar && avatarInput) {
-                btnChangeAvatar.onclick = () => avatarInput.click();
-                avatarInput.onchange = (e) => {
-                    const f = e.target.files[0];
-                    if (!f) return;
-                    const r = new FileReader();
-                    r.onload = (ev) => {
-                        const prev = document.getElementById("edit-p-preview");
-                        if(prev) prev.src = ev.target.result;
-                    };
-                    r.readAsDataURL(f);
-                };
-            }
-            if(btnSaveProfile) {
-                btnSaveProfile.onclick = async () => {
-                    if(!document.getElementById("edit-p-name")) return;
-                    const n = document.getElementById("edit-p-name").value;
-                    const prev = document.getElementById("edit-p-preview");
-                    const av = prev ? prev.src : "";
-                    await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
-                    document.getElementById("modal-edit-profile").classList.remove("open");
-                    toast("Updated");
-                };
-            }
 
             // Feed & Posts
             if(btnRefreshFeed) btnRefreshFeed.onclick = () => loadFeed(false);
@@ -2213,67 +2272,143 @@
                 btnVerifyAccount.onclick = () => {
                     const modal = document.getElementById('modal-verify');
                     if(modal) modal.classList.add("open");
+                    // Reset state
+                    idCardData = null;
+                    faceData = null;
+                    document.getElementById('verify-id-filename').style.display = 'none';
+                    document.getElementById('btn-verify-submit').disabled = true;
+                    const previewContainer = document.getElementById('id-preview-container');
+                    previewContainer.innerHTML = '<i class="material-icons-round" style="font-size:30px; color:var(--text-secondary)">badge</i>';
+                    
+                    // If camera was previously on, turn it off
+                    stopCamera();
                 };
             }
             const video = document.getElementById('face-video');
             const scanOverlay = document.getElementById('scan-overlay');
             const cameraPlaceholder = document.getElementById('camera-placeholder');
             const idFilename = document.getElementById('verify-id-filename');
+            const idPreviewContainer = document.getElementById('id-preview-container');
 
             if(btnCam && video && scanOverlay && cameraPlaceholder) {
                 btnCam.onclick = async () => {
-                    try {
-                        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-                        video.srcObject = cameraStream;
-                        if(cameraPlaceholder) cameraPlaceholder.classList.add('hidden');
-                        if(scanOverlay) scanOverlay.style.display = 'none';
+                    if(cameraStream) {
+                        // Capture functionality
+                        const canvas = document.getElementById('face-canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        // Draw current frame
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        faceData = canvas.toDataURL('image/jpeg');
+                        
+                        // Show captured image in video element (stopped)
+                        stopCamera();
+                        video.srcObject = null;
+                        video.src = faceData;
+                        video.poster = faceData; // Ensure it shows
+                        cameraPlaceholder.style.display = 'none';
+                        scanOverlay.style.display = 'none';
+                        btnCam.innerText = "Retake";
+                        btnCam.style.background = "var(--danger-color)";
+                        btnCam.style.color = "white";
+                        
                         checkVerifyInputs();
-                    } catch(e) {
-                        toast('Camera access denied');
+                    } else {
+                        // Start Camera functionality
+                        try {
+                            cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                            video.srcObject = cameraStream;
+                            video.poster = ""; // Clear poster
+                            if(cameraPlaceholder) cameraPlaceholder.style.display = 'none';
+                            if(scanOverlay) scanOverlay.style.display = 'none';
+                            btnCam.innerText = "Capture";
+                            btnCam.style.background = "var(--surface-light)";
+                            btnCam.style.color = "var(--text-primary)";
+                            
+                            // Disable submit until captured
+                            faceData = null; 
+                            checkVerifyInputs();
+                        } catch(e) {
+                            toast('Camera access denied');
+                        }
                     }
                 };
             }
-            if(idInput && idFilename) {
+            
+            function stopCamera() {
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
+            }
+
+            if(idInput && idPreviewContainer) {
                 idInput.onchange = () => {
                     const file = idInput.files[0];
-                    if(file && idFilename) {
-                        idFilename.style.display = 'block';
-                        idFilename.innerText = file.name;
+                    if(file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            idCardData = e.target.result;
+                            // Update preview
+                            idPreviewContainer.innerHTML = `<img src="${idCardData}" style="width:100%; height:100%; object-fit:contain;">`;
+                            
+                            if(idFilename) {
+                                idFilename.style.display = 'block';
+                                idFilename.innerText = file.name;
+                            }
+                        };
+                        reader.readAsDataURL(file);
                     } else {
-                         if(idFilename) idFilename.style.display = 'none';
+                        idCardData = null;
+                        if(idPreviewContainer) idPreviewContainer.innerHTML = '<i class="material-icons-round" style="font-size:30px; color:var(--text-secondary)">badge</i>';
+                        if(idFilename) idFilename.style.display = 'none';
                     }
                     checkVerifyInputs();
                 };
             }
             function checkVerifyInputs() {
-                if(btnVerifySubmit && idInput && cameraStream) {
-                    btnVerifySubmit.removeAttribute('disabled');
+                const submitBtn = document.getElementById('btn-verify-submit');
+                if(idCardData && faceData) {
+                    if(submitBtn) submitBtn.removeAttribute('disabled');
+                } else {
+                    if(submitBtn) submitBtn.setAttribute('disabled', 'true');
                 }
             }
             if(btnVerifySubmit) {
                 btnVerifySubmit.onclick = async () => {
+                    if(!idCardData || !faceData) return;
+
                     const content = document.querySelector('#modal-verify .modal-content');
+                    const originalContent = content.innerHTML;
+                    
                     if(btnVerifySubmit) btnVerifySubmit.innerText = "Analyzing...";
                     if(scanOverlay) scanOverlay.style.display = 'block';
+                    
+                    // SIMULATE AI CHECK
+                    // In a real app, you would send 'idCardData' and 'faceData' to your backend here.
+                    // For this demo, we simulate a network request with a timeout.
+                    
                     setTimeout(async () => {
-                        if(scanOverlay) scanOverlay.style.display = 'none';
+                        // Success State
                         await update(ref(db, `users/${user.uid}`), { verified: true });
-                        updateVerifiedUI(true);
-                        isVerified = true;
+                        
+                        // Update UI
                         if(content) {
                             content.innerHTML = `
-                                <div style="text-align:center">
+                                <div style="text-align:center; padding: 20px 0;">
                                     <i class="material-icons-round" style="font-size:60px; color:var(--success-color); margin-bottom:15px">check_circle</i>
                                     <h3>You're now Verified</h3>
-                                    <p style="color:var(--text-secondary); margin-bottom:20px;">Your identity has been confirmed.</p>
+                                    <p style="color:var(--text-secondary); margin-bottom:20px;">Identity confirmed successfully.</p>
+                                    <button class="btn-primary" onclick="document.getElementById('modal-verify').classList.remove('open')">Done</button>
                                 </div>
                             `;
                         }
-                        setTimeout(() => {
-                            const modal = document.getElementById('modal-verify');
-                            if(modal) modal.classList.remove('open');
-                            location.reload();
-                        }, 2000);
+                        
+                        updateVerifiedUI(true);
+                        isVerified = true;
+                        stopCamera();
+                        toast("Account Verified!");
                     }, 2500);
                 };
             }
@@ -2395,7 +2530,7 @@
                     if(pUsername) pUsername.innerText = d.username;
                     if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
                     if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
-                    if(vBtn) vBtn.classList.toggle('hidden', d.verified);
+                    if(vBtn) vBtn.classList.toggle('hidden', !!d.verified); // Hide button if verified
                     
                     users[user.uid] = d;
                     localStorage.setItem('crypa_users_cache', JSON.stringify(users));
@@ -2417,10 +2552,18 @@
         }
 
         function updateVerifiedUI(verified) {
-            const pBadge = document.getElementById('p-badge');
+            const pBadge = document.getElementById("p-badge");
             const vBtn = document.getElementById('btn-verify-account');
+            const currBadge = document.getElementById('curr-chat-badge');
+            
             if (pBadge) pBadge.classList.toggle('hidden', !verified);
             if (vBtn) vBtn.classList.toggle('hidden', verified);
+            
+            // Also update the chat badge if we are in a chat
+            if(currBadge) {
+                const ud = users[otherUid];
+                if(ud) currBadge.classList.toggle('hidden', !ud.verified);
+            }
         }
 
         async function setupWallet() {
