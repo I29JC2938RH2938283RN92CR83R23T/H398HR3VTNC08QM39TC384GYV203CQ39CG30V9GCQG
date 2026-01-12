@@ -367,6 +367,30 @@
             font-family: 'Material Icons Round';
             color: var(--success-color);
         }
+        /* Link Handling Styles */
+        .msg-link-icon {
+            position: absolute;
+            top: 50%;
+            right: -35px;
+            transform: translateY(-50%);
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .msg-link-highlight a {
+            color: #4facfe;
+            text-decoration: underline;
+        }
+        
         .input-bar {
             background: var(--surface-color);
             padding: 12px 15px;
@@ -446,6 +470,33 @@
             display: flex;
             opacity: 1;
         }
+        /* Link Preview Modal Specifics */
+        .modal-fullscreen {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            border-radius: 0;
+            background: var(--bg-color);
+            flex-direction: column;
+        }
+        .link-preview-header {
+            height: 60px;
+            background: var(--surface-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+            justify-content: space-between;
+        }
+        .link-preview-content {
+            flex: 1;
+            width: 100%;
+            height: calc(100% - 60px);
+            border: none;
+            background: #fff;
+        }
+
         .modal-content {
             background: var(--surface-color);
             width: 90%;
@@ -970,7 +1021,6 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            /* Limit height to approx 4 bubbles then scroll */
             max-height: 240px; 
             overflow-y: auto;
         }
@@ -1188,7 +1238,7 @@
             <button class="btn-primary" style="background: transparent; border: 1px solid var(--border-color)" id="btn-logout">Sign Out</button>
             
             <div style="text-align: center; font-size: 11px; color: var(--text-secondary); margin-top: 20px; opacity: 0.6;">
-                Developed by Itumo Ilunginus Itumo Longinus ILC
+                Developed by Itumo Longinus ILC
             </div>
         </div>
     </div>
@@ -1316,7 +1366,6 @@
                 <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
             </div>
 
-            <textarea id="post-img-caption" class="input-field" rows="2" placeholder="Caption (optional)"></textarea>
             <button class="btn-primary" id="btn-submit-post-img">Post</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
@@ -1391,6 +1440,20 @@
             <button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
         </div>
     </div>
+    
+    <!-- Link Preview Modal -->
+    <div id="modal-link-view" class="modal-overlay">
+        <div class="modal-content modal-fullscreen">
+            <div class="link-preview-header">
+                <div class="app-title" style="font-size:16px;">External Link</div>
+                <button class="action-btn" id="btn-close-link-view" style="width:32px; height:32px;"><i class="material-icons-round">close</i></button>
+            </div>
+            <iframe id="link-iframe" class="link-preview-content" src=""></iframe>
+            <div style="padding: 15px; background: var(--surface-color); text-align: center;">
+                <a id="link-external-btn" href="#" target="_blank" class="btn-primary" style="display:block; text-decoration:none;">Open in Browser</a>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
@@ -1415,7 +1478,8 @@
         const k = "c2stb3ItdjEtN2Y3MjY3M2IyMzMzMDkyOThkNjM3ZmM2Mzg5NjZiNTViY2ZmZTMyNTdlMzFjNDIzMTNhODFmODQwZmQ3NmJmNw==";
         
         const aiKey = atob(k); 
-        const systemPrompt = "You are Crypa AI, developed by Itumo Ilunginus Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
+        // Updated Company Name and Prompt
+        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
 
         let user = null;
         let chatId = null;
@@ -1435,6 +1499,9 @@
         let currentChatDetails = null; 
         let currentCommentPostId = null;
         let chatsDataSnapshot = null; 
+
+        // Chat Image Attachment State
+        let pendingChatImage = null;
 
         const aiHistory = [
             { role: "system", content: systemPrompt }
@@ -1475,13 +1542,11 @@
             if(cUsername) cUsername.innerText = ud.username;
             if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
             
-            // Total Chats Logic
             if(cTotalChats && chatCount) {
                 cTotalChats.innerText = chatCount + " Chats";
                 document.getElementById('c-total-chats-row').style.display = 'flex';
             }
 
-            // Hide Rows Logic
             if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
             if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
 
@@ -1512,7 +1577,7 @@
         };
         
         window.toggleLike = async function(postKey, e) {
-            if(e) e.stopPropagation(); // Prevent triggering post click events if any
+            if(e) e.stopPropagation(); 
             if (!user) return toast("Please log in");
             const likeRef = ref(db, `likes/${postKey}/${user.uid}`);
             const snap = await get(likeRef);
@@ -1551,6 +1616,35 @@
                 };
             }
         };
+
+        window.openLinkPreview = function(url) {
+            const modal = document.getElementById('modal-link-view');
+            const iframe = document.getElementById('link-iframe');
+            const extBtn = document.getElementById('link-external-btn');
+            
+            if(iframe) iframe.src = url;
+            if(extBtn) extBtn.href = url;
+            
+            if(modal) modal.classList.add('open');
+        }
+
+        // --- Link Parsing Helper ---
+        function parseMessageLinks(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const matches = text.match(urlRegex);
+            
+            if (!matches) return { html: text, link: null, count: 0 };
+
+            if (matches.length > 1) {
+                // Multiple links: replace with hyperlinks
+                const safeHtml = text.replace(urlRegex, '<a href="$1" target="_blank" style="color:#4facfe; text-decoration:underline;">$1</a>');
+                return { html: safeHtml, link: null, count: matches.length };
+            } else {
+                // Single link: remove from text, return link separately for icon
+                const cleanText = text.replace(urlRegex, '').trim();
+                return { html: cleanText, link: matches[0], count: 1 };
+            }
+        }
 
         function initTheme() {
             const savedTheme = localStorage.getItem('crypa_theme');
@@ -1790,16 +1884,47 @@
                     }
                 };
             }
-            if(btnSendMsg) {
-                btnSendMsg.onclick = () => {
-                    if(!document.getElementById("msg-input")) return;
-                    const t = document.getElementById("msg-input").value.trim();
-                    sendMsg(t);
-                };
-            }
+            
+            // --- Chat Image Attachment Logic ---
             if(btnAttach && fileInput) {
                 btnAttach.onclick = () => fileInput.click();
             }
+            if(fileInput) {
+                fileInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if(!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        pendingChatImage = ev.target.result;
+                        const msgInput = document.getElementById('msg-input');
+                        if(msgInput) {
+                            msgInput.value = "[Image Attachment]";
+                            msgInput.focus();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                };
+            }
+
+            if(btnSendMsg) {
+                btnSendMsg.onclick = () => {
+                    const msgInput = document.getElementById("msg-input");
+                    if(!msgInput) return;
+                    const t = msgInput.value.trim();
+                    
+                    if(pendingChatImage) {
+                        // Send the pending image
+                        sendMsg(pendingChatImage, "img");
+                        pendingChatImage = null; // Reset
+                        if(msgInput) msgInput.value = "";
+                    } else if (t && t !== "[Image Attachment]") {
+                        // Send text
+                        sendMsg(t, "text");
+                    }
+                };
+            }
+            
             if(btnMoneyModal && document.getElementById('modal-transfer')) {
                 btnMoneyModal.onclick = () => document.getElementById('modal-transfer').classList.add("open");
             }
@@ -1958,14 +2083,13 @@
             if(btnSubmitPostImg) {
                 btnSubmitPostImg.onclick = async () => {
                     const fileInput = postImgFile;
-                    const captionInput = document.getElementById("post-img-caption");
                     const modal = document.getElementById("modal-post-img");
                     
                     if(!fileInput) return;
                     const file = fileInput.files[0];
                     if(!file) return;
 
-                    toast("Posting...");
+                    toast("Processing Image...");
                     const reader = new FileReader();
                     reader.readAsDataURL(file);
                     reader.onload = (event) => {
@@ -1985,20 +2109,16 @@
                                 res = canvas.toDataURL('image/jpeg', quality);
                             }
                             
-                            // Fixed: Ensure only the caption text is sent, not the base64 image data
-                            const captionText = captionInput ? captionInput.value.trim() : '';
-                            
+                            // Fixed: Only send content (Base64), no caption
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
-                                caption: captionText,
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
                             .then(() => {
                                 if(modal) modal.classList.remove("open");
                                 if(fileInput) fileInput.value = "";
-                                if(captionInput) captionInput.value = "";
                                 if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
                                 toast("Posted");
                             }).catch(e => {
@@ -2186,6 +2306,17 @@
                     if(modal) modal.classList.remove('open');
                 };
             }
+            
+            // Link Modal Close
+            const btnCloseLink = document.getElementById('btn-close-link-view');
+            if(btnCloseLink) {
+                btnCloseLink.onclick = () => {
+                     const modal = document.getElementById('modal-link-view');
+                     if(modal) modal.classList.remove('open');
+                     const iframe = document.getElementById('link-iframe');
+                     if(iframe) iframe.src = "";
+                };
+            }
 
             // Confirm Modal
             if(btnConfirmNo) {
@@ -2324,7 +2455,6 @@
                 const hasNewMsg = enrichedChats[id].timestamp && ud.lastSeen && (enrichedChats[id].timestamp > ud.lastSeen);
                 const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
 
-                // Check if user blocked this contact
                 const isBlockedByMe = enrichedChats[id].blockedBy === user.uid;
                 const blockBtnHtml = isBlockedByMe
                     ? `<div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', true)"><i class="material-icons-round">lock_open</i> Unblock</div>`
@@ -2356,7 +2486,6 @@
                 `;
                 l.appendChild(item);
             }
-            // Update Contact Info with total chats count
             if(totalChats > 0 && document.getElementById('c-total-chats')) {
                 document.getElementById('c-total-chats').innerText = totalChats + " Chats";
                 document.getElementById('c-total-chats-row').style.display = 'flex';
@@ -2365,7 +2494,9 @@
 
         function loadChats() {
             if(!document.getElementById("view-chat").classList.contains("active")) return;
-            const cachedChatsJSON = localStorage.getItem('crypa_chats_list');
+            
+            // 1. Priority: Load from LocalStorage
+            const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
             if (cachedChatsJSON) {
                 try {
                     const cachedChats = JSON.parse(cachedChatsJSON);
@@ -2373,11 +2504,15 @@
                 } catch(e) {}
             }
 
+            // 2. Load from Firebase (Sync)
             onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
                 const l = document.getElementById("chat-list");
-                if(l) l.innerHTML = "";
                 const d = s.val();
-                if (!d) return;
+                if (!d) {
+                    if(l) l.innerHTML = "";
+                    localStorage.removeItem('crypa_chats_list_v3');
+                    return;
+                }
 
                 const enrichedChats = {};
                 for (const id in d) {
@@ -2387,7 +2522,9 @@
                     const ouid = members.find((m) => m !== user.uid);
                     enrichedChats[id] = { ...d[id], otherUid: ouid, blockedBy: cs.val().blockedBy };
                 }
-                localStorage.setItem('crypa_chats_list', JSON.stringify(enrichedChats));
+                
+                // Save to LocalStorage
+                localStorage.setItem('crypa_chats_list_v3', JSON.stringify(enrichedChats));
                 renderChatList(enrichedChats);
             });
 
@@ -2406,9 +2543,9 @@
                 }
             }
             await remove(ref(db, `user_chats/${user.uid}/${id}`));
-            const cached = JSON.parse(localStorage.getItem('crypa_chats_list') || '{}');
+            const cached = JSON.parse(localStorage.getItem('crypa_chats_list_v3') || '{}');
             delete cached[id];
-            localStorage.setItem('crypa_chats_list', JSON.stringify(cached));
+            localStorage.setItem('crypa_chats_list_v3', JSON.stringify(cached));
             const el = document.getElementById(`chat-item-${id}`);
             if(el) el.remove();
             window.toggleDropdown(id);
@@ -2421,7 +2558,6 @@
                  await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
                  toast("User blocked");
             }
-            // Reload specific menu item to reflect change
             const item = document.getElementById(`chat-item-${id}`);
             if(item) {
                 const btnDiv = item.querySelector('.dropdown-item:last-child');
@@ -2441,13 +2577,11 @@
             const cAvatar = document.getElementById('c-avatar');
             const cUsername = document.getElementById('c-username');
             const cBadge = document.getElementById('c-badge');
-            const cTotalChats = document.getElementById('c-total-chats');
             
             if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
             if(cUsername) cUsername.innerText = ud.username;
             if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
 
-            const joinedDate = ud.createdAt ? new Date(ud.createdAt).toLocaleDateString() : "2024"; 
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
             const cStatus = document.getElementById('c-status');
             if(cStatus) {
@@ -2466,7 +2600,6 @@
                 }
             }
             
-            // Hide Rows Logic
             if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
             if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
             if(document.getElementById('c-total-chats-row')) document.getElementById('c-total-chats-row').style.display = 'none';
@@ -2497,7 +2630,6 @@
             if(chatFooter) chatFooter.classList.add('hidden');
             if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
 
-            // Check Status
             get(ref(db, `chats/${id}`)).then(s => {
                 if(!s.exists()) return; 
                 const data = s.val();
@@ -2591,11 +2723,21 @@
                 const typeClass = isMe ? "sent" : "received";
                 
                 let contentHtml = "";
+                let linkIconHtml = "";
+                
                 if (m.type === 'img') {
                     contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
                 } else if (m.text) {
-                    contentHtml = `<div>${m.text}</div>`;
+                    // Link Handling
+                    const linkData = parseMessageLinks(m.text);
+                    contentHtml = `<div class="${linkData.count > 1 ? 'msg-link-highlight' : ''}">${linkData.html}</div>`;
+                    
+                    // Single Link Icon
+                    if(linkData.count === 1 && linkData.link) {
+                        linkIconHtml = `<div class="msg-link-icon" onclick="window.openLinkPreview('${linkData.link}')"><i class="material-icons-round" style="font-size:16px">link</i></div>`;
+                    }
                 }
+                
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
                 
                 let statusHtml = "";
@@ -2607,6 +2749,7 @@
 
                 return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
                     ${contentHtml}
+                    ${linkIconHtml}
                     ${deleteIconHtml}
                     <div class="msg-meta">
                         ${timeHtml}
@@ -2641,7 +2784,7 @@
                 bubble.className = "message-bubble sent sent-blocked";
                 bubble.style.alignSelf = "flex-end";
                 bubble.innerHTML = `
-                    <div>${txt}</div>
+                    <div>${type === 'img' ? '[Image]' : txt}</div>
                     <div class="msg-meta">
                         <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                     </div>`;
@@ -2665,11 +2808,14 @@
         if(msgInput) {
             msgInput.addEventListener("input", () => {
                 if (!chatId) return;
-                set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => {
-                    set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-                }, 2000);
+                // Only show typing if not just the image placeholder
+                if(msgInput.value !== "[Image Attachment]") {
+                    set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+                    }, 2000);
+                }
             });
         }
 
@@ -2700,20 +2846,25 @@
             });
         }
 
-        // FEED LOGIC
+        // FEED LOGIC with Caching
         function loadFeed(useCache = false) {
             const container = document.getElementById('feed-content');
             if (!container) return;
 
-            if(useCache && feedCache.length > 0) {
-                renderNextChunk();
-                return;
+            // 1. Priority: Load from LocalStorage
+            const cachedFeed = localStorage.getItem('crypa_feed_cache_v2');
+            if(useCache && cachedFeed) {
+                try {
+                    allPostsRaw = JSON.parse(cachedFeed);
+                    feedOffset = 0;
+                    container.innerHTML = '';
+                    renderNextChunk();
+                    return; 
+                } catch(e) {}
             }
 
+            // 2. Load from Firebase
             onValue(ref(db, 'posts'), (s) => {
-                const container = document.getElementById('feed-content');
-                if (!container) return;
-
                 if(!s.exists()) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
                     return;
@@ -2737,6 +2888,11 @@
                 });
 
                 allPostsRaw = activePosts;
+                // Save to LocalStorage
+                try {
+                    localStorage.setItem('crypa_feed_cache_v2', JSON.stringify(allPostsRaw));
+                } catch(e) {}
+                
                 allPostsRaw.sort(() => Math.random() - 0.5);
                 feedOffset = 0;
                 if(container) container.innerHTML = '';
@@ -2782,7 +2938,10 @@
                         if (post.type === 'img') {
                             contentHTML = `<img src="${post.content}" class="post-content-img">`;
                         }
-                        contentHTML += `<div class="post-content-text">${post.content || ''}</div>`;
+                        // Note: Removed caption rendering for images as per request
+                        if(post.type !== 'img' && post.content) {
+                            contentHTML += `<div class="post-content-text">${post.content}</div>`;
+                        }
                         
                         const actionsHTML = `
                             <div class="post-actions">
