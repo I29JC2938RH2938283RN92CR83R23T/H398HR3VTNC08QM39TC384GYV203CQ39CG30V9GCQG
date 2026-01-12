@@ -279,7 +279,54 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
             position: relative;
             transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
         }
+        
+        /* Reply Context Styles (WhatsApp Style) */
+        .msg-reply-context {
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            opacity: 0.9;
+            border-left: 3px solid rgba(255,255,255,0.4);
+            background: rgba(0,0,0,0.15);
+            max-width: 100%;
+        }
+        .received .msg-reply-context {
+            background: rgba(255,255,255,0.05);
+            border-left-color: rgba(0,0,0,0.3);
+            color: var(--text-secondary);
+        }
+        .sent .msg-reply-context {
+            background: rgba(255,255,255,0.2);
+            border-left-color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
+        }
+        .reply-meta-name {
+            font-weight: 700;
+            font-size: 11px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .reply-content-img {
+            height: 40px;
+            width: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-right: 5px;
+            display: inline-block;
+        }
+        .reply-content-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         /* Big Emoji Override */
         .big-emoji-msg {
             background: transparent !important;
@@ -383,6 +430,7 @@
             justify-content: flex-end;
             gap: 4px;
             margin-top: 4px;
+            padding-top: 4px;
         }
         .msg-time {
             font-size: 10px;
@@ -398,23 +446,26 @@
         
         .input-bar {
             background: var(--surface-color);
-            padding: 12px 15px;
+            padding: 8px 12px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             border-top: 1px solid var(--border-color);
             z-index: 9999;
             position: relative;
         }
+        
+        /* Replying Bar in Input Area */
         .replying-bar {
             display: none;
             align-items: center;
             background: rgba(91, 107, 242, 0.1);
+            border-left: 3px solid var(--primary-color);
             border-radius: 8px;
             padding: 8px 12px;
             width: 100%;
             font-size: 12px;
-            color: var(--primary-color);
+            color: var(--text-primary);
             justify-content: space-between;
         }
         .replying-bar.active {
@@ -426,7 +477,19 @@
             overflow: hidden;
             text-overflow: ellipsis;
             font-weight: 500;
+            display: flex;
+            align-items: center;
         }
+        /* Thumbnail in input reply bar */
+        .reply-thumb-input {
+            height: 30px;
+            width: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+        
         .cancel-reply-btn {
             background: none;
             border: none;
@@ -436,7 +499,7 @@
         }
         .input-actions {
             display: flex;
-            align-items: flex-end; /* Align to bottom */
+            align-items: flex-end;
             gap: 8px;
             width: 100%;
         }
@@ -498,7 +561,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.85);
-            z-index: 10050; /* Increased to cover FABs */
+            z-index: 10050;
             display: none;
             align-items: center;
             justify-content: center;
@@ -623,7 +686,6 @@
             align-items: center;
             position: relative;
         }
-        /* Light mode logout fix */
         body.light-mode #btn-logout {
             color: #ef4444;
             border-color: #fca5a5;
@@ -1164,7 +1226,7 @@
             align-items: center;
             gap: 20px;
             padding: 0 12px 10px;
-            justify-content: flex-start; /* Align left */
+            justify-content: flex-start;
         }
         .comment-trigger-btn {
             display: flex;
@@ -1219,10 +1281,15 @@
             </div>
 
             <div class="input-bar" id="input-bar-wrapper">
+                <!-- Replying Bar UI -->
                 <div id="replying-bar" class="replying-bar">
-                    <span class="replying-content">Replying to...</span>
+                    <span class="replying-content">
+                        <!-- Thumbnail inserted here via JS -->
+                        <span id="replying-text-preview">Replying to...</span>
+                    </span>
                     <button class="cancel-reply-btn" id="btn-cancel-reply"><i class="material-icons-round">close</i></button>
                 </div>
+
                 <div class="input-actions">
                     <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
                     <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
@@ -1237,15 +1304,10 @@
     <!-- View: Feed -->
     <div id="view-feed" class="view-container">
         <div class="app-header">
-            <!-- Left: Back Icon -->
             <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()"><i class="material-icons-round">arrow_back_ios</i></button>
-            
-            <!-- Center: Title -->
             <div class="header-title-center">
                 <div class="app-title">Public Feed</div>
             </div>
-            
-            <!-- Right: Refresh Icon -->
             <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
         </div>
         <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
@@ -1261,15 +1323,10 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header">
-            <!-- Left: Back Icon -->
             <button class="action-btn" onclick="document.querySelector('[data-target=\'view-chat\']').click()"><i class="material-icons-round">arrow_back_ios</i></button>
-            
-            <!-- Center: Title -->
             <div class="header-title-center">
                 <div class="app-title">Crypa AI</div>
             </div>
-            
-            <!-- Right: Clear Icon -->
             <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
         </div>
         <div id="ai-messages" class="scrollable"></div>
@@ -1702,12 +1759,35 @@
             }
         };
 
-        window.startReply = function(mKey, senderName, text) {
-            replyingTo = { key: mKey, sender: senderName, text: text };
-            const bar = document.getElementById('replying-bar');
-            const content = bar.querySelector('.replying-content');
+        window.startReply = function(mKey, senderName, text, type) {
+            // Store full details for sending
+            replyingTo = { key: mKey, sender: senderName, text: text, type: type };
             
-            content.innerText = `Replying to ${senderName}`;
+            const bar = document.getElementById('replying-bar');
+            const contentContainer = bar.querySelector('.replying-content');
+            
+            // Reset content
+            contentContainer.innerHTML = '';
+            
+            // Create Thumbnail/Image preview if needed
+            if (type === 'img') {
+                const thumb = document.createElement('img');
+                thumb.src = text; // Base64
+                thumb.className = 'reply-thumb-input';
+                contentContainer.appendChild(thumb);
+                
+                const label = document.createElement('span');
+                label.innerText = ' Photo';
+                contentContainer.appendChild(label);
+            } else {
+                // Text reply
+                const label = document.createElement('span');
+                // Truncate text for display
+                let displayTxt = text.length > 30 ? text.substring(0, 30) + '...' : text;
+                label.innerText = displayTxt;
+                contentContainer.appendChild(label);
+            }
+
             bar.classList.add('active');
             
             const input = document.getElementById('msg-input');
@@ -1718,6 +1798,10 @@
             replyingTo = null;
             const bar = document.getElementById('replying-bar');
             bar.classList.remove('active');
+            // Clear preview content after animation
+            setTimeout(() => {
+                bar.querySelector('.replying-content').innerHTML = '';
+            }, 300);
         }
 
         function isOnlyEmojis(text) {
@@ -1853,7 +1937,6 @@
                     
                     if(!n) return toast("Username required");
 
-                    // Update UI Optimistically
                     toast("Updating Profile...");
                     
                     try {
@@ -1861,7 +1944,6 @@
                         document.getElementById("modal-edit-profile").classList.remove("open");
                         toast("Profile Updated!");
                         
-                        // Force immediate local update
                         const pUsername = document.getElementById("p-username");
                         const pAvatar = document.getElementById("p-avatar");
                         if(pUsername) pUsername.innerText = n;
@@ -2791,6 +2873,11 @@
         function openChat(id, uid) {
             chatId = id;
             otherUid = uid;
+            
+            // IMMEDIATE FIX FOR GHOSTING: Clear global cache and DOM immediately
+            window.currentMsgsRaw = [];
+            document.getElementById("messages-area").innerHTML = "";
+            
             const room = document.getElementById("chat-room");
             const body = document.body;
             if(room) room.classList.add("active");
@@ -2913,6 +3000,29 @@
                     isEmoji = true;
                 }
 
+                // Reply Context HTML
+                let replyHtml = '';
+                if (m.reply) {
+                    const r = m.reply;
+                    // If replying to an image
+                    if (r.type === 'img') {
+                        replyHtml = `
+                            <div class="msg-reply-context">
+                                <span class="reply-meta-name">${r.sender}</span>
+                                <img src="${r.text}" class="reply-content-img" />
+                            </div>
+                        `;
+                    } else {
+                        // Replying to text
+                        replyHtml = `
+                            <div class="msg-reply-context">
+                                <span class="reply-meta-name">${r.sender}</span>
+                                <div class="reply-content-text">${r.text}</div>
+                            </div>
+                        `;
+                    }
+                }
+
                 let contentHtml = "";
                 let replyIconHtml = "";
                 
@@ -2923,10 +3033,12 @@
                 }
                 
                 // Add Reply Icon (Next to Delete)
-                // Only show if it's not a big emoji (to keep UI clean for big emojis)
+                // Only show if it's not a big emoji
                 if (!isEmoji) {
                     const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
-                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${m.text.replace(/'/g, "\\'")}')">reply</i>`;
+                    // Safe escaping for single quotes
+                    const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
                 }
                 
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
@@ -2939,6 +3051,7 @@
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
 
                 return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
+                    ${replyHtml}
                     ${contentHtml}
                     ${replyIconHtml}
                     ${deleteIconHtml}
@@ -2966,10 +3079,15 @@
 
             const i = document.getElementById("msg-input");
             
-            // Handle Reply State
-            let finalText = txt;
-            if (replyingTo && type === 'text') {
-                finalText = `> ${replyingTo.text}\n\n${txt}`;
+            // Handle Reply Payload
+            let replyPayload = null;
+            if (replyingTo) {
+                replyPayload = {
+                    key: replyingTo.key,
+                    sender: replyingTo.sender,
+                    text: replyingTo.text, // This could be base64 or text
+                    type: replyingTo.type
+                };
                 window.cancelReply();
             }
 
@@ -2997,7 +3115,17 @@
             }
 
             const mRef = push(ref(db, `messages/${chatId}`));
-            await set(mRef, { sender: user.uid, text: finalText, type: type, time: Date.now(), read: false });
+            const payload = { 
+                sender: user.uid, 
+                text: txt, 
+                type: type, 
+                time: Date.now(), 
+                read: false 
+            };
+            if(replyPayload) payload.reply = replyPayload;
+            
+            await set(mRef, payload);
+            
             const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
             update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
             update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
