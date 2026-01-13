@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <!-- Ethers.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
-    <!-- Face API.js (Optional, used for logic structure, but simulation used here for standalone demo) -->
+    <!-- Face API.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         :root {
@@ -39,251 +39,72 @@
             --msg-sent-bg: var(--primary-color);
             --msg-received-bg: #e5e7eb;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            font-family: "Inter", sans-serif;
-        }
-        body {
-            font-family: "Inter", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0s, color 0.3s;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .scrollable {
-            flex:1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .view-container {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            height: calc(100vh - var(--nav-height));
-            display: none;
-            flex-direction: column;
-        }
-        .view-container.active {
-            display: flex;
-        }
-        .app-header {
-            height: 65px;
-            background-color: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            flex-shrink: 0;
-            z-index: 10;
-            width: 100%;
-            position: relative;
-        }
-        .header-title-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
-        .app-title {
-            font-size: 22px;
-            font-weight: 700;
-            font-family: "Inter", sans-serif;
-        }
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-height);
-            background-color: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 2000;
-            transition: transform 0.3s;
-        }
-        body.chat-active .bottom-nav {
-            transform: translateY(100%);
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            cursor: pointer;
-            width: 25%;
-            height: 100%;
-            transition: 0.2s;
-            background: transparent;
-            border: none;
-        }
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-        .nav-item span {
-            font-size: 11px;
-            margin-top: 4px;
-            font-weight: 500;
-            font-family: "Inter", sans-serif;
-        }
-        .chat-item {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            margin: 0 15px 12px 15px;
-            background: var(--surface-light);
-            border-radius: 18px;
-            cursor: pointer;
-            position: relative;
-        }
-        .avatar-wrapper {
-            position: relative;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .chat-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #333;
-            display: block;
-        }
-        .verified-badge {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 18px;
-            height: 18px;
-            background: var(--verified-color);
-            border: 2px solid var(--surface-light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            z-index: 2;
-        }
-        .verified-pill {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(59, 130, 246, 0.2);
-            color: var(--verified-color);
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .online-dot {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 14px;
-            height: 14px;
-            background: var(--success-color);
-            border: 2px solid var(--surface-light);
-            border-radius: 50%;
-            z-index: 3;
-        }
-        .chat-info {
-            flex: 1;
-            overflow: hidden;
-            min-width: 0;
-        }
-        .chat-name {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            font-family: "Inter", sans-serif;
-        }
-        .chat-msg {
-            color: var(--text-secondary);
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-family: "Inter", sans-serif;
-        }
-        .chat-dots {
-            color: var(--text-secondary);
-            padding: 8px;
-            border-radius: 50%;
-        }
-        .dropdown-menu {
-            position: absolute;
-            right: 10px;
-            top: 55px;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 100;
-            width: 170px; 
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .dropdown-item {
-            padding: 12px 15px;
-            font-size: 14px;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .dropdown-item:hover {
-            background: var(--surface-light);
-        }
-        .dropdown-item.delete {
-            color: var(--danger-color);
-        }
-        #chat-room {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .message-bubble {
-            max-width: 80%;
-            word-wrap: break-word;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            position: relative;
-            transition: background 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: "Inter", sans-serif; }
+        body { font-family: "Inter", sans-serif; background-color: var(--bg-color); color: var(--text-primary); height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0s, color 0.3s; }
+        .hidden { display: none !important; }
+        .scrollable { flex:1; overflow-y: auto; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
         
-        /* Reply Context Styles (WhatsApp Style) */
+        /* --- LAYOUT & NAVIGATION --- */
+        .view-container { flex: 1; position: relative; width: 100%; height: calc(100vh - var(--nav-height)); display: none; flex-direction: column; }
+        .view-container.active { display: flex; }
+        .app-header { height: 65px; background-color: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; z-index: 10; width: 100%; position: relative; }
+        .header-title-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; height: 100%; }
+        .app-title { font-size: 22px; font-weight: 700; font-family: "Inter", sans-serif; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--surface-color); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 2000; transition: transform 0.3s; }
+        body.chat-active .bottom-nav { transform: translateY(100%); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; width: 25%; height: 100%; transition: 0.2s; background: transparent; border: none; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item span { font-size: 11px; margin-top: 4px; font-weight: 500; font-family: "Inter", sans-serif; }
+        .action-btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: 0.1s; background: transparent; color: var(--text-secondary); }
+        .action-btn:active { transform: scale(0.9); }
+        .btn-send { background: var(--primary-color); color: white; }
+
+        /* --- CHAT LIST --- */
+        .chat-item { display: flex; align-items: center; padding: 16px; margin: 0 15px 12px 15px; background: var(--surface-light); border-radius: 18px; cursor: pointer; position: relative; transition: transform 0.1s; }
+        .avatar-wrapper { position: relative; margin-right: 15px; flex-shrink: 0; }
+        .chat-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #333; display: block; }
+        .verified-badge { position: absolute; bottom: 0; right: 0; width: 18px; height: 18px; background: var(--verified-color); border: 2px solid var(--surface-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; z-index: 2; }
+        .verified-pill { display: inline-flex; align-items: center; background: rgba(59, 130, 246, 0.2); color: var(--verified-color); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600; white-space: nowrap; }
+        .online-dot { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; background: var(--success-color); border: 2px solid var(--surface-light); border-radius: 50%; z-index: 3; }
+        .new-message-badge { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #3b82f6; border-radius: 50%; border: 2px solid var(--surface-light); z-index: 4; }
+        .chat-info { flex: 1; overflow: hidden; min-width: 0; }
+        .chat-name { font-weight: 600; font-size: 16px; margin-bottom: 2px; display: flex; align-items: center; font-family: "Inter", sans-serif; }
+        .chat-msg { color: var(--text-secondary); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: "Inter", sans-serif; }
+        .chat-dots { color: var(--text-secondary); padding: 8px; border-radius: 50%; }
+
+        /* --- CHAT ROOM --- */
+        #chat-room { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 100; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        #chat-room.active { transform: translateX(0); }
+        .chat-room-header { background-color: var(--surface-color); border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; justify-content: center; padding: 10px 15px; position: relative; height: 65px; }
+        .chat-room-top { display: flex; align-items: center; width: 100%; margin-bottom: 4px; justify-content: center; }
+        .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        
+        /* Scroll Down Button */
+        .scroll-down-btn {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--surface-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 50;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.2s;
+            border: 1px solid var(--border-color);
+        }
+        .scroll-down-btn.visible { opacity: 1; pointer-events: auto; }
+        .scroll-down-btn:active { transform: scale(0.9); }
+
+        .message-bubble { max-width: 80%; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; transition: background 0.2s; display: flex; flex-direction: column; }
+        
+        /* Reply Context Styles */
         .msg-reply-context {
             padding: 6px 10px;
             border-radius: 8px;
@@ -293,959 +114,217 @@
             border-left: 3px solid rgba(255,255,255,0.4);
             background: rgba(0,0,0,0.15);
             max-width: 100%;
+            cursor: pointer;
         }
-        .received .msg-reply-context {
-            background: rgba(255,255,255,0.05);
-            border-left-color: rgba(0,0,0,0.3);
-            color: var(--text-secondary);
-        }
-        .sent .msg-reply-context {
-            background: rgba(255,255,255,0.2);
-            border-left-color: rgba(255,255,255,0.8);
-            color: rgba(255,255,255,0.9);
-        }
-        .reply-meta-name {
-            font-weight: 700;
-            font-size: 11px;
-            margin-bottom: 2px;
-            display: block;
-        }
-        .reply-content-img {
-            height: 40px;
-            width: 40px;
-            object-fit: cover;
-            border-radius: 4px;
-            vertical-align: middle;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        .reply-content-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: inline-block;
-            vertical-align: middle;
-        }
+        .msg-reply-context:active { opacity: 1; }
+        .received .msg-reply-context { background: rgba(255,255,255,0.05); border-left-color: rgba(0,0,0,0.3); color: var(--text-secondary); }
+        .sent .msg-reply-context { background: rgba(255,255,255,0.2); border-left-color: rgba(255,255,255,0.8); color: rgba(255,255,255,0.9); }
+        .reply-meta-name { font-weight: 700; font-size: 11px; margin-bottom: 2px; display: block; }
+        .reply-content-img { height: 40px; width: 40px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 5px; display: inline-block; }
+        .reply-content-text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; line-height: 1.3; }
 
         /* Big Emoji Override */
-        .big-emoji-msg {
-            background: transparent !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            font-size: 64px;
-            line-height: 1;
-            max-width: 300px;
-        }
-        .big-emoji-msg .msg-meta {
-            display: none; 
-        }
+        .big-emoji-msg { background: transparent !important; padding: 0 !important; box-shadow: none !important; border: none !important; font-size: 64px; line-height: 1; max-width: 300px; }
+        .big-emoji-msg .msg-meta { display: none; }
 
-        #chat-room.active {
-            transform: translateX(0);
-        }
-        .chat-room-header {
-            background-color: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 10px 15px;
-            position: relative;
-            height: 65px;
-        }
-        .chat-room-top {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 4px;
-            justify-content: center;
-        }
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .received, .bot {
-            position: relative;
-            align-self: flex-start;
-            background: var(--msg-received-bg);
-            color: var(--text-primary);
-            border-radius: 18px 18px 18px 4px;
-            padding: 10px 16px;
-            font-family: "Inter", sans-serif;
-        }
-        .sent, .user {
-            align-self: flex-end;
-            background: var(--msg-sent-bg);
-            color: white;
-            border-radius: 18px 18px 4px 18px;
-            padding: 10px 16px;
-            font-family: "Inter", sans-serif;
-        }
-        .sent-blocked {
-            background-color: var(--text-secondary);
-            opacity: 0.5;
-        }
-        .delete-msg-icon, .reply-msg-icon {
-            position: absolute;
-            top: 5px;
-            color: rgba(255,255,255,0.5);
-            font-size: 16px;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 5;
-            background: rgba(0,0,0,0.2);
-            border-radius: 50%;
-            padding: 2px;
-        }
-        .sent .delete-msg-icon { right: 5px; }
-        .sent .reply-msg-icon { right: 30px; }
-        .received .delete-msg-icon { right: 5px; }
-        .received .reply-msg-icon { right: 30px; }
+        .received, .bot { position: relative; align-self: flex-start; background: var(--msg-received-bg); color: var(--text-primary); border-radius: 18px 18px 18px 4px; padding: 10px 16px; font-family: "Inter", sans-serif; }
+        .sent, .user { align-self: flex-end; background: var(--msg-sent-bg); color: white; border-radius: 18px 18px 4px 18px; padding: 10px 16px; font-family: "Inter", sans-serif; }
+        .msg-img { max-width: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; display: block; }
+        .msg-meta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; padding-top: 4px; }
+        .msg-time { font-size: 10px; opacity: 0.7; font-family: "Inter", sans-serif; }
+        .msg-status { font-size: 14px; line-height: 10px; font-family: 'Material Icons Round'; color: var(--success-color); }
+        .delete-msg-icon, .reply-msg-icon { position: absolute; top: 5px; color: rgba(255,255,255,0.5); font-size: 16px; cursor: pointer; opacity: 0; transition: opacity 0.2s; z-index: 5; background: rgba(0,0,0,0.2); border-radius: 50%; padding: 2px; }
+        .sent .delete-msg-icon { right: 5px; } .sent .reply-msg-icon { right: 30px; }
+        .received .delete-msg-icon { right: 5px; } .received .reply-msg-icon { right: 30px; }
+        .message-bubble:hover .delete-msg-icon, .message-bubble:hover .reply-msg-icon { opacity: 1; }
+        
+        .input-bar { background: var(--surface-color); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--border-color); z-index: 9999; position: relative; }
+        .replying-bar { display: none; align-items: center; background: rgba(91, 107, 242, 0.1); border-left: 3px solid var(--primary-color); border-radius: 8px; padding: 8px 12px; width: 100%; font-size: 12px; color: var(--text-primary); justify-content: space-between; }
+        .replying-bar.active { display: flex; }
+        .replying-content { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; display: flex; align-items: center; }
+        .reply-thumb-input { height: 30px; width: 30px; object-fit: cover; border-radius: 4px; margin-right: 8px; display: inline-block; }
+        .cancel-reply-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 2px; }
+        .input-actions { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
+        .text-input { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 24px; padding: 12px 16px; color: var(--text-primary); font-size: 15px; outline: none; resize: none; max-height: 120px; min-height: 44px; font-family: "Inter", sans-serif; }
+        .btn-money { background: #fbbf24; color: #000; }
 
-        .message-bubble:hover .delete-msg-icon,
-        .message-bubble:hover .reply-msg-icon {
-            opacity: 1;
-        }
-        .msg-img {
-            max-width: 200px;
-            border-radius: 12px;
-            margin-top: 5px;
-            cursor: pointer;
-            display: block;
-        }
-        .msg-text-link {
-            color: #4facfe;
-            text-decoration: underline;
-        }
-
-        .msg-meta {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 4px;
-            margin-top: 4px;
-            padding-top: 4px;
-        }
-        .msg-time {
-            font-size: 10px;
-            opacity: 0.7;
-            font-family: "Inter", sans-serif;
-        }
-        .msg-status {
-            font-size: 14px;
-            line-height: 10px;
-            font-family: 'Material Icons Round';
-            color: var(--success-color);
-        }
+        /* --- FEED UI (Redesigned) --- */
+        .feed-fab { display: flex; justify-content: center; padding: 15px; background: var(--surface-color); border-top: 1px solid var(--border-color); gap: 20px; z-index: 9999; position: relative; }
+        .fab-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--surface-light); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 1px solid var(--border-color); }
         
-        .input-bar {
-            background: var(--surface-color);
-            padding: 8px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            border-top: 1px solid var(--border-color);
-            z-index: 9999;
-            position: relative;
-        }
-        
-        /* Replying Bar in Input Area */
-        .replying-bar {
-            display: none;
-            align-items: center;
-            background: rgba(91, 107, 242, 0.1);
-            border-left: 3px solid var(--primary-color);
-            border-radius: 8px;
-            padding: 8px 12px;
-            width: 100%;
-            font-size: 12px;
-            color: var(--text-primary);
-            justify-content: space-between;
-        }
-        .replying-bar.active {
-            display: flex;
-        }
-        .replying-content {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-        /* Thumbnail in input reply bar */
-        .reply-thumb-input {
-            height: 30px;
-            width: 30px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 8px;
-            display: inline-block;
-        }
-        
-        .cancel-reply-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 2px;
-        }
-        .input-actions {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .chat-footer-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 10px;
-            background: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-        }
-        .text-input {
-            flex: 1;
-            bottom-paading:0.5%;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-            resize: none;
-            max-height: 120px;
-            min-height: 44px;
-            font-family: "Inter", sans-serif;
-        }
-        #ai-input.text-input {
-             border-radius: 30px;
-        }
-        .action-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: 0.1s;
-            background: transparent;
-            color: var(--text-secondary);
-        }
-        .action-btn:active {
-            transform: scale(0.9);
-        }
-        .btn-send {
-            background: var(--primary-color);
-            color: white;
-        }
-        .btn-money {
-            background: #fbbf24;
-            color: #000;
-        }
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 10050;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: 0.2s;
-            backdrop-filter: blur(5px);
-        }
-        .modal-overlay.open {
-            display: flex;
-            opacity: 1;
-        }
-        .modal-content {
-            background: var(--surface-color);
-            width: 90%;
-            max-width: 320px; 
-            border-radius: 24px;
-            padding: 25px 20px;
-            max-height: 85vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-        }
-        .modal-content h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text-primary);
-            font-family: "Inter", sans-serif;
-            text-align: left;
-        }
-        .modal-content p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            line-height: 1.5;
-            font-family: "Inter", sans-serif;
-            text-align: left;
-        }
-        .input-field {
-            width: 100%;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 14px;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            outline: none;
-            font-size: 15px;
-            font-family: "Inter", sans-serif;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-        .input-field:focus {
-            border-color: var(--primary-color);
-        }
-        .btn-primary {
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 12px;
-            font-family: "Inter", sans-serif;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .file-upload-wrapper {
-            position: relative;
-            width: 100%;
-            border: 2px dashed var(--border-color);
-            background: var(--bg-color);
-            border-radius: 14px;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 20px;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-        }
-        .file-upload-wrapper:hover {
-            border-color: var(--primary-color);
-            background: rgba(91, 107, 242, 0.05);
-        }
-        .file-upload-icon {
-            font-size: 40px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-        .file-upload-text {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-family: "Inter", sans-serif;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .profile-card {
-            background: var(--surface-light);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-        body.light-mode #btn-logout {
-            color: #ef4444;
-            border-color: #fca5a5;
-        }
-        .wallet-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-radius: 24px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            color: white;
-        }
-        .wallet-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            width: 100%;
-        }
-        .wallet-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            font-size: 13px;
-            white-space: nowrap;
-            font-family: "Inter", sans-serif;
-        }
-        .withdraw-btn {
-            background: #ef4444;
-            color: white;
-        }
-        .receive-btn {
-            background: #22c55e;
-            color: white;
-        }
-        
-        /* Verification Specific Styles */
-        .camera-container {
-            width: 200px;
-            height: 200px;
-            background: #000;
-            border-radius: 50%;
-            margin: 0 auto 15px auto;
-            position: relative;
-            overflow: hidden;
-            border: 4px solid var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #face-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* Mirror effect */
-        }
-        #face-canvas {
-            display: none;
-        }
-        .scan-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 0 20px var(--primary-color);
-            animation: scan-pulse 2s infinite;
-            border-radius: 50%;
-            display: none;
-            pointer-events: none;
-        }
-        @keyframes scan-pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-        .id-preview {
-            width: 100%;
-            height: 120px;
-            background: var(--bg-color);
-            border-radius: 12px;
-            border: 1px dashed var(--border-color);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .id-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .feed-fab {
-            display: flex;
-            justify-content: center;
-            padding: 15px;
-            background: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            gap: 20px;
-            z-index: 9999;
-            position: relative;
-        }
-        .fab-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--surface-light);
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-        }
-        .fab-btn:hover {
-            background: var(--primary-color);
-            color: white;
-        }
         .post-card {
             background: var(--surface-color);
             margin-bottom: 15px;
-            padding-bottom: 15px;
+            padding-bottom: 0;
             border-bottom: 1px solid var(--border-color);
+            cursor: default;
         }
+        
         .post-header {
             display: flex;
             align-items: center;
             padding: 12px;
             gap: 10px;
         }
-        .like-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .like-btn {
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: 0.2s;
-            pointer-events: auto;
-        }
-        .like-btn.active {
-            color: var(--danger-color);
-        }
-        .like-btn i {
-            font-size: 24px;
-        }
-        .like-count {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
+        
+        /* Post Avatar Styles */
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #333; }
+        .post-avatar.sm { width: 24px; height: 24px; }
+
+        .post-username { font-weight: 700; font-size: 14px; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+        
         .post-content-text {
-            padding: 0 12px 5px;
-            font-size: 15px;
-            line-height: 1.4;
+            padding: 5px 12px 10px;
+            font-size: 16px; /* Bigger text */
+            line-height: 1.5;
             font-family: "Inter", sans-serif;
             color: var(--text-primary);
         }
-        .post-content-img {
+
+        /* Image Handling */
+        .post-image-container {
+            width: 100%;
+            display: block;
+            background: #000;
+            overflow: hidden;
+        }
+        /* Crop to 1:1 if >1:1, else show ratio */
+        .post-image-container.crop-1-1 {
+            padding-bottom: 100%; /* 1:1 Aspect Ratio */
+            position: relative;
+        }
+        .post-image-container.crop-1-1 img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .post-image-container.keep-ratio img {
             width: 100%;
             height: auto;
             display: block;
-            background: #000;
-        }
-        .money-post-card {
-            aspect-ratio: 1/1;
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            border-radius: 20px;
-            margin: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #000;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .money-amount {
-            font-size: 48px;
-            font-weight: 800;
-            margin: 10px 0;
-            font-family: "Inter", sans-serif;
-        }
-        .money-claim-btn {
-            background: #000;
-            color: #fbbf24;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 16px;
-            font-family: "Inter", sans-serif;
-        }
-        .feed-loader {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-family: "Inter", sans-serif;
-        }
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: var(--surface-light);
-            color: var(--text-primary);
-            padding: 12px 25px;
-            border-radius: 30px;
-            border: 1px solid var(--primary-color);
-            font-size: 14px;
-            opacity: 0;
-            transition: 0.3s;
-            z-index: 10051;
-            pointer-events: none;
-            font-family: "Inter", sans-serif;
-            white-space: normal;
-            text-align: center;
-            line-height: 1.4;
-            min-width: 200px;
-            max-width: 80vw;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        #ai-messages {
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-        }
-        .ai-message {
-            max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 18px;
-            margin-bottom: 12px;
-            font-size: 15px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            font-family: "Inter", sans-serif;
-        }
-        .ai-message.user {
-            align-self: flex-end;
-            background: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        .ai-message.bot {
-            align-self: flex-start;
-            background: var(--surface-light);
-            color: var(--text-primary);
-            border-bottom-left-radius: 4px;
-        }
-        .ai-message b {
-            font-weight: 700;
-            color: #fff;
-        }
-        .ai-message code {
-            background: rgba(0,0,0,0.3);
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.9em;
-            color: #ff9f43;
-        }
-        .dot-loader {
-            display: flex;
-            gap: 4px;
-            padding: 0;
-        }
-        .dot {
-            width: 6px;
-            height: 6px;
-            background: var(--text-secondary);
-            border-radius: 50%;
-            animation: dot-jump 1.4s infinite ease-in-out;
-        }
-        .dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        .dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        @keyframes dot-jump {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-8px); }
-        }
-        .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-            width: 100%;
-        }
-        .setting-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            font-family: "Inter", sans-serif;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #374151;
-            transition: 0.3s;
-            border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
-        input:checked + .slider:before {
-            transform: translateX(20px);
-        }
-        .typing-bubble {
-            background: var(--surface-light);
-            border-radius: 16px;
-            padding: 4px 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: fit-content;
-            margin-bottom: 12px;
-            align-self: flex-start;
-        }
-        .contact-header {
-            text-align: center;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .contact-close-btn {
-            position: absolute;
-            top: -10px;
-            right: 0;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-        .contact-avatar-lg {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-            border: 2px solid var(--primary-color);
-        }
-        .contact-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        .contact-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .contact-label {
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
-        .contact-value {
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: 500;
-            text-align: right;
-            max-width: 60%;
-        }
-        
-        /* Comment Redesign - Bottom Sheet */
-        #modal-comments {
-            align-items: flex-end; /* Align to bottom */
-            justify-content: center;
-        }
-        #modal-comments.open {
-            display: flex;
-        }
-        .comments-modal-content {
-            height: 85vh;
-            width: 100%;
-            max-width: 100%;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border-radius: 20px 20px 0 0;
-            background: var(--surface-color);
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            z-index: 10060; /* Higher than standard modal */
-        }
-        #modal-comments.open .comments-modal-content {
-            transform: translateY(0);
-        }
-        .comments-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--surface-color);
-            flex-shrink: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .comments-close-header-btn {
-            position: absolute;
-            right: 15px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-        .comments-header h3 {
-            margin: 0;
-            text-align: center;
-            width: 100%;
-        }
-        .comments-list-scrollable {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            background: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
-        }
-        .comment-bubble {
-            padding: 10px 14px;
-            border-radius: 18px;
-            max-width: 80%;
-            font-size: 13px;
-            line-height: 1.4;
-            position: relative;
-        }
-        .comment-bubble.me {
-            align-self: flex-end;
-            background: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        .comment-bubble.them {
-            align-self: flex-start;
-            background: var(--surface-light);
-            color: var(--text-primary);
-            border-bottom-left-radius: 4px;
-        }
-        .comment-author {
-            font-size: 10px;
-            opacity: 0.7;
-            margin-bottom: 2px;
-            display: block;
-        }
-        .comment-input-area {
-            padding: 15px;
-            background: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-shrink: 0;
-            z-index: 10061; /* Ensure input is clickable */
-        }
-        .comment-input {
-            flex: 1;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 10px 15px;
-            color: var(--text-primary);
-            font-size: 13px;
-            outline: none;
-        }
-        .comment-send-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
+            object-fit: contain;
         }
 
+        /* Post Actions (Twitter/IG Style) */
         .post-actions {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 0 12px 10px;
-            justify-content: flex-start;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
-        .comment-trigger-btn {
-            display: flex;
-            align-items: center;
-            color: var(--text-secondary);
-            font-size: 13px;
-            cursor: pointer;
+        
+        .post-action-btn {
             background: none;
             border: none;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-family: "Inter", sans-serif;
+            transition: color 0.2s;
+            padding: 5px 10px;
+            border-radius: 20px;
         }
-        .comment-trigger-btn:hover {
-            color: var(--primary-color);
+        .post-action-btn:hover { background: rgba(255,255,255,0.05); }
+        .post-action-btn i { font-size: 20px; }
+        .post-action-btn.active-like { color: var(--danger-color); }
+        .post-action-btn.active-share { color: var(--primary-color); }
+
+        /* Share Specific */
+        .shared-banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(91, 107, 242, 0.1);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
         }
-        .comment-trigger-btn i {
-            font-size: 22px;
-        }
+        .shared-banner .shared-owner { color: var(--text-primary); font-weight: 700; }
+        .shared-banner .verified-badge-sm { color: var(--verified-color); font-size: 12px; }
+
+        /* Money Post */
+        .money-post-card { aspect-ratio: 1/1; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 20px; margin: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #000; padding: 20px; position: relative; overflow: hidden; }
+        .money-amount { font-size: 48px; font-weight: 800; margin: 10px 0; font-family: "Inter", sans-serif; }
+        .money-claim-btn { background: #000; color: #fbbf24; padding: 12px 30px; border-radius: 30px; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; font-size: 16px; font-family: "Inter", sans-serif; }
+        
+        /* --- MODALS & MISC --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10050; display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; backdrop-filter: blur(5px); }
+        .modal-overlay.open { display: flex; opacity: 1; }
+        .modal-content { background: var(--surface-color); width: 90%; max-width: 320px; border-radius: 24px; padding: 25px 20px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .modal-content h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); font-family: "Inter", sans-serif; text-align: left; }
+        .modal-content p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; font-family: "Inter", sans-serif; text-align: left; }
+        
+        .dropdown-menu { position: absolute; right: 10px; top: 55px; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 100; width: 170px; display: none; flex-direction: column; overflow: hidden; }
+        .dropdown-item { padding: 12px 15px; font-size: 14px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .dropdown-item:hover { background: var(--surface-light); }
+        
+        /* Comments Modal */
+        #modal-comments { align-items: flex-end; justify-content: center; }
+        #modal-comments.open { display: flex; }
+        .comments-modal-content { height: 85vh; width: 100%; max-width: 100%; padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 20px 20px 0 0; background: var(--surface-color); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; z-index: 10060; }
+        #modal-comments.open .comments-modal-content { transform: translateY(0); }
+        .comments-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: var(--surface-color); flex-shrink: 0; display: flex; justify-content: center; align-items: center; position: relative; }
+        .comments-list-scrollable { flex: 1; overflow-y: auto; padding: 15px; background: var(--bg-color); display: flex; flex-direction: column; gap: 10px; }
+        .comment-bubble { padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 13px; line-height: 1.4; position: relative; }
+        .comment-bubble.me { align-self: flex-end; background: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
+        .comment-bubble.them { align-self: flex-start; background: var(--surface-light); color: var(--text-primary); border-bottom-left-radius: 4px; }
+        .comment-author { font-size: 10px; opacity: 0.7; margin-bottom: 2px; display: block; }
+        .comment-input-area { padding: 15px; background: var(--surface-color); border-top: 1px solid var(--border-color); display: flex; gap: 8px; align-items: center; flex-shrink: 0; z-index: 10061; }
+        .comment-input { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 15px; color: var(--text-primary); font-size: 13px; outline: none; }
+        
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface-light); color: var(--text-primary); padding: 12px 25px; border-radius: 30px; border: 1px solid var(--primary-color); font-size: 14px; opacity: 0; transition: 0.3s; z-index: 10051; pointer-events: none; font-family: "Inter", sans-serif; white-space: normal; text-align: center; line-height: 1.4; min-width: 200px; max-width: 80vw; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        
+        /* Form Elements */
+        .input-field { width: 100%; background: var(--bg-color); border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; color: var(--text-primary); margin-bottom: 20px; outline: none; font-size: 15px; font-family: "Inter", sans-serif; box-sizing: border-box; transition: border-color 0.2s; }
+        .input-field:focus { border-color: var(--primary-color); }
+        .btn-primary { width: 100%; background: var(--primary-color); color: white; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 12px; font-family: "Inter", sans-serif; transition: background 0.2s; }
+        .btn-primary:hover { opacity: 0.9; }
+        
+        /* AI */
+        #ai-messages { display: flex; flex-direction: column; padding: 15px; }
+        .ai-message { max-width: 85%; padding: 12px 18px; border-radius: 18px; margin-bottom: 12px; font-size: 15px; line-height: 1.5; word-wrap: break-word; font-family: "Inter", sans-serif; }
+        .ai-message.user { align-self: flex-end; background: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
+        .ai-message.bot { align-self: flex-start; background: var(--surface-light); color: var(--text-primary); border-bottom-left-radius: 4px; }
+
+        /* Wallet Card */
+        .wallet-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 24px; padding: 25px; margin-bottom: 20px; border: 1px solid var(--border-color); text-align: center; color: white; }
+        .wallet-actions { display: flex; gap: 10px; margin-top: 15px; width: 100%; }
+        .wallet-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; white-space: nowrap; font-family: "Inter", sans-serif; }
+        .withdraw-btn { background: #ef4444; color: white; }
+        .receive-btn { background: #22c55e; color: white; }
+
+        /* Verification */
+        .camera-container { width: 200px; height: 200px; background: #000; border-radius: 50%; margin: 0 auto 15px auto; position: relative; overflow: hidden; border: 4px solid var(--primary-color); display: flex; align-items: center; justify-content: center; }
+        #face-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .scan-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid var(--primary-color); box-shadow: 0 0 20px var(--primary-color); animation: scan-pulse 2s infinite; border-radius: 50%; display: none; pointer-events: none; }
+        @keyframes scan-pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+        .id-preview { width: 100%; height: 120px; background: var(--bg-color); border-radius: 12px; border: 1px dashed var(--border-color); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+
+        /* Contact */
+        .contact-header { text-align: center; margin-bottom: 20px; position: relative; }
+        .contact-close-btn { position: absolute; top: -10px; right: 0; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; }
+        .contact-avatar-lg { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--primary-color); }
+        .contact-name { font-size: 18px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .contact-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .contact-label { color: var(--text-secondary); font-size: 13px; }
+        .contact-value { color: var(--text-primary); font-size: 14px; font-weight: 500; text-align: right; max-width: 60%; }
+
+        /* Settings */
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); width: 100%; }
+        .setting-label { font-size: 14px; font-weight: 500; color: var(--text-primary); font-family: "Inter", sans-serif; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #374151; transition: 0.3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
     </style>
 </head>
 <body class="">
@@ -1276,21 +355,18 @@
             </div>
             <div id="messages-area" class="messages-container"></div>
             
+            <button class="scroll-down-btn" id="btn-scroll-down"><i class="material-icons-round">arrow_downward</i></button>
+
             <div id="chat-footer" class="chat-footer-controls hidden">
                 <button class="btn-primary" id="btn-unblock-chat" style="background: var(--success-color);">Unblock</button>
                 <button class="btn-primary" id="btn-delete-chat-full" style="background: var(--danger-color);">Delete Chat</button>
             </div>
 
             <div class="input-bar" id="input-bar-wrapper">
-                <!-- Replying Bar UI -->
                 <div id="replying-bar" class="replying-bar">
-                    <span class="replying-content">
-                        <!-- Thumbnail inserted here via JS -->
-                        <span id="replying-text-preview">Replying to...</span>
-                    </span>
+                    <span class="replying-content"></span>
                     <button class="cancel-reply-btn" id="btn-cancel-reply"><i class="material-icons-round">close</i></button>
                 </div>
-
                 <div class="input-actions">
                     <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
                     <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
@@ -1312,7 +388,7 @@
             <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
         </div>
         <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
-            <div id="feed-loader" class="feed-loader hidden">Loading more posts...</div>
+            <div id="feed-loader" class="feed-loader hidden" style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 12px;">Loading more posts...</div>
         </div>
         <div class="feed-fab">
             <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
@@ -1347,7 +423,7 @@
             </div>
         </div>
         <div class="scrollable" style="padding: 20px">
-            <div class="profile-card">
+            <div class="profile-card" style="background: var(--surface-light); border-radius: 20px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; position: relative;">
                 <div class="avatar-wrapper" style="margin-right: 15px;">
                     <img src="" id="p-avatar" class="chat-avatar" style="width: 65px; height: 65px" />
                     <div id="p-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
@@ -1403,12 +479,9 @@
         <div class="modal-content">
             <h3>Identity Verification</h3>
             <div style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Verify to unlock Blue Checkmark.</div>
-            
             <label style="display:block; margin-bottom:8px; font-size:13px; color:var(--text-primary);">1. Upload ID Card (Front)</label>
-            <label class="file-upload-wrapper" for="verify-id-input">
-                <div id="id-preview-container" class="id-preview">
-                    <i class="material-icons-round" style="font-size:30px; color:var(--text-secondary)">badge</i>
-                </div>
+            <label class="file-upload-wrapper" for="verify-id-input" style="position: relative; width: 100%; border: 2px dashed var(--border-color); background: var(--bg-color); border-radius: 14px; padding: 30px 20px; text-align: center; cursor: pointer; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div id="id-preview-container" class="id-preview"><i class="material-icons-round" style="font-size:30px; color:var(--text-secondary)">badge</i></div>
                 <div class="file-upload-text" style="margin-top:10px">Tap to Upload ID Card</div>
                 <input type="file" id="verify-id-input" accept="image/*" />
             </label>
@@ -1423,7 +496,6 @@
                 <div id="camera-placeholder" style="color:#666; font-size:12px; position: absolute;">Camera Off</div>
             </div>
             <button class="btn-primary" id="btn-camera-toggle" style="background: var(--surface-light)">Start Camera</button>
-            
             <button class="btn-primary" id="btn-verify-submit" disabled>Verify Now</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
@@ -1448,8 +520,31 @@
             </div>
             <div class="comment-input-area">
                 <input type="text" id="comment-input" class="comment-input" placeholder="Add a comment..." />
-                <button class="comment-send-btn" id="btn-submit-comment"><i class="material-icons-round" style="font-size:18px;">send</i></button>
+                <button class="action-btn btn-send" id="btn-submit-comment" style="width:36px; height:36px; border-radius:50%; padding:0;"><i class="material-icons-round" style="font-size:18px;">send</i></button>
             </div>
+        </div>
+    </div>
+
+    <div id="modal-share-options" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Share Post</h3>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-primary" id="btn-share-feed">
+                    <i class="material-icons-round" style="vertical-align:middle; margin-right:8px">dynamic_feed</i> Share in Feed
+                </button>
+                <button class="btn-primary" style="background:var(--surface-light); color:var(--text-primary)" id="btn-share-chat">
+                    <i class="material-icons-round" style="vertical-align:middle; margin-right:8px">chat</i> Share to Chat
+                </button>
+            </div>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-share-chat-list" class="modal-overlay">
+        <div class="modal-content" style="height:80vh; display:flex; flex-direction:column;">
+            <h3>Select Chat</h3>
+            <div id="share-chat-list-container" class="scrollable" style="flex:1; margin-bottom:10px; padding:10px 0;"></div>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="document.getElementById('modal-share-chat-list').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
@@ -1463,26 +558,9 @@
                     <i class="material-icons-round" id="c-badge" style="font-size: 16px; color: var(--verified-color); display:none;">check_circle</i>
                 </div>
             </div>
-            <div id="c-email-row" class="contact-row" style="display:none;">
-                <span class="contact-label">Email</span>
-                <span class="contact-value" id="c-email">Hidden</span>
-            </div>
-            <div id="c-joined-row" class="contact-row" style="display:none;">
-                <span class="contact-label">Joined</span>
-                <span class="contact-value" id="c-joined">---</span>
-            </div>
-            <div id="c-total-chats-row" class="contact-row" style="display:none;">
-                <span class="contact-label">Total Chats</span>
-                <span class="contact-value" id="c-total-chats">...</span>
-            </div>
-            <div class="contact-row">
-                <span class="contact-label">Status</span>
-                <span class="contact-value" id="c-status">Offline</span>
-            </div>
-            <div class="contact-row" style="border-bottom:none;">
-                <span class="contact-label">Last Seen</span>
-                <span class="contact-value" id="c-last-seen">---</span>
-            </div>
+            <div class="contact-row" style="display:none;"><span class="contact-label">Email</span><span class="contact-value">Hidden</span></div>
+            <div class="contact-row"><span class="contact-label">Status</span><span class="contact-value" id="c-status">Offline</span></div>
+            <div class="contact-row" style="border-bottom:none;"><span class="contact-label">Last Seen</span><span class="contact-value" id="c-last-seen">---</span></div>
         </div>
     </div>
 
@@ -1508,16 +586,14 @@
     <div id="modal-post-img" class="modal-overlay">
         <div class="modal-content">
             <h3>New Image Post</h3>
-            <label class="file-upload-wrapper" for="post-img-file">
-                <i class="material-icons-round file-upload-icon">cloud_upload</i>
+            <label class="file-upload-wrapper" for="post-img-file" style="position: relative; width: 100%; border: 2px dashed var(--border-color); background: var(--bg-color); border-radius: 14px; padding: 30px 20px; text-align: center; cursor: pointer; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <i class="material-icons-round file-upload-icon" style="font-size: 40px; color: var(--text-secondary); margin-bottom: 10px">cloud_upload</i>
                 <div class="file-upload-text">Tap to Select Image</div>
                 <input type="file" id="post-img-file" accept="image/*" />
             </label>
-            
             <div id="img-preview-container" class="hidden" style="margin-bottom: 20px; text-align: center;">
                 <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
             </div>
-
             <button class="btn-primary" id="btn-submit-post-img">Post</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
@@ -1611,12 +687,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-        const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
-
-        const k = "c2stb3ItdjEtN2Y3MjY3M2IyMzMzMDkyOThkNjM3ZmM2Mzg5NjZiNTViY2ZmZTMyNTdlMzFjNDIzMTNhODFmODQwZmQ3NmJmNw==";
         
+        // Real Crypto RPC Provider (Public Node)
+        const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
+        const k = "c2stb3ItdjEtN2Y3MjY3M2IyMzMzMDkyOThkNjM3ZmM2Mzg5NjZiNTViY2ZmZTMyNTdlMzFjNDIzMTNhODFmODQwZmQ3NmJmNw==";
         const aiKey = atob(k); 
-        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC, a crypto-focused assistant that only responds to technology, blockchain, cryptocurrency, and Crypa app. Crypa includes a built-in Ethereum (ETH) wallet that allows users to deposit ETH from external wallets, withdraw ETH to other wallets, and chat about crypto inside the app. Users must verify their accounts to access full features, and all other cryptocurrencies must be converted to ETH before any transaction or processing. Responses must be short, direct, and technical, use bold for key points, and avoid explaining internal systems or unrelated topics.";
+        
+        // STRICT AI PROMPT
+        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You are an expert assistant on Cryptocurrency, Blockchain technology, and Ethereum. You also answer questions specifically about the Crypa Chat app functionality (wallet, chat, verification). You MUST REFUSE to answer any questions outside of these topics (e.g., general knowledge, cooking, sports, politics). If a user asks something unrelated, say: 'I can only assist with Crypto, Blockchain, and Crypa App inquiries.'. Keep responses short, direct, and technical.";
 
         let user = null;
         let chatId = null;
@@ -1673,25 +751,16 @@
             }
         };
         
-        window.openContactInfoDropdown = function(uid, chatCount) {
+        window.openContactInfoDropdown = function(uid) {
             const ud = users[uid];
             if(!ud) return;
             const cAvatar = document.getElementById('c-avatar');
             const cUsername = document.getElementById('c-username');
             const cBadge = document.getElementById('c-badge');
-            const cTotalChats = document.getElementById('c-total-chats');
             
             if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
             if(cUsername) cUsername.innerText = ud.username;
             if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
-            
-            if(cTotalChats && chatCount) {
-                cTotalChats.innerText = chatCount + " Chats";
-                document.getElementById('c-total-chats-row').style.display = 'flex';
-            }
-
-            if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
-            if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
 
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
             const cStatus = document.getElementById('c-status');
@@ -1701,13 +770,7 @@
             }
             const cLastSeen = document.getElementById('c-last-seen');
             if (cLastSeen) {
-                if (isOnline) {
-                    cLastSeen.innerText = "Now";
-                } else if (ud.lastSeen) {
-                    cLastSeen.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                } else {
-                    cLastSeen.innerText = "Unknown";
-                }
+                cLastSeen.innerText = isOnline ? "Now" : (ud.lastSeen ? new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Unknown");
             }
             const modal = document.getElementById('modal-contact-info');
             if(modal) modal.classList.add('open');
@@ -1733,11 +796,7 @@
         
         window.claimMoney = async function(postKey, amount, authorId) {
             const snap = await get(ref(db, `posts/${postKey}`));
-            if(!snap.exists()) {
-                toast('Already claimed');
-                loadFeed();
-                return;
-            }
+            if(!snap.exists()) { toast('Already claimed'); loadFeed(); return; }
             const rSnap = await get(ref(db, `users/${user.uid}/wallets/eth`));
             const newBal = (parseFloat(rSnap.val().balance || 0) + parseFloat(amount)).toFixed(4);
             await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
@@ -1761,36 +820,26 @@
         };
 
         window.startReply = function(mKey, senderName, text, type) {
-            // Store full details for sending
             replyingTo = { key: mKey, sender: senderName, text: text, type: type };
-            
             const bar = document.getElementById('replying-bar');
             const contentContainer = bar.querySelector('.replying-content');
-            
-            // Reset content
             contentContainer.innerHTML = '';
             
-            // Create Thumbnail/Image preview if needed
             if (type === 'img') {
                 const thumb = document.createElement('img');
-                thumb.src = text; // Base64
+                thumb.src = text; 
                 thumb.className = 'reply-thumb-input';
                 contentContainer.appendChild(thumb);
-                
                 const label = document.createElement('span');
                 label.innerText = ' Photo';
                 contentContainer.appendChild(label);
             } else {
-                // Text reply
                 const label = document.createElement('span');
-                // Truncate text for display
                 let displayTxt = text.length > 30 ? text.substring(0, 30) + '...' : text;
                 label.innerText = displayTxt;
                 contentContainer.appendChild(label);
             }
-
             bar.classList.add('active');
-            
             const input = document.getElementById('msg-input');
             if(input) input.focus();
         }
@@ -1799,10 +848,7 @@
             replyingTo = null;
             const bar = document.getElementById('replying-bar');
             bar.classList.remove('active');
-            // Clear preview content after animation
-            setTimeout(() => {
-                bar.querySelector('.replying-content').innerHTML = '';
-            }, 300);
+            setTimeout(() => { bar.querySelector('.replying-content').innerHTML = ''; }, 300);
         }
 
         function isOnlyEmojis(text) {
@@ -1824,7 +870,6 @@
         function initTheme() {
             const savedTheme = localStorage.getItem('crypa_theme');
             const themeToggle = document.getElementById('theme-toggle');
-            
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 themeToggle.checked = true;
@@ -1832,7 +877,6 @@
                 document.body.classList.remove('light-mode');
                 themeToggle.checked = false;
             }
-
             if(themeToggle) {
                 themeToggle.addEventListener('change', (e) => {
                     if (e.target.checked) {
@@ -1914,6 +958,9 @@
             const btnAiClear = document.getElementById("btn-ai-clear");
             const aiInput = document.getElementById("ai-input");
             const aiMessages = document.getElementById("ai-messages");
+            
+            // Scroll to bottom button
+            const btnScrollDown = document.getElementById('btn-scroll-down');
 
             // --- PROFILE IMAGE FIX START ---
             if(btnChangeAvatar && avatarInput) {
@@ -1931,28 +978,18 @@
             }
             if(btnSaveProfile) {
                 btnSaveProfile.onclick = async () => {
-                    if(!document.getElementById("edit-p-name")) return;
                     const n = document.getElementById("edit-p-name").value;
                     const prev = document.getElementById("edit-p-preview");
                     const av = prev ? prev.src : "";
-                    
                     if(!n) return toast("Username required");
-
                     toast("Updating Profile...");
-                    
                     try {
                         await update(ref(db, `users/${user.uid}`), { username: n, avatar: av });
                         document.getElementById("modal-edit-profile").classList.remove("open");
                         toast("Profile Updated!");
-                        
-                        const pUsername = document.getElementById("p-username");
-                        const pAvatar = document.getElementById("p-avatar");
-                        if(pUsername) pUsername.innerText = n;
-                        if(pAvatar) pAvatar.src = av;
-                    } catch(e) {
-                        console.error(e);
-                        toast("Update Failed");
-                    }
+                        document.getElementById("p-username").innerText = n;
+                        document.getElementById("p-avatar").src = av;
+                    } catch(e) { toast("Update Failed"); }
                 };
             }
             // --- PROFILE IMAGE FIX END ---
@@ -1960,7 +997,6 @@
             // AI Logic
             if(btnAiSend) {
                 btnAiSend.onclick = async () => {
-                    if (!aiInput) return;
                     const t = aiInput.value.trim();
                     if (!t) return;
                     aiHistory.push({ role: "user", content: t });
@@ -1996,11 +1032,7 @@
                         const loader = document.getElementById("ai-loader");
                         if(loader) loader.remove();
 
-                        if (!r.ok) {
-                            const errText = await r.text();
-                            console.error("AI Error Details:", errText);
-                            throw new Error(`API Error: ${r.status}`);
-                        }
+                        if (!r.ok) throw new Error(`API Error: ${r.status}`);
 
                         const d = await r.json();
                         if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
@@ -2010,13 +1042,10 @@
                         }
 
                         let rawContent = d.choices[0].message.content;
-                        
                         if (!rawContent || rawContent.trim().length < 2) {
-                            console.error("AI returned empty/short content");
                             toast("AI response was empty. Please try again.");
                             return;
                         }
-
                         let cleanContent = parseAIContent(rawContent);
                         aiHistory.push({ role: "assistant", content: cleanContent });
                         renderAI();
@@ -2025,12 +1054,8 @@
                         console.error("AI Error:", e);
                         const loader = document.getElementById("ai-loader");
                         if(loader) loader.remove();
-                        
-                        if (e.name === 'AbortError') {
-                            toast("Request Timed Out (15s)");
-                        } else {
-                            toast("Connection Failed");
-                        }
+                        if (e.name === 'AbortError') toast("Request Timed Out (15s)");
+                        else toast("Connection Failed");
                     }
                 };
             }
@@ -2049,12 +1074,9 @@
                     buildPrivacyUI();
                 };
             }
-            
             if(btnLogout) {
                 btnLogout.onclick = () => {
-                    signOut(auth).then(() => {
-                        window.location.href = "index.html";
-                    });
+                    signOut(auth).then(() => { window.location.href = "index.html"; });
                 };
             }
 
@@ -2067,7 +1089,6 @@
                     if(searchResults) searchResults.innerHTML = "";
                 };
             }
-            
             if(document.getElementById('search-input')) {
                 document.getElementById('search-input').oninput = (e) => {
                     const v = e.target.value.toLowerCase();
@@ -2101,6 +1122,8 @@
                     if(body) body.classList.remove("chat-active");
                     if(chatId && user) {
                         set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+                        // Update last seen when leaving chat
+                        update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
                     }
                     window.cancelReply(); 
                 };
@@ -2114,7 +1137,6 @@
                 fileInput.onchange = (e) => {
                     const file = e.target.files[0];
                     if(!file) return;
-                    
                     const reader = new FileReader();
                     reader.onload = (ev) => {
                         pendingChatImage = ev.target.result;
@@ -2133,7 +1155,6 @@
                     const msgInput = document.getElementById("msg-input");
                     if(!msgInput) return;
                     const t = msgInput.value.trim();
-                    
                     if(pendingChatImage) {
                         sendMsg(pendingChatImage, "img");
                         pendingChatImage = null;
@@ -2143,13 +1164,22 @@
                     }
                 };
             }
-            
+
+            // Scroll Down Button Logic
+            if(btnScrollDown) {
+                btnScrollDown.onclick = () => {
+                    const container = document.getElementById('messages-area');
+                    if(container) {
+                        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+                    }
+                };
+            }
+
             if(btnMoneyModal && document.getElementById('modal-transfer')) {
                 btnMoneyModal.onclick = () => document.getElementById('modal-transfer').classList.add("open");
             }
             if(btnDoTransfer) {
                 btnDoTransfer.onclick = async () => {
-                    if(!document.getElementById("t-amount")) return;
                     const a = parseFloat(document.getElementById("t-amount").value);
                     if (!a || a > parseFloat(wallet.balance)) return toast("Insufficient Balance");
                     const newSenderB = (parseFloat(wallet.balance) - a).toFixed(4);
@@ -2162,17 +1192,12 @@
                     setupWallet();
                 };
             }
-            if(pWithdraw) {
-                pWithdraw.onclick = () => document.getElementById("modal-withdraw").classList.add("open");
-            }
+            if(pWithdraw) { pWithdraw.onclick = () => document.getElementById('modal-withdraw').classList.add("open"); }
             if(btnDoWithdraw) {
                 btnDoWithdraw.onclick = async () => {
-                    const wAddr = document.getElementById("w-addr");
-                    const wAmt = document.getElementById("w-amt");
-                    if(!wAddr || !wAmt) return;
-                    const toAddress = wAddr.value;
-                    const amountStr = wAmt.value;
-                    if (!ethers.isAddress(toAddress)) return toast("Invalid Address");
+                    const wAddr = document.getElementById("w-addr").value;
+                    const amountStr = document.getElementById("w-amt").value;
+                    if (!ethers.isAddress(wAddr)) return toast("Invalid Address");
                     if (!amountStr || parseFloat(amountStr) <= 0) return toast("Invalid Amount");
 
                     const btn = btnDoWithdraw;
@@ -2182,14 +1207,24 @@
 
                     try {
                         const pk = localStorage.getItem(`pk_${user.uid}`);
-                        if (!pk) throw new Error("Wallet not found in local storage");
+                        if (!pk) throw new Error("Wallet not found");
 
                         const walletInstance = new ethers.Wallet(pk);
                         const connectedWallet = walletInstance.connect(rpc);
                         const amountWei = ethers.parseEther(amountStr);
 
+                        // Check balance first to give better error
+                        const balance = await rpc.getBalance(walletInstance.address);
+                        const gasPrice = await rpc.getFeeData();
+                        const estimatedGas = 21000n; 
+                        const gasCost = estimatedGas.gasPrice * estimatedGas;
+
+                        if (balance < (amountWei + gasCost)) {
+                            throw new Error("Insufficient ETH for gas + amount.");
+                        }
+
                         toast("Broadcasting Transaction...");
-                        const tx = await connectedWallet.sendTransaction({ to: toAddress, value: amountWei });
+                        const tx = await connectedWallet.sendTransaction({ to: wAddr, value: amountWei });
                         console.log("Transaction Hash:", tx.hash);
                         toast(`Success! Hash: ${tx.hash.substring(0, 10)}...`);
 
@@ -2197,7 +1232,11 @@
                         setupWallet();
                     } catch (e) {
                         console.error(e);
-                        toast("Transaction Failed: " + e.message);
+                        let msg = "Transaction Failed";
+                        if(e.message.includes("gas")) msg = "Insufficient ETH for gas fees";
+                        else if(e.code === 'ACTION_REJECTED') msg = "Transaction rejected by user";
+                        else msg = e.message;
+                        toast(msg);
                     } finally {
                         btn.innerText = originalText;
                         btn.disabled = false;
@@ -2213,57 +1252,39 @@
                 };
             }
             if(btnCopy) {
-                btnCopy.onclick = () => {
-                    navigator.clipboard.writeText(wallet.address);
-                    toast("Copied");
-                };
+                btnCopy.onclick = () => { navigator.clipboard.writeText(wallet.address); toast("Copied"); };
             }
 
             // Feed & Posts
             if(btnRefreshFeed) btnRefreshFeed.onclick = () => loadFeed(false);
             
-            if(btnPostText && document.getElementById('modal-post-text') && document.getElementById('post-text-content')) {
-                btnPostText.onclick = () => {
-                    const modal = document.getElementById("modal-post-text");
-                    if(modal) modal.classList.add("open");
-                };
+            if(btnPostText && document.getElementById('modal-post-text')) {
+                btnPostText.onclick = () => document.getElementById("modal-post-text").classList.add("open");
             }
             if(btnSubmitPostText) {
                 btnSubmitPostText.onclick = () => {
-                    const modal = document.getElementById("modal-post-text");
-                    const content = document.getElementById("post-text-content");
-                    if(modal && content) {
-                        const txt = content.value.trim();
-                        if(!txt) return;
-                        toast("Posting...");
-                        push(ref(db, 'posts'), {
-                            type: 'text',
-                            content: txt,
-                            authorId: user.uid,
-                            timestamp: Date.now()
-                        })
-                        .then(() => {
-                            modal.classList.remove("open");
-                            content.value = '';
-                            toast("Posted");
-                        }).catch(e => { console.error(e); toast("Failed to post"); });
-                    }
+                    const content = document.getElementById("post-text-content").value.trim();
+                    if(!content) return;
+                    toast("Posting...");
+                    push(ref(db, 'posts'), {
+                        type: 'text',
+                        content: content,
+                        authorId: user.uid,
+                        timestamp: Date.now()
+                    }).then(() => {
+                        document.getElementById("modal-post-text").classList.remove("open");
+                        document.getElementById("post-text-content").value = '';
+                        toast("Posted");
+                        loadFeed(false);
+                    }).catch(e => { console.error(e); toast("Failed to post"); });
                 };
             }
             
-            if(btnPostImg) {
-                btnPostImg.onclick = () => {
-                    const modal = document.getElementById("modal-post-img");
-                    if(modal) modal.classList.add("open");
-                };
-            }
+            if(btnPostImg) { btnPostImg.onclick = () => document.getElementById("modal-post-img").classList.add("open"); }
             if(postImgFile && imgPreviewContainer && postImgPreview) {
                 postImgFile.onchange = (e) => {
                     const file = e.target.files[0];
-                    if (!file) {
-                        imgPreviewContainer.classList.add('hidden');
-                        return;
-                    }
+                    if (!file) { imgPreviewContainer.classList.add('hidden'); return; }
                     const reader = new FileReader();
                     reader.onload = (ev) => {
                         postImgPreview.src = ev.target.result;
@@ -2276,7 +1297,6 @@
                 btnSubmitPostImg.onclick = async () => {
                     const fileInput = postImgFile;
                     const modal = document.getElementById("modal-post-img");
-                    
                     if(!fileInput) return;
                     const file = fileInput.files[0];
                     if(!file) return;
@@ -2301,9 +1321,15 @@
                                 res = canvas.toDataURL('image/jpeg', quality);
                             }
                             
+                            // Store dimensions for cropping logic
+                            const w = img.naturalWidth;
+                            const h = img.naturalHeight;
+                            const isLandscape = w > h;
+                            
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
+                                w: w, h: h, // Dimensions
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
@@ -2312,21 +1338,14 @@
                                 if(fileInput) fileInput.value = "";
                                 if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
                                 toast("Posted");
-                            }).catch(e => {
-                                console.error(e);
-                                toast("Upload Failed");
-                            });
+                                loadFeed(false);
+                            }).catch(e => { console.error(e); toast("Upload Failed"); });
                         };
                     };
                 };
             }
             
-            if(btnPostMoney) {
-                btnPostMoney.onclick = () => {
-                    const modal = document.getElementById("modal-post-money");
-                    if(modal) modal.classList.add("open");
-                };
-            }
+            if(btnPostMoney) { btnPostMoney.onclick = () => document.getElementById("modal-post-money").classList.add("open"); }
             if(btnSubmitPostMoney && postMoneyAmount) {
                 btnSubmitPostMoney.onclick = async () => {
                     const amt = parseFloat(postMoneyAmount.value);
@@ -2340,13 +1359,62 @@
                         amount: amt,
                         authorId: user.uid,
                         timestamp: Date.now()
-                    })
-                    .then(() => {
+                    }).then(() => {
                         if(modal) modal.classList.remove("open");
                         toast('Crypto Posted!');
-                    }).catch(e => {
-                        toast("Failed");
-                    });
+                        loadFeed(false);
+                    }).catch(e => { toast("Failed"); });
+                };
+            }
+
+            // Share Modals & Logic
+            const btnShareFeed = document.getElementById('btn-share-feed');
+            const btnShareChat = document.getElementById('btn-share-chat');
+            const shareOptionsModal = document.getElementById('modal-share-options');
+            const shareChatListModal = document.getElementById('modal-share-chat-list');
+            let postToShare = null;
+
+            // Trigger share modal
+            window.triggerShare = function(e, postKey) {
+                if(e) e.stopPropagation();
+                if(!user) return toast("Login required");
+                
+                const post = allPostsRaw.find(p => p.key === postKey);
+                if(!post) return;
+                if(post.type === 'share') return toast("Cannot re-share a shared post.");
+                if(post.type === 'money') return toast("Cannot share money posts.");
+                
+                postToShare = post;
+                shareOptionsModal.classList.add('open');
+            };
+
+            if(btnShareFeed) {
+                btnShareFeed.onclick = async () => {
+                    if(!postToShare) return;
+                    toast("Sharing to feed...");
+                    
+                    const shareData = {
+                        type: 'share',
+                        originalAuthorId: postToShare.authorId,
+                        originalContent: postToShare.content || postToShare.amount, // Text or Amount
+                        originalType: postToShare.type,
+                        originalImgDims: postToShare.w ? {w: postToShare.w, h: postToShare.h} : null,
+                        timestamp: Date.now(),
+                        authorId: user.uid // Current user is the sharer
+                    };
+
+                    await push(ref(db, 'posts'), shareData);
+                    shareOptionsModal.classList.remove('open');
+                    toast("Shared!");
+                    loadFeed(false);
+                };
+            }
+
+            if(btnShareChat) {
+                btnShareChat.onclick = () => {
+                    shareOptionsModal.classList.remove('open');
+                    shareChatListModal.classList.add('open');
+                    loadShareChatList();
                 };
             }
 
@@ -2355,15 +1423,11 @@
                 btnVerifyAccount.onclick = () => {
                     const modal = document.getElementById('modal-verify');
                     if(modal) modal.classList.add("open");
-                    // Reset state
-                    idCardData = null;
-                    faceData = null;
+                    idCardData = null; faceData = null;
                     document.getElementById('verify-id-filename').style.display = 'none';
                     document.getElementById('btn-verify-submit').disabled = true;
                     const previewContainer = document.getElementById('id-preview-container');
                     previewContainer.innerHTML = '<i class="material-icons-round" style="font-size:30px; color:var(--text-secondary)">badge</i>';
-                    
-                    // If camera was previously on, turn it off
                     stopCamera();
                 };
             }
@@ -2376,45 +1440,35 @@
             if(btnCam && video && scanOverlay && cameraPlaceholder) {
                 btnCam.onclick = async () => {
                     if(cameraStream) {
-                        // Capture functionality
                         const canvas = document.getElementById('face-canvas');
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                         const ctx = canvas.getContext('2d');
-                        // Draw current frame
                         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                         faceData = canvas.toDataURL('image/jpeg');
-                        
-                        // Show captured image in video element (stopped)
                         stopCamera();
                         video.srcObject = null;
                         video.src = faceData;
-                        video.poster = faceData; // Ensure it shows
+                        video.poster = faceData; 
                         cameraPlaceholder.style.display = 'none';
                         scanOverlay.style.display = 'none';
                         btnCam.innerText = "Retake";
                         btnCam.style.background = "var(--danger-color)";
                         btnCam.style.color = "white";
-                        
                         checkVerifyInputs();
                     } else {
-                        // Start Camera functionality
                         try {
                             cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                             video.srcObject = cameraStream;
-                            video.poster = ""; // Clear poster
+                            video.poster = "";
                             if(cameraPlaceholder) cameraPlaceholder.style.display = 'none';
                             if(scanOverlay) scanOverlay.style.display = 'none';
                             btnCam.innerText = "Capture";
                             btnCam.style.background = "var(--surface-light)";
                             btnCam.style.color = "var(--text-primary)";
-                            
-                            // Disable submit until captured
                             faceData = null; 
                             checkVerifyInputs();
-                        } catch(e) {
-                            toast('Camera access denied');
-                        }
+                        } catch(e) { toast('Camera access denied'); }
                     }
                 };
             }
@@ -2433,13 +1487,8 @@
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             idCardData = e.target.result;
-                            // Update preview
                             idPreviewContainer.innerHTML = `<img src="${idCardData}" style="width:100%; height:100%; object-fit:contain;">`;
-                            
-                            if(idFilename) {
-                                idFilename.style.display = 'block';
-                                idFilename.innerText = file.name;
-                            }
+                            if(idFilename) { idFilename.style.display = 'block'; idFilename.innerText = file.name; }
                         };
                         reader.readAsDataURL(file);
                     } else {
@@ -2452,31 +1501,18 @@
             }
             function checkVerifyInputs() {
                 const submitBtn = document.getElementById('btn-verify-submit');
-                if(idCardData && faceData) {
-                    if(submitBtn) submitBtn.removeAttribute('disabled');
-                } else {
-                    if(submitBtn) submitBtn.setAttribute('disabled', 'true');
-                }
+                if(idCardData && faceData) { if(submitBtn) submitBtn.removeAttribute('disabled'); } 
+                else { if(submitBtn) submitBtn.setAttribute('disabled', 'true'); }
             }
             if(btnVerifySubmit) {
                 btnVerifySubmit.onclick = async () => {
                     if(!idCardData || !faceData) return;
-
                     const content = document.querySelector('#modal-verify .modal-content');
                     const originalContent = content.innerHTML;
-                    
                     if(btnVerifySubmit) btnVerifySubmit.innerText = "Analyzing...";
                     if(scanOverlay) scanOverlay.style.display = 'block';
-                    
-                    // SIMULATE AI CHECK
-                    // In a real app, you would send 'idCardData' and 'faceData' to your backend here.
-                    // For this demo, we simulate a network request with a timeout.
-                    
                     setTimeout(async () => {
-                        // Success State
                         await update(ref(db, `users/${user.uid}`), { verified: true });
-                        
-                        // Update UI
                         if(content) {
                             content.innerHTML = `
                                 <div style="text-align:center; padding: 20px 0;">
@@ -2487,7 +1523,6 @@
                                 </div>
                             `;
                         }
-                        
                         updateVerifiedUI(true);
                         isVerified = true;
                         stopCamera();
@@ -2500,10 +1535,7 @@
             if(btnCloseComments) {
                 btnCloseComments.onclick = () => {
                     const modal = document.getElementById("modal-comments");
-                    if(modal) {
-                        modal.classList.remove("open");
-                        currentCommentPostId = null;
-                    }
+                    if(modal) { modal.classList.remove("open"); currentCommentPostId = null; }
                 };
             }
             if(btnSubmitComment && commentInput) {
@@ -2512,13 +1544,8 @@
                     const txt = commentInput.value.trim();
                     if(!txt) return;
                     push(ref(db, `comments/${currentCommentPostId}`), {
-                        senderId: user.uid,
-                        text: txt,
-                        time: Date.now()
-                    }).then(() => {
-                        commentInput.value = '';
-                        toast("Commented");
-                    });
+                        senderId: user.uid, text: txt, time: Date.now()
+                    }).then(() => { commentInput.value = ''; toast("Commented"); });
                 };
             }
 
@@ -2527,10 +1554,8 @@
                 btnUnblockChat.onclick = async () => {
                     if(!chatId) return;
                     await update(ref(db, `chats/${chatId}`), { blockedBy: null });
-                    const chatFooter = document.getElementById('chat-footer');
-                    const inputBarWrapper = document.getElementById('input-bar-wrapper');
-                    if(chatFooter) chatFooter.classList.add('hidden');
-                    if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
+                    document.getElementById('chat-footer').classList.add('hidden');
+                    document.getElementById('input-bar-wrapper').classList.remove('hidden');
                     toast("Unblocked");
                 };
             }
@@ -2541,12 +1566,10 @@
                     await remove(ref(db, `messages/${chatId}`));
                     await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
                     await remove(ref(db, `user_chats/${otherUid}/${chatId}`));
-                    
                     const room = document.getElementById("chat-room");
                     const body = document.body;
                     if(room) room.classList.remove("active");
                     if(body) body.classList.remove("chat-active");
-                    
                     loadChats();
                 };
             }
@@ -2556,52 +1579,27 @@
                     await remove(ref(db, `chats/${chatId}`));
                     await remove(ref(db, `messages/${chatId}`));
                     await remove(ref(db, `user_chats/${user.uid}/${chatId}`));
-                    
                     const room = document.getElementById("chat-room");
                     const modal = document.getElementById('modal-chat-deleted');
                     const body = document.body;
-                    
                     if(room) room.classList.remove("active");
                     if(body) body.classList.remove("chat-active");
                     if(modal) modal.classList.remove('open');
                     loadChats();
                 };
             }
-            if(btnCloseContact) {
-                btnCloseContact.onclick = () => {
-                    const modal = document.getElementById('modal-contact-info');
-                    if(modal) modal.classList.remove('open');
-                };
-            }
-
-            // Confirm Modal
-            if(btnConfirmNo) {
-                btnConfirmNo.onclick = () => {
-                    const modal = document.getElementById("modal-confirm");
-                    if(modal) modal.classList.remove("open");
-                };
-            }
-        }); // End DOMContentLoaded
+            if(btnCloseContact) { btnCloseContact.onclick = () => document.getElementById('modal-contact-info').classList.remove('open'); }
+            if(btnConfirmNo) { btnConfirmNo.onclick = () => document.getElementById("modal-confirm").classList.remove("open"); }
+        }); 
 
         onAuthStateChanged(auth, (u) => {
-            if (u) {
-                user = u;
-                init();
-            } else {
-                window.location.href = "index.html";
-            }
+            if (u) { user = u; init(); } else { window.location.href = "index.html"; }
         });
 
         async function init() {
             initTheme();
-            
             const cachedUsersJSON = localStorage.getItem('crypa_users_cache');
-            if (cachedUsersJSON) {
-                try {
-                    users = JSON.parse(cachedUsersJSON);
-                } catch(e) {}
-            }
-
+            if (cachedUsersJSON) { try { users = JSON.parse(cachedUsersJSON); } catch(e) {} }
             onValue(ref(db, `users/${user.uid}`), (s) => {
                 if (s.exists()) {
                     const d = s.val();
@@ -2609,25 +1607,21 @@
                     const pAvatar = document.getElementById("p-avatar");
                     const pBadge = document.getElementById("p-badge");
                     const vBtn = document.getElementById('btn-verify-account');
-                    
                     if(pUsername) pUsername.innerText = d.username;
                     if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
                     if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
-                    if(vBtn) vBtn.classList.toggle('hidden', !!d.verified); // Hide button if verified
-                    
+                    if(vBtn) vBtn.classList.toggle('hidden', !!d.verified); 
                     users[user.uid] = d;
                     localStorage.setItem('crypa_users_cache', JSON.stringify(users));
                     isVerified = !!d.verified;
                 }
             });
-
             const as = await get(ref(db, "users"));
             if (as.exists()) {
                 const dbUsers = as.val();
                 users = { ...users, ...dbUsers };
                 localStorage.setItem('crypa_users_cache', JSON.stringify(users));
             }
-
             setupWallet();
             loadChats();
             buildPrivacyUI();
@@ -2638,11 +1632,8 @@
             const pBadge = document.getElementById("p-badge");
             const vBtn = document.getElementById('btn-verify-account');
             const currBadge = document.getElementById('curr-chat-badge');
-            
             if (pBadge) pBadge.classList.toggle('hidden', !verified);
             if (vBtn) vBtn.classList.toggle('hidden', verified);
-            
-            // Also update the chat badge if we are in a chat
             if(currBadge) {
                 const ud = users[otherUid];
                 if(ud) currBadge.classList.toggle('hidden', !ud.verified);
@@ -2692,15 +1683,22 @@
             }
         });
 
+        // --- CHAT LOGIC (Sorted & Badged) ---
         function renderChatList(enrichedChats) {
             const l = document.getElementById("chat-list");
             if(l) l.innerHTML = "";
             if (!enrichedChats) return;
 
-            const totalChats = Object.keys(enrichedChats).length;
+            // Sort by timestamp descending (Newest first)
+            const sortedChats = Object.values(enrichedChats).sort((a, b) => {
+                const timeA = a.timestamp || 0;
+                const timeB = b.timestamp || 0;
+                return timeB - timeA;
+            });
 
-            for (const id in enrichedChats) {
-                const ouid = enrichedChats[id].otherUid;
+            for (const chat of sortedChats) {
+                const id = chat.id; // ID is needed for dropdown lookup
+                const ouid = chat.otherUid;
                 if(!ouid) continue;
                 const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
                 if(document.getElementById(`chat-item-${id}`)) continue;
@@ -2708,18 +1706,26 @@
                 const item = document.createElement("div");
                 item.className = "chat-item";
                 item.id = `chat-item-${id}`;
-                item.onclick = (e) => {
-                    if(!e.target.closest('.chat-dots')) openChat(id, ouid);
-                };
+                item.onclick = (e) => { if(!e.target.closest('.chat-dots')) openChat(id, ouid); };
 
                 const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
                 const pillHTML = ud.verified ? `<span class="verified-pill">Verified User</span>` : '';
                 const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
                 const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
-                const hasNewMsg = enrichedChats[id].timestamp && ud.lastSeen && (enrichedChats[id].timestamp > ud.lastSeen);
+                
+                // Blue Dot Logic: if chat timestamp > user.lastSeen (approximate) or specific read receipt check
+                // Here we check if the chat entry timestamp is newer than when we last looked at it globally.
+                // Simple implementation: if we have a `lastSeen` global for user.
+                // Better: `user_chats/${uid}/${chatId}/read` timestamp vs chat timestamp.
+                // For this fix, we'll use the existing logic: timestamp > user.lastSeen
+                let hasNewMsg = false;
+                if(chat.timestamp && users[user.uid]) {
+                     const myLastSeen = users[user.uid].lastSeen || 0;
+                     if(chat.timestamp > myLastSeen) hasNewMsg = true;
+                }
                 const badgeHTML = hasNewMsg ? `<div class="new-message-badge"></div>` : '';
 
-                const isBlockedByMe = enrichedChats[id].blockedBy === user.uid;
+                const isBlockedByMe = chat.blockedBy === user.uid;
                 const blockBtnHtml = isBlockedByMe
                     ? `<div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', true)"><i class="material-icons-round">lock_open</i> Unblock</div>`
                     : `<div class="dropdown-item delete" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', false)"><i class="material-icons-round">block</i> Block Chat</div>`;
@@ -2737,7 +1743,7 @@
                         <div class="chat-name">
                             ${ud.username} ${pillHTML}
                         </div>
-                        <div class="chat-msg">${enrichedChats[id].lastMessage}</div>
+                        <div class="chat-msg">${chat.lastMessage}</div>
                     </div>
                     <div class="chat-dots" onclick="event.stopPropagation(); window.toggleDropdown('${id}')">
                         <i class="material-icons-round">more_vert</i>
@@ -2750,16 +1756,11 @@
                 `;
                 l.appendChild(item);
             }
-            if(totalChats > 0 && document.getElementById('c-total-chats')) {
-                document.getElementById('c-total-chats').innerText = totalChats + " Chats";
-                document.getElementById('c-total-chats-row').style.display = 'flex';
-            }
         }
 
         function loadChats() {
             if(!document.getElementById("view-chat").classList.contains("active")) return;
             
-            //1. Priority: Load from LocalStorage
             const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
             if (cachedChatsJSON) {
                 try {
@@ -2768,7 +1769,6 @@
                 } catch(e) {}
             }
 
-            //2. Load from Firebase (Sync)
             onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
                 const l = document.getElementById("chat-list");
                 const d = s.val();
@@ -2784,17 +1784,14 @@
                     if (!cs.exists()) continue;
                     const members = cs.val().members;
                     const ouid = members.find((m) => m !== user.uid);
-                    enrichedChats[id] = { ...d[id], otherUid: ouid, blockedBy: cs.val().blockedBy };
+                    // Add id to object for sorting/rendering
+                    enrichedChats[id] = { ...d[id], id: id, otherUid: ouid, blockedBy: cs.val().blockedBy };
                 }
                 
-                // Save to LocalStorage
                 localStorage.setItem('crypa_chats_list_v3', JSON.stringify(enrichedChats));
                 renderChatList(enrichedChats);
             });
-
-            onValue(ref(db, `users/${user.uid}`), (s) => {
-                if(s.exists()) users[user.uid] = s.val();
-            });
+            onValue(ref(db, `users/${user.uid}`), (s) => { if(s.exists()) users[user.uid] = s.val(); });
         }
 
         window.deleteMyChat = async (id, uid) => {
@@ -2816,12 +1813,8 @@
         };
 
         window.blockUser = async (id, uid, unblock) => {
-            if(unblock) {
-                 await update(ref(db, `chats/${id}`), { blockedBy: null });
-            } else {
-                 await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
-                 toast("User blocked");
-            }
+            if(unblock) { await update(ref(db, `chats/${id}`), { blockedBy: null }); } 
+            else { await update(ref(db, `chats/${id}`), { blockedBy: user.uid }); toast("User blocked"); }
             const item = document.getElementById(`chat-item-${id}`);
             if(item) {
                 const btnDiv = item.querySelector('.dropdown-item:last-child');
@@ -2831,51 +1824,30 @@
                 }
             }
         };
-
-        const contactModal = document.getElementById('modal-contact-info');
         
         function openContactInfo() {
             const ud = users[otherUid];
             if(!ud) return;
-
             const cAvatar = document.getElementById('c-avatar');
             const cUsername = document.getElementById('c-username');
             const cBadge = document.getElementById('c-badge');
-            
             if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
             if(cUsername) cUsername.innerText = ud.username;
             if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
 
             const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
             const cStatus = document.getElementById('c-status');
-            if(cStatus) {
-                cStatus.innerText = isOnline ? "Online" : "Offline";
-                cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
-            }
-
-            const cLastSeen = document.getElementById('c-last-seen');
-            if (cLastSeen) {
-                if (isOnline) {
-                    cLastSeen.innerText = "Now";
-                } else if (ud.lastSeen) {
-                    cLastSeen.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                } else {
-                    cLastSeen.innerText = "Unknown";
-                }
-            }
+            if(cStatus) { cStatus.innerText = isOnline ? "Online" : "Offline"; cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary); }
             
-            if(document.getElementById('c-email-row')) document.getElementById('c-email-row').style.display = 'none';
-            if(document.getElementById('c-joined-row')) document.getElementById('c-joined-row').style.display = 'none';
-            if(document.getElementById('c-total-chats-row')) document.getElementById('c-total-chats-row').style.display = 'none';
-
-            contactModal.classList.add('open');
+            const cLastSeen = document.getElementById('c-last-seen');
+            if (cLastSeen) { cLastSeen.innerText = isOnline ? "Now" : (ud.lastSeen ? new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Unknown"); }
+            
+            document.getElementById('modal-contact-info').classList.add('open');
         }
 
         function openChat(id, uid) {
             chatId = id;
             otherUid = uid;
-            
-            // IMMEDIATE FIX FOR GHOSTING: Clear global cache and DOM immediately
             window.currentMsgsRaw = [];
             document.getElementById("messages-area").innerHTML = "";
             
@@ -2899,7 +1871,6 @@
             if(chatFooter) chatFooter.classList.add('hidden');
             if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
 
-            // Clear reply state
             window.cancelReply();
 
             get(ref(db, `chats/${id}`)).then(s => {
@@ -2924,6 +1895,21 @@
             if (currentMsgListener) currentMsgListener();
             const a = document.getElementById("messages-area");
             if(a) a.innerHTML = "";
+            
+            // Scroll listener for "Down Arrow"
+            if(a) {
+                a.onscroll = () => {
+                    const btn = document.getElementById('btn-scroll-down');
+                    if(btn) {
+                        // Allow some threshold (100px)
+                        if (a.scrollHeight - a.scrollTop > a.clientHeight + 100) {
+                            btn.classList.add('visible');
+                        } else {
+                            btn.classList.remove('visible');
+                        }
+                    }
+                };
+            }
 
             const typingEl = document.createElement("div");
             typingEl.id = "typing-indicator";
@@ -2942,9 +1928,7 @@
                             needsUpdate = true;
                         }
                     }
-                    if(needsUpdate) {
-                        await update(ref(db, `messages/${id}`), updates);
-                    }
+                    if(needsUpdate) { await update(ref(db, `messages/${id}`), updates); }
                 }
             });
 
@@ -2954,9 +1938,7 @@
                 renderCachedMessages();
             });
 
-            if (window.currentMsgsRaw && window.currentMsgsRaw.length > 0) {
-                renderCachedMessages();
-            }
+            if (window.currentMsgsRaw && window.currentMsgsRaw.length > 0) { renderCachedMessages(); }
 
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
                 if(!s.exists()) return;
@@ -2973,9 +1955,7 @@
                     if(isTyping) {
                         typingEl.classList.remove('hidden');
                         if(a) a.scrollTop = a.scrollHeight;
-                    } else {
-                        typingEl.classList.add('hidden');
-                    }
+                    } else { typingEl.classList.add('hidden'); }
                 }
             });
         }
@@ -2989,6 +1969,9 @@
             
             const msgs = window.currentMsgsRaw || [];
 
+            // Save scroll position
+            const wasAtBottom = a.scrollTop + a.clientHeight >= a.scrollHeight - 50;
+
             const html = msgs.map(m => {
                 if (deletedMessages[m.key]) return '';
                 const isMe = m.sender === user.uid;
@@ -3001,22 +1984,22 @@
                     isEmoji = true;
                 }
 
-                // Reply Context HTML
+                // Reply Context HTML with Scroll logic
                 let replyHtml = '';
                 if (m.reply) {
                     const r = m.reply;
-                    // If replying to an image
+                    const replyClickHandler = `document.getElementById('msg-bubble-${r.key}')?.scrollIntoView({behavior:'smooth', block:'center'})`;
+                    
                     if (r.type === 'img') {
                         replyHtml = `
-                            <div class="msg-reply-context">
+                            <div class="msg-reply-context" onclick="${replyClickHandler}">
                                 <span class="reply-meta-name">${r.sender}</span>
                                 <img src="${r.text}" class="reply-content-img" />
                             </div>
                         `;
                     } else {
-                        // Replying to text
                         replyHtml = `
-                            <div class="msg-reply-context">
+                            <div class="msg-reply-context" onclick="${replyClickHandler}">
                                 <span class="reply-meta-name">${r.sender}</span>
                                 <div class="reply-content-text">${r.text}</div>
                             </div>
@@ -3033,22 +2016,15 @@
                     contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
                 }
                 
-                // Add Reply Icon (Next to Delete)
-                // Only show if it's not a big emoji
                 if (!isEmoji) {
                     const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
-                    // Safe escaping for single quotes
                     const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
                 }
                 
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
-                
                 let statusHtml = "";
-                if(isMe) {
-                    statusHtml = `<i class="material-icons-round msg-status" style="font-family: 'Material Icons Round'; font-size: 14px; color: var(--success-color);">done</i>`;
-                }
-
+                if(isMe) { statusHtml = `<i class="material-icons-round msg-status">done</i>`; }
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
 
                 return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
@@ -3064,36 +2040,27 @@
             }).join('');
             if(a) a.insertAdjacentHTML('beforeend', html);
 
-            if(typingEl) {
-                a.appendChild(typingEl);
+            if(typingEl) a.appendChild(typingEl);
+            
+            if(wasAtBottom) {
+                 if(a) a.scrollTop = a.scrollHeight;
+            } else {
+                // if new messages added while user is up, keep position? 
+                // For simplicity, let's just render. The user has the down arrow.
             }
-            if(a) a.scrollTop = a.scrollHeight;
         }
 
         async function sendMsg(txt, type = "text") {
             if (!txt || !chatId) return;
-            
-            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
-                toast("You are blocked by this user");
-                return;
-            }
-
+            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) { toast("You are blocked by this user"); return; }
             const i = document.getElementById("msg-input");
             
-            // Handle Reply Payload
             let replyPayload = null;
             if (replyingTo) {
-                replyPayload = {
-                    key: replyingTo.key,
-                    sender: replyingTo.sender,
-                    text: replyingTo.text, // This could be base64 or text
-                    type: replyingTo.type
-                };
+                replyPayload = { key: replyingTo.key, sender: replyingTo.sender, text: replyingTo.text, type: replyingTo.type };
                 window.cancelReply();
             }
-
             if(i) i.value = "";
-            
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
 
             if (currentChatDetails && currentChatDetails.blockedBy === user.uid) {
@@ -3101,28 +2068,15 @@
                 const bubble = document.createElement("div");
                 bubble.className = "message-bubble sent sent-blocked";
                 bubble.style.alignSelf = "flex-end";
-                bubble.innerHTML = `
-                    <div>${type === 'img' ? '[Image]' : txt}</div>
-                    <div class="msg-meta">
-                        <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                    </div>`;
+                bubble.innerHTML = `<div>${type === 'img' ? '[Image]' : txt}</div><div class="msg-meta"><span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div>`;
                 a.appendChild(bubble);
                 if(a) a.scrollTop = a.scrollHeight;
-                setTimeout(() => {
-                    bubble.style.opacity = '0';
-                    if(bubble) bubble.remove();
-                }, 1000);
+                setTimeout(() => { bubble.style.opacity = '0'; if(bubble) bubble.remove(); }, 1000);
                 return;
             }
 
             const mRef = push(ref(db, `messages/${chatId}`));
-            const payload = { 
-                sender: user.uid, 
-                text: txt, 
-                type: type, 
-                time: Date.now(), 
-                read: false 
-            };
+            const payload = { sender: user.uid, text: txt, type: type, time: Date.now(), read: false };
             if(replyPayload) payload.reply = replyPayload;
             
             await set(mRef, payload);
@@ -3136,13 +2090,10 @@
         if(msgInput) {
             msgInput.addEventListener("input", () => {
                 if (!chatId) return;
-                // Only show typing if not just image placeholder
                 if(msgInput.value !== "[Image Attachment]") {
                     set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
                     clearTimeout(typingTimeout);
-                    typingTimeout = setTimeout(() => {
-                        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-                    }, 2000);
+                    typingTimeout = setTimeout(() => { set(ref(db, `chats/${chatId}/typing/${user.uid}`), false); }, 2000);
                 }
             });
         }
@@ -3151,10 +2102,7 @@
             const list = document.getElementById('comments-list');
             if(list) list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">Loading...</div>';
             onValue(ref(db, `comments/${postKey}`), (s) => {
-                if(!s.exists()) {
-                    list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No comments yet.</div>';
-                    return;
-                }
+                if(!s.exists()) { list.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:20px;">No comments yet.</div>'; return; }
                 const comments = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 comments.sort((a, b) => a.time - b.time);
                 
@@ -3163,24 +2111,18 @@
                     const u = users[c.senderId] || { username: 'Unknown' };
                     const isMe = c.senderId === user.uid;
                     const bubbleClass = isMe ? 'me' : 'them';
-                    html += `
-                        <div class="comment-bubble ${bubbleClass}">
-                            <span class="comment-author">${u.username}</span>
-                            ${c.text}
-                        </div>
-                    `;
+                    html += `<div class="comment-bubble ${bubbleClass}"><span class="comment-author">${u.username}</span>${c.text}</div>`;
                 });
                 if(list) list.innerHTML = html;
             });
         }
 
-        // FEED LOGIC with Caching
+        // --- FEED LOGIC WITH NEW UI & CACHING ---
         function loadFeed(useCache = false) {
             const container = document.getElementById('feed-content');
             if (!container) return;
 
-            // 1. Priority: Load from LocalStorage
-            const cachedFeed = localStorage.getItem('crypa_feed_cache_v2');
+            const cachedFeed = localStorage.getItem('crypa_feed_cache_v3');
             if(useCache && cachedFeed) {
                 try {
                     allPostsRaw = JSON.parse(cachedFeed);
@@ -3191,7 +2133,6 @@
                 } catch(e) {}
             }
 
-            // 2. Load from Firebase
             onValue(ref(db, 'posts'), (s) => {
                 if(!s.exists()) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
@@ -3200,13 +2141,15 @@
 
                 const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 const now = Date.now();
-
+                
+                // Filter: Keep money posts forever. Keep others < 3 days.
                 const activePosts = posts.filter(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
                     return !isOld || isMoney;
                 });
 
+                // Clean up old text/img posts from DB (optional housekeeping)
                 posts.forEach(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
@@ -3216,12 +2159,11 @@
                 });
 
                 allPostsRaw = activePosts;
-                // Save to LocalStorage
                 try {
-                    localStorage.setItem('crypa_feed_cache_v2', JSON.stringify(allPostsRaw));
+                    localStorage.setItem('crypa_feed_cache_v3', JSON.stringify(allPostsRaw));
                 } catch(e) {}
                 
-                allPostsRaw.sort(() => Math.random() - 0.5);
+                allPostsRaw.sort(() => Math.random() - 0.5); // Shuffle feed
                 feedOffset = 0;
                 if(container) container.innerHTML = '';
                 renderNextChunk();
@@ -3244,58 +2186,87 @@
                     if(!post) return;
 
                     const el = document.createElement("div");
-                    let uData = users[post.authorId];
-                    if(!uData) uData = { username: 'Unknown', avatar: '', verified: false };
+                    // Owner Data
+                    const ownerId = post.type === 'share' ? post.originalAuthorId : post.authorId;
+                    const sharerData = users[post.authorId] || { username: 'Unknown', avatar: '', verified: false };
+                    const ownerData = users[ownerId] || { username: 'Unknown', avatar: '', verified: false };
 
-                    const vBadge = uData.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
+                    const vBadge = (uid, verified) => verified ? `<i class="material-icons-round verified-badge-sm" style="font-size:12px; color:var(--verified-color); margin-left:2px">check_circle</i>` : '';
 
+                    // --- MONEY POST ---
                     if (post.type === 'money') {
                         el.className = 'money-post-card';
                         el.innerHTML = `
                             <div style="z-index:2">
                                 <div style="font-size:12px; opacity:0.8">Crypto Post!</div>
                                 <div class="money-amount">${post.amount} ETH</div>
-                                <div style="margin-bottom:10px">By ${uData.username}</div>
+                                <div style="margin-bottom:10px">By ${sharerData.username}</div>
                                 <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
                             </div>
                             <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
                         `;
-                    } else {
+                    } 
+                    // --- SHARED POST ---
+                    else if (post.type === 'share') {
                         el.className = 'post-card';
+                        
+                        // Content Logic for Shared Post
+                        let innerContent = '';
+                        if (post.originalType === 'text') {
+                            innerContent = `<div class="post-content-text">${post.originalContent}</div>`;
+                        } else if (post.originalType === 'img') {
+                            // Image logic with cropping
+                            const dims = post.originalImgDims;
+                            const isLandscape = dims && dims.w > dims.h;
+                            const cropClass = isLandscape ? 'crop-1-1' : 'keep-ratio';
+                            innerContent = `
+                                <div class="post-image-container ${cropClass}">
+                                    <img src="${post.originalContent}" loading="lazy" />
+                                </div>
+                            `;
+                        }
+
+                        el.innerHTML = `
+                            <div class="post-header">
+                                <img src="${sharerData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="post-avatar" />
+                                <div class="post-username">${sharerData.username} ${vBadge(post.authorId, sharerData.verified)}</div>
+                            </div>
+                            <div class="shared-banner">
+                                <i class="material-icons-round" style="font-size:14px; margin-right:4px">share</i> Shared from 
+                                <span class="shared-owner">${ownerData.username} ${vBadge(ownerId, ownerData.verified)}</span>
+                            </div>
+                            ${innerContent}
+                            ${getPostActions(post.key)}
+                        `;
+                    } 
+                    // --- NORMAL POST ---
+                    else {
+                        el.className = 'post-card';
+                        
                         let contentHTML = '';
                         if (post.type === 'img') {
-                            contentHTML = `<img src="${post.content}" class="post-content-img">`;
+                            const isLandscape = post.w > post.h;
+                            const cropClass = isLandscape ? 'crop-1-1' : 'keep-ratio';
+                            contentHTML = `
+                                <div class="post-image-container ${cropClass}">
+                                    <img src="${post.content}" loading="lazy" />
+                                </div>
+                            `;
                         }
                         if(post.type !== 'img' && post.content) {
                             contentHTML += `<div class="post-content-text">${post.content}</div>`;
                         }
                         
-                        const actionsHTML = `
-                            <div class="post-actions">
-                                <button class="comment-trigger-btn" onclick="window.openComments('${post.key}')">
-                                    <i class="material-icons-round" style="font-size:16px">chat_bubble_outline</i>
-                                </button>
-                                <div class="like-container">
-                                    <div class="like-count" id="like-count-${post.key}">0</div>
-                                    <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}', event)">favorite_border</i>
-                                </div>
-                            </div>
-                        `;
-
                         el.innerHTML = `
                             <div class="post-header">
-                                <div class="avatar-wrapper">
-                                    <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-avatar" style="width:35px; height:35px">
-                                    ${vBadge}
-                                </div>
-                                <div style="font-weight:600">${uData.username}</div>
+                                <img src="${sharerData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="post-avatar" />
+                                <div class="post-username">${sharerData.username} ${vBadge(post.authorId, sharerData.verified)}</div>
                             </div>
                             ${contentHTML}
-                            ${actionsHTML}
+                            ${getPostActions(post.key)}
                         `;
                     }
                     
-                    // FIXED: Call updateLikeUI AFTER appendChild so the element exists
                     container.appendChild(el);
                     updateLikeUI(post.key);
                     updateCommentUI(post.key);
@@ -3304,18 +2275,30 @@
 
             const loader = document.getElementById('feed-loader');
             if (loader) {
-                if (feedOffset >= allPostsRaw.length) {
-                    loader.classList.add('hidden');
-                } else {
-                    loader.classList.remove('hidden');
-                }
+                if (feedOffset >= allPostsRaw.length) { loader.classList.add('hidden'); } 
+                else { loader.classList.remove('hidden'); }
             }
+        }
+
+        function getPostActions(key) {
+            return `
+                <div class="post-actions">
+                    <button class="post-action-btn" onclick="window.openComments('${key}')">
+                        <i class="material-icons-round">chat_bubble_outline</i> <span id="comment-count-${key}">0</span>
+                    </button>
+                    <button class="post-action-btn" onclick="window.toggleLike('${key}', event)">
+                        <i class="material-icons-round" id="like-btn-${key}">favorite_border</i> <span id="like-count-${key}">0</span>
+                    </button>
+                    <button class="post-action-btn" onclick="event.stopPropagation(); window.triggerShare(event, '${key}')">
+                        <i class="material-icons-round">share</i>
+                    </button>
+                </div>
+            `;
         }
 
         function updateLikeUI(postKey) {
             const countEl = document.getElementById(`like-count-${postKey}`);
             const btnEl = document.getElementById(`like-btn-${postKey}`);
-            
             if(!countEl || !btnEl) return;
 
             onValue(ref(db, `likes/${postKey}`), (snapshot) => {
@@ -3326,18 +2309,17 @@
                 if(snapshot.exists()) {
                     const likes = snapshot.val();
                     const count = likes ? Object.keys(likes).length : 0;
-                    cEl.innerText = formatLikes(count);
-
+                    cEl.innerText = count;
                     if (likes && likes[user.uid]) {
-                        bEl.classList.add('active');
+                        bEl.classList.add('active-like');
                         bEl.innerText = 'favorite';
                     } else {
-                        bEl.classList.remove('active');
+                        bEl.classList.remove('active-like');
                         bEl.innerText = 'favorite_border';
                     }
                 } else {
                     cEl.innerText = "0";
-                    bEl.classList.remove('active');
+                    bEl.classList.remove('active-like');
                     bEl.innerText = 'favorite_border';
                 }
             });
@@ -3346,15 +2328,12 @@
         function updateCommentUI(postKey) {
             const countEl = document.getElementById(`comment-count-${postKey}`);
             if(!countEl) return;
-
             onValue(ref(db, `comments/${postKey}`), (snapshot) => {
                 const currentEl = document.getElementById(`comment-count-${postKey}`);
                 if(!currentEl) return;
-
                 if(snapshot.exists()) {
                     const comments = snapshot.val();
-                    const count = comments ? Object.keys(comments).length : 0;
-                    currentEl.innerText = count;
+                    currentEl.innerText = comments ? Object.keys(comments).length : 0;
                 } else {
                     currentEl.innerText = "0";
                 }
@@ -3368,6 +2347,68 @@
                     renderNextChunk();
                 }
             });
+        }
+
+        // Share to Chat Logic
+        async function loadShareChatList() {
+            const list = document.getElementById('share-chat-list-container');
+            if(list) list.innerHTML = "";
+            
+            const s = await get(ref(db, `user_chats/${user.uid}`));
+            if(s.exists()) {
+                const chats = s.val();
+                for(const id in chats) {
+                    const cs = await get(ref(db, `chats/${id}`));
+                    if(!cs.exists()) continue;
+                    const members = cs.val().members;
+                    const ouid = members.find((m) => m !== user.uid);
+                    const ud = users[ouid] || { username: 'User', avatar: '' };
+                    
+                    const item = document.createElement("div");
+                    item.className = "chat-item";
+                    item.innerHTML = `<img src="${ud.avatar}" class="chat-avatar" style="width:35px;height:35px; margin-right:10px"> <div>${ud.username}</div>`;
+                    item.onclick = () => {
+                        sendSharedPostToChat(id, ouid);
+                        document.getElementById('modal-share-chat-list').classList.remove('open');
+                    };
+                    list.appendChild(item);
+                }
+            } else {
+                list.innerHTML = "<div style='text-align:center; color:var(--text-secondary); padding:20px;'>No chats available.</div>";
+            }
+        }
+
+        async function sendSharedPostToChat(chatId, otherUid) {
+            if(!postToShare) return;
+            
+            // Construct a nice message text for the chat
+            let textMsg = "";
+            if(postToShare.type === 'text') textMsg = `📄 "${postToShare.content.substring(0, 30)}..."`;
+            else if(postToShare.type === 'img') textMsg = "🖼️ Image Post";
+            else textMsg = "Post";
+            
+            // Actually, we can just send a message with the content
+            const content = `Shared a post:\n${postToShare.type === 'text' ? postToShare.content : postToShare.type === 'img' ? '[Image]' : postToShare.amount + ' ETH'}`;
+            
+            // Logic to open chat and send
+            // We use a temporary override of global chatId or just call sendMsg directly
+            // But sendMsg relies on global `chatId`.
+            const oldChatId = window.chatId;
+            const oldOtherUid = window.otherUid;
+            
+            window.chatId = chatId;
+            window.otherUid = otherUid;
+            
+            // Setup details
+            const cs = (await get(ref(db, `chats/${chatId}`))).val();
+            window.currentChatDetails = cs;
+            
+            await sendMsg(content, "text");
+            
+            // Restore
+            window.chatId = oldChatId;
+            window.otherUid = oldOtherUid;
+            toast("Shared to chat!");
         }
 
         function parseAIContent(text) {
