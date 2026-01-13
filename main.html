@@ -46,7 +46,7 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             font-family: "Inter", sans-serif;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch;
         }
         body {
             font-family: "Inter", sans-serif;
@@ -63,7 +63,7 @@
         .scrollable {
             flex:1;
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
         .scrollable::-webkit-scrollbar { display: none; }
 
@@ -104,6 +104,8 @@
             font-weight: 700;
             letter-spacing: -0.5px;
         }
+        /* Feed specific header buttons */
+        .feed-header-btn.active { color: var(--primary-color); background: rgba(91, 107, 242, 0.1); border-radius: 50%; }
 
         /* --- Bottom Nav --- */
         .bottom-nav {
@@ -317,11 +319,28 @@
             padding: 8px 14px;
             max-width: 80%;
             word-wrap: break-word;
+            /* Ensure big emojis align right */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
         .sent-blocked {
             background-color: var(--text-secondary);
             opacity: 0.5;
         }
+
+        /* Big Emoji Fix */
+        .big-emoji-msg {
+            background: transparent !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            font-size: 64px;
+            line-height: 1;
+            max-width: 300px;
+            align-self: flex-end; /* Force right align for sent big emojis */
+        }
+        .big-emoji-msg .msg-meta { display: none; }
 
         /* Reply Context Styling */
         .msg-reply-context {
@@ -363,11 +382,6 @@
             display: inline-block;
         }
         .reply-content-text {
-            /* Truncate logic handled via CSS/JS */
-            display: inline-block;
-            vertical-align: middle;
-            line-height: 1.3;
-            /* Magic number for ~3 lines approximation in small font */
             max-height: 4.5em; 
             overflow: hidden;
             text-overflow: ellipsis;
@@ -375,18 +389,6 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
         }
-
-        /* Big Emoji */
-        .big-emoji-msg {
-            background: transparent !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
-            font-size: 64px;
-            line-height: 1;
-            max-width: 300px;
-        }
-        .big-emoji-msg .msg-meta { display: none; }
 
         .delete-msg-icon, .reply-msg-icon {
             position: absolute;
@@ -401,6 +403,7 @@
             border-radius: 50%;
             padding: 2px;
         }
+        /* Fix icon positions for sent messages */
         .sent .delete-msg-icon { right: 4px; color: rgba(255,255,255,0.8); }
         .sent .reply-msg-icon { right: 28px; color: rgba(255,255,255,0.8); }
         .received .delete-msg-icon { right: 4px; color: rgba(255,255,255,0.6); }
@@ -433,7 +436,43 @@
             font-family: 'Material Icons Round';
             color: var(--success-color);
         }
-        /* Scroll to bottom button */
+        
+        /* Link Post Bubble in Chat */
+        .msg-link-post {
+            background: var(--surface-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            max-width: 250px;
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .msg-link-post-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #333;
+        }
+        .msg-link-post-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .msg-link-post-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        .msg-link-post-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
         #scroll-bottom-btn {
             position: absolute;
             bottom: 20px;
@@ -457,7 +496,6 @@
         #scroll-bottom-btn.show { opacity: 1; pointer-events: auto; }
         #scroll-bottom-btn:active { transform: translateX(-50%) scale(0.9); }
 
-        /* Input Bar */
         .input-bar {
             background: var(--surface-color);
             padding: 8px 12px;
@@ -539,18 +577,19 @@
         .btn-send { background: var(--primary-color); color: white; }
         .btn-money { background: #fbbf24; color: #000; }
         
-        /* --- Feed UI Redesign --- */
+        /* --- Feed UI --- */
         .post-card {
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
-            margin-bottom: 0; /* Compact list */
+            margin-bottom: 20px; /* More space between posts */
         }
         .post-header {
             display: flex;
             align-items: center;
             padding: 12px 16px;
             gap: 12px;
+            position: relative;
         }
         .post-avatar {
             width: 42px;
@@ -578,7 +617,7 @@
             color: var(--text-secondary);
         }
         
-        /* Share Header */
+        /* Shared Header */
         .shared-header {
             display: flex;
             align-items: center;
@@ -596,15 +635,14 @@
         /* Content */
         .post-content-text {
             padding: 4px 16px 12px;
-            font-size: 16px; /* Bigger as requested */
-            line-height: 1.5;
+            font-size: 18px; /* Bigger */
+            line-height: 1.4;
             color: var(--text-primary);
-            font-weight: 400;
+            font-weight: 500; /* Bolder */
         }
         .post-media-container {
             width: 100%;
             background: #000;
-            /* Force 1:1 aspect ratio container as requested for big images */
             aspect-ratio: 1 / 1; 
             overflow: hidden;
             display: flex;
@@ -614,7 +652,7 @@
         .post-img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Crop to 1:1 */
+            object-fit: cover;
             display: block;
         }
         .post-img.small-ratio {
@@ -632,11 +670,11 @@
         .action-icon-btn {
             background: none;
             border: none;
-            color: var(--text-primary);
+            color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px; /* Tighter gap */
             font-size: 13px;
             font-family: 'Inter', sans-serif;
             padding: 0;
@@ -645,6 +683,12 @@
         .action-icon-btn:active i { transform: scale(1.2); }
         .action-icon-btn.liked { color: var(--danger-color); }
         .action-icon-btn.liked i { font-weight: bold; }
+        
+        .action-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
 
         /* Money Post */
         .money-post-card {
@@ -1012,7 +1056,7 @@
         .withdraw-btn { background: #ef4444; }
         .receive-btn { background: #22c55e; }
 
-        /* Share Selection */
+        /* Share Options */
         .share-options {
             display: flex;
             gap: 15px;
@@ -1035,17 +1079,59 @@
         .share-option-card i { font-size: 32px; color: var(--primary-color); }
         .share-option-card span { font-size: 12px; color: var(--text-primary); }
 
+        /* Chat List for Share Modal */
+        .chat-list-select {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .chat-select-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            gap: 10px;
+        }
+        .chat-select-item:active { background: var(--surface-light); }
+        .chat-select-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .chat-select-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+
+        /* AI Section Specifics */
+        .ai-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+        }
         .ai-message {
-            max-width: 85%;
-            padding: 12px 18px;
+            max-width: 90%;
+            padding: 14px 18px;
             border-radius: 18px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             font-size: 15px;
             line-height: 1.5;
             word-wrap: break-word;
+            position: relative;
         }
-        .ai-message.user { align-self: flex-end; background: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
-        .ai-message.bot { align-self: flex-start; background: var(--surface-light); color: var(--text-primary); border-bottom-left-radius: 4px; }
+        .ai-message.user { 
+            align-self: flex-end; 
+            background: var(--primary-color); 
+            color: white; 
+            border-bottom-right-radius: 4px;
+            margin-left: auto; /* Force right very */
+        }
+        .ai-message.bot { 
+            align-self: flex-start; 
+            background: var(--surface-light); 
+            color: var(--text-primary); 
+            border-bottom-left-radius: 4px;
+            margin-right: auto; /* Force left very */
+        }
         .typing-bubble {
             background: var(--surface-light);
             border-radius: 16px;
@@ -1056,6 +1142,18 @@
             width: fit-content;
             margin-bottom: 12px;
             align-self: flex-start;
+        }
+        
+        /* Post Options Dropdown */
+        .post-options-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -1112,10 +1210,11 @@
     <!-- View: Feed -->
     <div id="view-feed" class="view-container">
         <div class="app-header">
+            <button class="action-btn feed-header-btn" data-target="view-chat"><i class="material-icons-round">arrow_back_ios</i></button>
             <div class="header-title-center">
                 <div class="app-title">Feed</div>
             </div>
-            <button class="action-btn" id="btn-refresh-feed"><i class="material-icons-round">refresh</i></button>
+            <button class="action-btn feed-header-btn" id="btn-feed-pen"><i class="material-icons-round">edit_note</i></button>
         </div>
         <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
             <div id="feed-loader" class="feed-loader hidden">Loading <div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
@@ -1129,9 +1228,9 @@
 
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
-        <div class="app-header">
-            <div class="header-title-center">
-                <div class="app-title">Crypa AI</div>
+        <div class="app-header ai-header">
+            <button class="action-btn" data-target="view-profile"><i class="material-icons-round">home</i></button>
+            <div class="header-title-center" style="display:none;"> <!-- Title removed for center alignment preference -->
             </div>
             <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
         </div>
@@ -1240,6 +1339,14 @@
                 </div>
             </div>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-share-chat-list" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Select Chat</h3>
+            <div id="share-chat-list-container" class="chat-list-select"></div>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary); margin-top:15px;" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
@@ -1410,13 +1517,11 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
         
-        // Using a robust public RPC for Mainnet
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const k = "c2skb3ItdjEtN2Y3MjY3M2IyMzMzMDkyOThkNjM3ZmM2Mzg5NjZiNTViY2ZmZTMyNTdlMzFjNDIzMTNhODFmODQwZmQ3NmJmNw==";
+        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; // Base64 Encoded Key
         const aiKey = atob(k); 
         
-        // Updated strict prompt
         const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and the specific features of the Crypa App (Chat, Feed, Wallet). If the question is about anything else (general knowledge, weather, sports, etc), refuse politely. Keep answers short, technical, and use bold for key terms.";
 
         let user = null;
@@ -1437,14 +1542,11 @@
         let currentChatDetails = null; 
         let currentCommentPostId = null;
         let currentSharePostId = null;
+        let showMyPostsOnly = false;
 
-        // Verification State
         let idCardData = null;
         let faceData = null;
-
-        // Chat Image Attachment State
         let pendingChatImage = null;
-        // Reply State
         let replyingTo = null; 
 
         const aiHistory = [
@@ -1526,7 +1628,6 @@
                 loadFeed();
                 return;
             }
-            // Simulate transfer logic for giveaway
             const rSnap = await get(ref(db, `users/${user.uid}/wallets/eth`));
             const newBal = (parseFloat(rSnap.val().balance || 0) + parseFloat(amount)).toFixed(4);
             await update(ref(db, `users/${user.uid}/wallets/eth`), { balance: newBal });
@@ -1658,6 +1759,7 @@
             });
 
             const btnNewChat = document.getElementById('btn-new-chat');
+            const btnFeedPen = document.getElementById('btn-feed-pen');
             const btnRefreshFeed = document.getElementById('btn-refresh-feed');
             const btnLogout = document.getElementById('btn-logout');
             const btnBackChat = document.getElementById('btn-back-chat');
@@ -1704,11 +1806,21 @@
             const aiMessages = document.getElementById("ai-messages");
             const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
 
-            // Scroll to bottom logic
             if(scrollBottomBtn) {
                 scrollBottomBtn.onclick = () => {
                     const area = document.getElementById('messages-area');
                     area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' });
+                };
+            }
+
+            // Feed Pen Toggle
+            if(btnFeedPen) {
+                btnFeedPen.onclick = () => {
+                    showMyPostsOnly = !showMyPostsOnly;
+                    btnFeedPen.classList.toggle('active', showMyPostsOnly);
+                    if(showMyPostsOnly) toast("Posts of you");
+                    else toast("All Posts");
+                    loadFeed(false);
                 };
             }
 
@@ -1912,8 +2024,12 @@
                         sendMsg(pendingChatImage, "img");
                         pendingChatImage = null;
                         if(msgInput) msgInput.value = "";
+                        // Keep focus
+                        setTimeout(() => msgInput.focus(), 50);
                     } else if (t && t !== "[Image Attachment]") {
                         sendMsg(t, "text");
+                        // Keep focus
+                        setTimeout(() => msgInput.focus(), 50);
                     }
                 };
             }
@@ -1967,7 +2083,6 @@
                         const tx = await connectedWallet.sendTransaction({ 
                             to: toAddress, 
                             value: amountWei,
-                            // Let ethers estimate gas automatically to be safe, but ensure valid chain
                         });
                         console.log("Transaction Hash:", tx.hash);
                         toast(`Success! Hash: ${tx.hash.substring(0, 10)}...`);
@@ -1997,8 +2112,6 @@
                     toast("Copied");
                 };
             }
-
-            if(btnRefreshFeed) btnRefreshFeed.onclick = () => loadFeed(false);
             
             if(btnPostText && document.getElementById('modal-post-text') && document.getElementById('post-text-content')) {
                 btnPostText.onclick = () => {
@@ -2068,12 +2181,11 @@
                             let res = img.src;
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            // Resize for Firebase limits
                             canvas.width = 800;
                             canvas.height = (canvas.width / img.width) * img.height;
                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                             res = canvas.toDataURL('image/jpeg', quality);
-                            while(res.length > 800000 && quality > 0.1) { // Limit to ~800KB to be safe
+                            while(res.length > 800000 && quality > 0.1) {
                                 quality -= 0.1;
                                 res = canvas.toDataURL('image/jpeg', quality);
                             }
@@ -2335,7 +2447,6 @@
             window.openShareSelect = (postId) => {
                 currentSharePostId = postId;
                 const post = allPostsRaw.find(p => p.key === postId);
-                // Prevent re-sharing shared posts
                 if(post && post.sharedFrom) {
                     toast("Cannot share a shared post again");
                     return;
@@ -2366,13 +2477,34 @@
                 btnShareChat.onclick = () => {
                     if(!currentSharePostId) return;
                     shareModal.classList.remove('open');
-                    // Logic to select a chat is complex in this UI. 
-                    // For simplicity, we'll prompt user to open a chat manually or copy link.
-                    // Implementing "Send to..." modal would require full chat list integration here.
-                    toast("Open a chat to send the post link");
-                    // Ideally, we store the post ID in a clipboard state and insert it when user types in chat
-                    navigator.clipboard.writeText(`https://crypa.pro/post/${currentSharePostId}`);
-                    toast("Link copied to clipboard");
+                    // Render Chat List in new modal
+                    const listContainer = document.getElementById('share-chat-list-container');
+                    listContainer.innerHTML = '';
+                    
+                    const enrichedChats = {};
+                    // We need the recent chats, using cached or fetching
+                    const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
+                    if(cachedChatsJSON) {
+                        try {
+                            const chats = JSON.parse(cachedChatsJSON);
+                            // Render top 5 recent
+                            Object.values(chats).slice(0, 5).forEach(chat => {
+                                const uid = chat.otherUid;
+                                const ud = users[uid] || { username: 'Unknown', avatar: '' };
+                                const item = document.createElement('div');
+                                item.className = 'chat-select-item';
+                                item.innerHTML = `
+                                    <img src="${ud.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-select-avatar">
+                                    <span class="chat-select-name">${ud.username}</span>
+                                `;
+                                item.onclick = () => {
+                                    sendSharedPost(chat.id, uid);
+                                };
+                                listContainer.appendChild(item);
+                            });
+                        } catch(e){}
+                    }
+                    document.getElementById('modal-share-chat-list').classList.add('open');
                 };
             }
 
@@ -2448,10 +2580,8 @@
             if (localPk) {
                 try {
                     wallet = new ethers.Wallet(localPk);
-                    // Real balance check
                     const b = await rpc.getBalance(wallet.address);
                     wallet.balance = parseFloat(ethers.formatEther(b)).toFixed(4);
-                    // Update DB balance (which serves as internal transfer ledger)
                     update(ref(db, `users/${user.uid}/wallets/eth`), { balance: wallet.balance });
                 } catch(e) {
                     console.log("RPC Error or wallet issue", e);
@@ -2469,7 +2599,6 @@
                     wallet = { address: freshW.address, balance: wData.balance };
                     localStorage.setItem(`pk_${user.uid}`, freshW.privateKey);
                     await update(ref(db, `users/${user.uid}/wallets/eth`), { address: wallet.address });
-                    // Check real balance immediately
                     try {
                         const b = await rpc.getBalance(wallet.address);
                         wallet.balance = parseFloat(ethers.formatEther(b)).toFixed(4);
@@ -2496,11 +2625,10 @@
             if(l) l.innerHTML = "";
             if (!enrichedChats) return;
 
-            // Sort by timestamp descending (newest first)
             const sortedChats = Object.values(enrichedChats).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
             sortedChats.forEach(chat => {
-                const id = chat.id; // Need to ensure id is passed
+                const id = chat.id; 
                 const ouid = chat.otherUid;
                 if(!ouid) return;
                 const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
@@ -2517,7 +2645,6 @@
                 const pillHTML = ud.verified ? `<span class="verified-pill">Verified</span>` : '';
                 const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
                 const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
-                // New Message Logic: if last msg timestamp > lastSeen of current user
                 const hasNewMsg = chat.timestamp && user.lastSeen && (chat.timestamp > user.lastSeen);
                 const badgeHTML = hasNewMsg ? `<div style="width:10px; height:10px; background:var(--primary-color); border-radius:50%; position:absolute; top:10px; right:45px;"></div>` : '';
 
@@ -2585,7 +2712,6 @@
                     if (!cs.exists()) continue;
                     const members = cs.val().members;
                     const ouid = members.find((m) => m !== user.uid);
-                    // Attach ID to object for sorting
                     enrichedChats[id] = { ...d[id], id: id, otherUid: ouid, blockedBy: cs.val().blockedBy };
                 }
                 
@@ -2619,7 +2745,7 @@
                  await update(ref(db, `chats/${id}`), { blockedBy: user.uid });
                  toast("User blocked");
             }
-            loadChats(); // Reload UI
+            loadChats();
         };
 
         function openChat(id, uid) {
@@ -2684,7 +2810,6 @@
             typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
             if(a) a.appendChild(typingEl);
 
-            // Scroll Handler
             a.onscroll = () => {
                 const btn = document.getElementById('scroll-bottom-btn');
                 if(a.scrollTop < a.scrollHeight - a.clientHeight - 200) {
@@ -2748,7 +2873,6 @@
             const typingEl = document.getElementById('typing-indicator');
             const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
             
-            // Save scroll position to prevent jumping if updating
             const prevScrollHeight = a.scrollHeight;
             const prevScrollTop = a.scrollTop;
             const wasAtBottom = a.scrollTop + a.clientHeight >= a.scrollHeight - 50;
@@ -2776,8 +2900,8 @@
                     const safeText = (r.text || '').replace(/"/g, '&quot;');
                     const safeSender = (r.sender || 'User').replace(/'/g, "\\'");
                     
-                    // Truncate and show ...
-                    // Added CSS class .reply-content-text handles line-clamp 3
+                    // Use the direct reference (text) which contains the Base64
+                    // This avoids duplicating the file in a new upload, just references the existing string
                     if (r.type === 'img') {
                         replyHtml = `
                             <div class="msg-reply-context" onclick="window.scrollToMessage('${r.key}')">
@@ -2798,15 +2922,29 @@
                 let contentHtml = "";
                 let replyIconHtml = "";
                 
-                if (m.type === 'img') {
+                // Link Post Handling
+                if(m.type === 'link_post') {
+                    const postData = JSON.parse(m.text);
+                    contentHtml = `
+                        <div class="msg-link-post" onclick="window.handleLinkPostClick('${postData.postId}', '${postData.originalAuthor}')">
+                            <img src="${postData.img || 'https://ui-avatars.com/api/?name=Post'}" class="msg-link-post-img">
+                            <div class="msg-link-post-info">
+                                <div class="msg-link-post-title">Post from ${postData.originalAuthor}</div>
+                                <div class="msg-link-post-meta">Tap to view</div>
+                            </div>
+                        </div>
+                    `;
+                } else if (m.type === 'img') {
                     contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
                 } else if (m.text) {
                     contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
                 }
                 
+                // Add Reply Icon
                 if (!isEmoji) {
                     const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
                     const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    // Fixed reply logic: allow replying to self
                     replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
                 }
                 
@@ -2841,6 +2979,61 @@
             }
         }
 
+        // Function to send shared post link
+        async function sendSharedPost(targetChatId, targetUid) {
+            const post = allPostsRaw.find(p => p.key === currentSharePostId);
+            if(!post) return;
+
+            const originalUser = users[post.authorId] || { username: 'User', avatar: '' };
+            const contentPayload = {
+                postId: currentSharePostId,
+                originalAuthor: originalUser.username,
+                img: post.type === 'img' ? post.content : null
+            };
+
+            const mRef = push(ref(db, `messages/${targetChatId}`));
+            await set(mRef, {
+                sender: user.uid,
+                text: JSON.stringify(contentPayload),
+                type: 'link_post',
+                time: Date.now(),
+                read: false
+            });
+
+            document.getElementById('modal-share-chat-list').classList.remove('open');
+            toast("Post sent");
+        }
+
+        // Handle clicking a post link in chat
+        window.handleLinkPostClick = (postId, originalAuthor) => {
+            // Switch to Feed
+            const feedBtn = document.querySelector('[data-target="view-feed"]');
+            if(feedBtn) feedBtn.click();
+
+            // Wait for transition then scroll
+            setTimeout(() => {
+                const container = document.getElementById('feed-content');
+                // Reset filters if active
+                if(showMyPostsOnly) {
+                    showMyPostsOnly = false;
+                    document.getElementById('btn-feed-pen').classList.remove('active');
+                    loadFeed(true); // Reload cache with all posts
+                }
+
+                // In a real app, we'd calculate offset. Here we simulate "find and scroll"
+                // Since we render chunks, we can't easily find DOM element until it's rendered.
+                // We'll scroll to bottom (assuming recent) or show toast.
+                toast(`Viewing post from ${originalAuthor}`);
+                // Simulate a scroll animation
+                container.style.transition = "transform 1s ease-out";
+                container.style.transform = "translateY(20px)";
+                setTimeout(() => {
+                    container.style.transform = "translateY(0)";
+                    container.style.transition = "none";
+                }, 1000);
+            }, 300);
+        };
+
         async function sendMsg(txt, type = "text") {
             if (!txt || !chatId) return;
             
@@ -2853,6 +3046,7 @@
             
             let replyPayload = null;
             if (replyingTo) {
+                // Direct copy of the reference, no re-processing
                 replyPayload = {
                     key: replyingTo.key,
                     sender: replyingTo.sender,
@@ -2862,7 +3056,8 @@
                 window.cancelReply();
             }
 
-            if(i) i.value = "";
+            // Keep input value or focus
+            if(i) i.value = ""; // Clearing text usually keeps focus
             
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
 
@@ -2900,6 +3095,11 @@
             const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
             update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
             update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
+            
+            // Restore focus if not blocked
+            setTimeout(() => {
+                if(i) i.focus();
+            }, 50);
         }
 
         const msgInput = document.getElementById("msg-input");
@@ -2952,7 +3152,6 @@
             const cacheTime = localStorage.getItem('crypa_feed_cache_time');
             const now = Date.now();
             
-            // Cache valid for 3 days
             if(useCache && cachedFeed && cacheTime && (now - parseInt(cacheTime)) < THREE_DAYS_MS) {
                 try {
                     allPostsRaw = JSON.parse(cachedFeed);
@@ -2963,7 +3162,6 @@
                 } catch(e) {}
             }
 
-            // Firebase Load
             onValue(ref(db, 'posts'), (s) => {
                 if(!s.exists()) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
@@ -2971,16 +3169,24 @@
                 }
 
                 const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
-                const now = Date.now();
-
-                // Filter old posts unless money type
+                
+                // Filter Logic
                 const activePosts = posts.filter(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
+                    const isShared = p.type === 'shared';
+                    // Shared posts live as long as original exists
+                    if (isShared) {
+                         const original = posts.find(op => op.key === p.originalPostId);
+                         if (!original) return false;
+                         // Check original expiration
+                         const isOriginalOld = (now - original.timestamp) >= THREE_DAYS_MS;
+                         if (isOriginalOld) return false; // Shared post dies if original dies
+                    }
                     return !isOld || isMoney;
                 });
-                
-                // Delete very old posts from DB if author is current user
+
+                // Delete very old posts if author is current user
                 posts.forEach(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
@@ -2989,14 +3195,18 @@
                     }
                 });
 
-                allPostsRaw = activePosts;
+                // Apply "My Posts" filter
+                if(showMyPostsOnly) {
+                    allPostsRaw = activePosts.filter(p => p.authorId === user.uid);
+                } else {
+                    allPostsRaw = activePosts;
+                }
+                
                 try {
                     localStorage.setItem('crypa_feed_cache_v3', JSON.stringify(allPostsRaw));
                     localStorage.setItem('crypa_feed_cache_time', now.toString());
                 } catch(e) {}
                 
-                allPostsRaw.sort(() => Math.random() - 0.5); // Shuffle slightly or sort by time desc? Prompt implied shuffle/mix.
-                // Actually, usually feeds are sorted by time. Let's sort Descending Time.
                 allPostsRaw.sort((a,b) => b.timestamp - a.timestamp);
                 
                 feedOffset = 0;
@@ -3027,6 +3237,7 @@
                     el.className = 'post-card';
 
                     const vBadge = uData.verified ? `<i class="material-icons-round" style="font-size:14px; color:var(--verified-color);">check_circle</i>` : '';
+                    const isMyPost = post.authorId === user.uid;
 
                     // Handle Shared Posts
                     if(post.type === 'shared') {
@@ -3043,14 +3254,23 @@
                         innerContent += `
                             <div class="shared-header">
                                 <img src="${sharedByUser.avatar || 'https://ui-avatars.com/api/?name=User'}" class="shared-avatar">
-                                <span style="flex:1"><span style="font-weight:600">${sharedByUser.username}</span> shared from <span style="font-weight:bold; color:var(--text-primary)">${origUser.username} ${origBadge}</span></span>
-                                <span>${new Date(post.timestamp).toLocaleString()}</span>
+                                <span style="flex:1; font-size:12px; color:var(--text-secondary);"><span style="font-weight:600; color:var(--text-primary);">${sharedByUser.username}</span> shared from <span style="font-weight:bold; color:var(--text-primary)">${origUser.username} ${origBadge}</span></span>
                             </div>
                         `;
 
-                        // Render Original Content inside the card
-                        innerContent += renderOriginalPostContent(originalPost, origUser);
+                        // Render Original Content inside card (just preview copy)
+                        innerContent += renderOriginalPostContent(originalPost, origUser, true);
 
+                        // "Go to Original" button instead of Share
+                        innerContent += `
+                             <div class="post-actions">
+                                <button class="action-icon-btn" onclick="window.goToOriginalPost('${originalPost.key}')" style="color:var(--primary-color); font-weight:600;">
+                                    <i class="material-icons-round" style="font-size:22px;">visibility</i>
+                                    <span style="font-size:13px; color:var(--text-primary); margin-left:4px;">Go to Original</span>
+                                </button>
+                             </div>
+                        `;
+                        
                         el.innerHTML = innerContent;
                     } else {
                         // Normal Post
@@ -3063,19 +3283,16 @@
                                     </div>
                                     <div class="post-time">${new Date(post.timestamp).toLocaleString([],{month:'short', day:'numeric'})}</div>
                                 </div>
-                                <button class="action-btn" style="color:var(--text-secondary); width:30px; height:30px;"><i class="material-icons-round" style="font-size:20px;">more_horiz</i></button>
+                                ${isMyPost ? `<button class="post-options-btn" onclick="event.stopPropagation(); window.openPostOptions('${post.key}')"><i class="material-icons-round">more_horiz</i></button>` : ''}
                             </div>
                         `;
                         
-                        innerContent += renderOriginalPostContent(post, uData);
+                        innerContent += renderOriginalPostContent(post, uData, false);
                         el.innerHTML = innerContent;
                     }
                     
                     container.appendChild(el);
                     
-                    // Need to setup listeners for likes/comments for the ID used
-                    // If shared, we act on the Shared Post ID, not original?
-                    // Usually sharing creates new engagement. Let's attach to this card's ID (post.key)
                     updateLikeUI(post.key);
                     updateCommentUI(post.key);
                 });
@@ -3091,7 +3308,37 @@
             }
         }
 
-        function renderOriginalPostContent(post, userData) {
+        window.goToOriginalPost = (postId) => {
+            // Reset filter if active
+            if(showMyPostsOnly) {
+                showMyPostsOnly = false;
+                document.getElementById('btn-feed-pen').classList.remove('active');
+                loadFeed(true);
+                toast("Original Post");
+            } else {
+                // Scroll simulation
+                const container = document.getElementById('feed-content');
+                container.style.transition = "transform 1s ease-out";
+                container.style.transform = "translateY(20px)";
+                setTimeout(() => {
+                    container.style.transform = "translateY(0)";
+                    container.style.transition = "none";
+                }, 1000);
+            }
+        }
+
+        window.openPostOptions = (postKey) => {
+            const el = document.getElementById(`post-options-${postKey}`);
+            if(!el) return;
+            // Simple prompt logic for this demo
+            if(confirm("Delete this post?")) {
+                 remove(ref(db, `posts/${postKey}`));
+                 toast("Post deleted");
+                 loadFeed(false);
+            }
+        }
+
+        function renderOriginalPostContent(post, userData, isShared) {
             const vBadge = userData.verified ? `<i class="material-icons-round" style="font-size:12px; color:var(--verified-color);">check_circle</i>` : '';
             
             let contentHTML = '';
@@ -3123,26 +3370,26 @@
                 contentHTML += `<div class="post-content-text">${post.content}</div>`;
             }
             
-            // Actions
-            // We use 'post.key' for engagement. If this is a shared post, 'post.key' is the shared post ID.
-            // However, typically comments go to the original. Let's assume engagement is on the wrapper.
-            const actionsHTML = `
-                <div class="post-actions">
-                    <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
-                        <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
-                        <span id="comment-count-${post.key}" style="font-size:13px; color:var(--text-secondary)">0</span>
-                    </button>
-                    <div class="like-container">
-                        <div id="like-count-${post.key}" style="font-size:13px; color:var(--text-secondary); margin-right:4px;">0</div>
-                        <i class="material-icons-round like-btn" id="like-btn-${post.key}" onclick="window.toggleLike('${post.key}', event)">favorite_border</i>
+            // Actions (Hide if shared)
+            if(!isShared) {
+                const actionsHTML = `
+                    <div class="post-actions">
+                        <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
+                            <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
+                            <span class="action-count" id="comment-count-${post.key}">0</span>
+                        </button>
+                        <button class="action-icon-btn" id="like-btn-wrapper-${post.key}" onclick="window.toggleLike('${post.key}', event)">
+                            <span class="action-count" id="like-count-${post.key}">0</span>
+                            <i class="material-icons-round like-btn" id="like-btn-${post.key}">favorite_border</i>
+                        </button>
+                        <button class="action-icon-btn" onclick="window.openShareSelect('${post.key}')">
+                            <i class="material-icons-round" style="font-size:22px;">share</i>
+                        </button>
                     </div>
-                    <button class="action-icon-btn" onclick="window.openShareSelect('${post.key}')">
-                        <i class="material-icons-round" style="font-size:22px;">share</i>
-                    </button>
-                </div>
-            `;
-            
-            return contentHTML + actionsHTML;
+                `;
+                return contentHTML + actionsHTML;
+            }
+            return contentHTML;
         }
 
         function updateLikeUI(postKey) {
@@ -3162,15 +3409,15 @@
                     cEl.innerText = formatLikes(count);
 
                     if (likes && likes[user.uid]) {
-                        bEl.parentElement.classList.add('liked');
+                        bEl.classList.add('liked');
                         bEl.innerText = 'favorite';
                     } else {
-                        bEl.parentElement.classList.remove('liked');
+                        bEl.classList.remove('liked');
                         bEl.innerText = 'favorite_border';
                     }
                 } else {
                     cEl.innerText = "0";
-                    bEl.parentElement.classList.remove('liked');
+                    bEl.classList.remove('liked');
                     bEl.innerText = 'favorite_border';
                 }
             });
