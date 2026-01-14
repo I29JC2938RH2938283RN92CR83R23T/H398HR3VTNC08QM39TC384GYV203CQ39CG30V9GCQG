@@ -71,11 +71,19 @@
             flex: 1;
             position: relative;
             width: 100%;
-            height: calc(100vh - var(--nav-height));
+            height: calc(100vh - var(--nav-height)); /* Adjusted height */
             display: none;
             flex-direction: column;
+            overflow: hidden; /* Prevent outer scroll issues */
         }
         .view-container.active { display: flex; }
+        
+        /* Inner scrollable area for Feed */
+        .feed-scrollable {
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+        }
 
         /* --- Skeleton Loaders --- */
         .skeleton {
@@ -358,7 +366,7 @@
             background: var(--msg-received-bg);
             color: var(--text-primary);
             border-radius: 18px 18px 18px 4px;
-            padding: 10px 14px; /* Adjusted padding */
+            padding: 10px 14px; 
             max-width: 80%;
             width: auto; /* Critical fix */
             word-wrap: break-word;
@@ -758,14 +766,14 @@
         
         /* Content */
         .post-content-text {
-            padding:4px 16px 12px;
+            padding: 4px 16px 12px;
             font-size: 18px;
-            line-height:1.4;
+            line-height: 1.4;
             color: var(--text-primary);
             font-weight: 500;
         }
         .post-caption {
-            padding:4px 16px 12px;
+            padding: 4px 16px 12px;
             font-size: 15px;
             line-height: 1.4;
             color: var(--text-primary);
@@ -798,6 +806,7 @@
             align-items: center;
             padding: 8px 16px;
             gap: 20px;
+            margin-bottom: 12px; /* Ensure spacing */
         }
         .action-icon-btn {
             background: none;
@@ -850,7 +859,7 @@
             font-size: 16px;
         }
 
-        /* Show Tag */
+        /* Show Tag - Higher Z-Index */
         .show-tag {
             position: absolute;
             top: 10px;
@@ -863,6 +872,7 @@
             font-weight: 600;
             text-transform: uppercase;
             pointer-events: none;
+            z-index: 10;
         }
 
         /* --- FABs & Loaders --- */
@@ -1214,7 +1224,7 @@
             /* Dynamic sizing fixes */
             max-width: 90%;
             width: auto; /* Allows expansion */
-            padding: 16px 20px; /* Slightly smaller padding for tighter fit */
+            padding: 16px 20px; 
             border-radius: 20px;
             margin-bottom: 16px;
             font-size: 16px;
@@ -1222,6 +1232,15 @@
             word-wrap: break-word; /* Essential for long text */
             white-space: pre-wrap; /* Essential for line breaks */
             position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Fix for image in AI bubble */
+        .ai-message img {
+            max-width: 100%;
+            display: block;
+            margin-top: 10px;
+            border-radius: 8px;
         }
         .ai-message.user { 
             align-self: flex-end; 
@@ -1271,7 +1290,7 @@
             <div class="fab-btn" id="btn-post-money"><i class="material-icons-round">paid</i></div>
         </div>
         
-        <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
+        <div id="feed-content" class="scrollable feed-scrollable">
             <!-- Skeletons initially -->
             <div class="skeleton-post skeleton"></div>
             <div class="skeleton-post skeleton"></div>
@@ -2026,66 +2045,92 @@
             if(btnAiSend) {
                 btnAiSend.onclick = async () => {
                     if (!aiInput) return;
+                    
+                    // FIX: Handle File Attachment State properly to prevent "Oversized Bubble" error
                     const t = aiInput.value.trim();
-                    if (!t) return;
-                    aiHistory.push({ role: "user", content: t });
-                    renderAI();
-                    aiInput.value = "";
-                    const l = document.createElement("div");
-                    l.className = "ai-message bot";
-                    l.id = "ai-loader";
-                    l.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
-                    if(aiMessages) aiMessages.appendChild(l);
-                    if(aiMessages) aiMessages.scrollTop = aiMessages.scrollHeight;
+                    const fileInput = document.getElementById("ai-file-input");
+                    let hasImage = false;
+                    let imageSrc = null;
 
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 20000);
-
-                    try {
-                        const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                            method: "POST",
-                            headers: {
-                                Authorization: `Bearer ${aiKey}`,
-                                "Content-Type": "application/json",
-                                "HTTP-Referer": window.location.href,
-                                "X-Title": "Crypa Pro"
-                            },
-                            body: JSON.stringify({
-                                model: "mistralai/devstral-2512:free",
-                                messages: aiHistory
-                            }),
-                            signal: controller.signal
-                        });
-
-                        clearTimeout(timeoutId);
-                        const loader = document.getElementById("ai-loader");
-                        if(loader) loader.remove();
-
-                        if (!r.ok) throw new Error(`API Error: ${r.status}`);
-
-                        const d = await r.json();
-                        if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
-                            toast("AI Busy");
-                            return;
+                    if(fileInput && fileInput.files.length > 0) {
+                        hasImage = true;
+                        const file = fileInput.files[0];
+                        // Basic check for image
+                        if(file.type.startsWith('image/')) {
+                            // Show skeleton or loader in chat (simulation) or just process
+                            const reader = new FileReader();
+                            reader.readAsDataURL(file);
+                            await new Promise(resolve => reader.onload = resolve);
+                            imageSrc = reader.result;
                         }
-
-                        let rawContent = d.choices[0].message.content;
-                        if (!rawContent || rawContent.trim().length < 2) {
-                            toast("AI response was empty.");
-                            return;
-                        }
-
-                        let cleanContent = parseAIContent(rawContent);
-                        aiHistory.push({ role: "assistant", content: cleanContent });
-                        renderAI();
-                    } catch (e) {
-                        clearTimeout(timeoutId);
-                        console.error("AI Error:", e);
-                        const loader = document.getElementById("ai-loader");
-                        if(loader) loader.remove();
-                        if (e.name === 'AbortError') toast("Request Timed Out");
-                        else toast("AI Connection Failed (Check API Key)");
                     }
+
+                    // Only send if we have text OR we have successfully processed image
+                    if ((t && t !== "") || (imageSrc)) {
+                         // Clear AI input of "filename" mess if we processed file
+                        if(hasImage && !imageSrc) return; 
+
+                        const content = hasImage ? imageSrc : t;
+                        aiHistory.push({ role: "user", content: content });
+                        renderAI();
+                        
+                        aiInput.value = "";
+                        const l = document.createElement("div");
+                        l.className = "ai-message bot";
+                        l.id = "ai-loader";
+                        l.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+                        if(aiMessages) aiMessages.appendChild(l);
+                        if(aiMessages) aiMessages.scrollTop = aiMessages.scrollHeight;
+
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+                        try {
+                            const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                                method: "POST",
+                                headers: {
+                                    Authorization: `Bearer ${aiKey}`,
+                                    "Content-Type": "application/json",
+                                    "HTTP-Referer": window.location.href,
+                                    "X-Title": "Crypa Pro"
+                                },
+                                body: JSON.stringify({
+                                    model: "mistralai/devstral-2512:free",
+                                    messages: aiHistory
+                                }),
+                                signal: controller.signal
+                            });
+
+                            clearTimeout(timeoutId);
+                            const loader = document.getElementById("ai-loader");
+                            if(loader) loader.remove();
+
+                            if (!r.ok) throw new Error(`API Error: ${r.status}`);
+
+                            const d = await r.json();
+                            if (!d.choices || d.choices.length === 0 || !d.choices[0] || !d.choices[0].message) {
+                                toast("AI Busy");
+                                return;
+                            }
+
+                            let rawContent = d.choices[0].message.content;
+                            if (!rawContent || rawContent.trim().length < 2) {
+                                toast("AI response was empty.");
+                                return;
+                            }
+
+                            let cleanContent = parseAIContent(rawContent);
+                            aiHistory.push({ role: "assistant", content: cleanContent });
+                            renderAI();
+                        } catch (e) {
+                            clearTimeout(timeoutId);
+                            console.error("AI Error:", e);
+                            const loader = document.getElementById("ai-loader");
+                            if(loader) loader.remove();
+                            if (e.name === 'AbortError') toast("Request Timed Out");
+                            else toast("AI Connection Failed (Check API Key)");
+                        }
+                    };
                 };
             }
             if(btnAiClear && aiMessages) {
@@ -2929,6 +2974,7 @@
             const chatFooter = document.getElementById('chat-footer');
             const inputBarWrapper = document.getElementById('input-bar-wrapper');
 
+            // FIX: Blocked Logic
             if(chatFooter) chatFooter.classList.add('hidden');
             if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
 
@@ -2946,6 +2992,7 @@
                     if(modal) modal.classList.add('open');
                 }
 
+                // FIX: Separate Blocked vs Blocker Logic
                 if(data.blockedBy === user.uid) {
                     if(chatFooter) chatFooter.classList.remove('hidden');
                     if(inputBarWrapper) inputBarWrapper.classList.add('hidden');
@@ -2962,7 +3009,7 @@
             const typingEl = document.createElement("div");
             typingEl.id = "typing-indicator";
             typingEl.className = "message-bubble received hidden";
-            typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+            typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
             if(a) a.appendChild(typingEl);
 
             a.onscroll = () => {
@@ -3028,17 +3075,12 @@
             const typingEl = document.getElementById('typing-indicator');
             const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
             
-            // Don't clear innerHTML entirely if we want to maintain scroll position during updates
-            // But for "loads", we cleared it. For "updates", we just want to add new ones.
-            // For simplicity in this iteration, we rebuild.
-            const prevScrollHeight = a.scrollHeight;
-            const prevScrollTop = a.scrollTop;
-            const wasAtBottom = a.scrollTop + a.clientHeight >= a.scrollHeight - 50;
-            
-            // Keep skeleton if loading first time? No, messages area cleared.
-            if(a) a.innerHTML = ""; 
-            
+            // FIX: Avoid clearing innerHTML completely to prevent scroll jumping during updates
+            // Only clear if explicitly needed (like on first load)
             const msgs = window.currentMsgsRaw || [];
+            const firstRender = document.getElementById("messages-area").innerHTML.trim() === "";
+            
+            if(firstRender) a.innerHTML = "";
 
             const html = msgs.map(m => {
                 if (deletedMessages[m.key]) return '';
@@ -3122,15 +3164,13 @@
                     </div>
                 </div>`;
             }).join('');
+            
             if(a) a.insertAdjacentHTML('beforeend', html);
 
             if(typingEl) a.appendChild(typingEl);
             
-            if(wasAtBottom || scrollBottomBtn.classList.contains('show')) {
-                 a.scrollTop = a.scrollHeight;
-            } else {
-                 a.scrollTop = prevScrollTop;
-            }
+            // FIX: Auto Scroll to Bottom
+            setTimeout(() => { a.scrollTop = a.scrollHeight; }, 100);
         }
 
         window.messageUser = async (targetUid) => {
@@ -3160,11 +3200,14 @@
                     loadFeed(true);
                 }
                 toast(`Viewing post from ${originalAuthor}`);
+                // Visual feedback
                 container.style.transition = "transform 1s ease-out";
                 container.style.transform = "translateY(20px)";
                 setTimeout(() => {
                     container.style.transform = "translateY(0)";
                     container.style.transition = "none";
+                    // Ensure content is at bottom
+                    container.scrollTop = container.scrollHeight;
                 }, 1000);
             }, 300);
         };
@@ -3281,6 +3324,11 @@
             const container = document.getElementById('feed-content');
             if (!container) return;
 
+            // FIX: Force scroll to bottom initially
+            const loader = document.getElementById('feed-loader');
+            const skeletons = container.querySelectorAll('.skeleton-post');
+            if(skeletons.length > 0) skeletons.forEach(el => el.remove());
+
             const cachedFeed = localStorage.getItem('crypa_feed_cache_v3');
             const cacheTime = localStorage.getItem('crypa_feed_cache_time');
             const now = Date.now();
@@ -3289,20 +3337,18 @@
                 try {
                     allPostsRaw = JSON.parse(cachedFeed);
                     feedOffset = 0;
-                    // Remove skeletons
-                    const skeletons = container.querySelectorAll('.skeleton-post');
-                    skeletons.forEach(el => el.remove());
-                    
-                    container.innerHTML = ''; 
+                    container.innerHTML = '';
                     renderNextChunk();
+                    // FIX: Scroll to bottom
+                    container.scrollTop = container.scrollHeight;
                     return; 
                 } catch(e) {}
             }
 
             // DB Listener
             onValue(ref(db, 'posts'), (s) => {
-                const skeletons = container.querySelectorAll('.skeleton-post');
-                skeletons.forEach(el => el.remove());
+                const sks = container.querySelectorAll('.skeleton-post');
+                sks.forEach(el => el.remove());
                 
                 if(!s.exists()) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
@@ -3311,14 +3357,13 @@
 
                 const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 
-                // Filtering Logic
                 const activePosts = posts.filter(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
                     const isShared = p.type === 'shared';
                     if (isShared) {
                          const original = posts.find(op => op.key === p.originalPostId);
-                         if (!original) return false; // Hide if original deleted
+                         if (!original) return false;
                          const isOriginalOld = (now - original.timestamp) >= THREE_DAYS_MS;
                          if (isOriginalOld) return false;
                     }
@@ -3350,6 +3395,9 @@
                 feedOffset = 0;
                 if(container) container.innerHTML = '';
                 renderNextChunk();
+                
+                // FIX: Scroll to bottom
+                container.scrollTop = container.scrollHeight;
             });
         }
 
@@ -3428,6 +3476,7 @@
                         
                         innerContent += renderOriginalPostContent(post, uData, false);
                         
+                        // Action buttons (Comment, Like, Message, Share)
                         innerContent += `
                              <div class="post-actions">
                                 <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
@@ -3548,7 +3597,7 @@
 
                 if(snapshot.exists()) {
                     const comments = snapshot.val();
-                    const count = comments ? Object.keys(comments).length :0;
+                    const count = comments ? Object.keys(comments).length : 0;
                     currentEl.innerText = count;
                 } else {
                     currentEl.innerText = "0";
@@ -3596,12 +3645,33 @@
                     if (m.role === "system") return;
                     const d = document.createElement("div");
                     d.className = `ai-message ${m.role === "user" ? "user" : "bot"}`;
-                    d.innerHTML = m.role === 'assistant' ? parseAIContent(m.content) : m.content;
+                    // Check content type to render correctly
+                    const isImg = m.role === 'assistant' && (m.content.startsWith('http') || (m.content.startsWith('data:image') || m.content.startsWith('blob:') || m.content.startsWith('base64')));
+                    
+                    if(isImg) {
+                        // If it's an image, render img tag inside AI bubble
+                        d.innerHTML = `<img src="${m.content}" style="max-width: 100%; display: block; margin-top:10px; border-radius: 8px;">`;
+                    } else {
+                        d.innerHTML = m.role === 'assistant' ? parseAIContent(m.content) : m.content;
+                    }
                     a.appendChild(d);
                 });
-                a.scrollTop = a.scrollHeight;
+                // FIX: Auto scroll to bottom on load
+                setTimeout(() => { a.scrollTop = a.scrollHeight; }, 100);
             }
         }
+
+        // Hidden file input for AI attachment
+        document.body.insertAdjacentHTML('beforeend', '<input type="file" id="ai-file-input" accept="image/*" class="hidden">');
+
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#image-action-menu') && !e.target.classList.contains('msg-img')) {
+                menu.style.display = 'none';
+            }
+            if(!e.target.closest('.chat-dots')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
+            }
+        });
 
     </script>
 </body>
