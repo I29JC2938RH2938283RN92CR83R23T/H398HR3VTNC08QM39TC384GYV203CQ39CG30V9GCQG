@@ -75,7 +75,6 @@
             display: none;
             flex-direction: column;
         }
-        /* Feed is now active by default */
         .view-container.active { display: flex; }
 
         /* --- Header --- */
@@ -105,7 +104,6 @@
             font-weight: 700;
             letter-spacing: -0.5px;
         }
-        /* Nav Badge */
         .nav-badge {
             position: absolute;
             top: 8px;
@@ -196,17 +194,6 @@
             background: #333;
             display: block;
             border: 1px solid var(--border-color);
-        }
-        .online-dot {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 14px;
-            height: 14px;
-            background: var(--success-color);
-            border: 2px solid var(--surface-color);
-            border-radius: 50%;
-            z-index: 3;
         }
         .chat-info {
             flex: 1;
@@ -653,7 +640,7 @@
             background-color: var(--surface-color);
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
-            margin-bottom: 0; /* Spacing handled by flow */
+            margin-bottom: 0;
         }
         .post-header {
             display: flex;
@@ -688,23 +675,24 @@
             color: var(--text-secondary);
         }
         
-        /* Shared Header (Big) */
+        /* Shared Header (Normal Size now) */
         .shared-header {
             display: flex;
             align-items: center;
-            padding: 15px 16px;
+            padding: 12px 16px;
             gap: 12px;
-            background: var(--bg-color);
+            background: var(--surface-light);
+            border-bottom: 1px solid var(--border-color);
         }
         .shared-header .shared-avatar {
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
         }
         .shared-header-text {
-            font-size: 18px; /* Bigger */
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 14px; /* Normal size */
+            font-weight: 500;
+            color: var(--text-secondary);
         }
         
         /* Content */
@@ -715,6 +703,13 @@
             color: var(--text-primary);
             font-weight: 500;
         }
+        .post-caption {
+            padding: 4px 16px 12px;
+            font-size: 15px;
+            line-height: 1.4;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
         .post-media-container {
             width: 100%;
             background: #000;
@@ -723,6 +718,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
         .post-img {
             width: 100%;
@@ -1125,6 +1121,7 @@
         /* Share Options */
         .share-options {
             display: flex;
+            flex-direction: column; /* Stack vertically now since we removed one */
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -1133,38 +1130,16 @@
             background: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px 10px;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             cursor: pointer;
             transition: background 0.2s;
         }
         .share-option-card:active { background: var(--surface-light); }
         .share-option-card i { font-size: 32px; color: var(--primary-color); }
-        .share-option-card span { font-size: 12px; color: var(--text-primary); }
-
-        /* Chat List for Share Modal */
-        .chat-list-select {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .chat-select-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background: var(--bg-color);
-            border-radius: 8px;
-            cursor: pointer;
-            gap: 10px;
-        }
-        .chat-select-item:active { background: var(--surface-light); }
-        .chat-select-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .chat-select-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+        .share-option-card span { font-size: 16px; color: var(--text-primary); font-weight: 600; }
 
         /* AI Section Specifics */
         .ai-header {
@@ -1175,13 +1150,16 @@
             padding: 0 10px;
         }
         .ai-message {
+            /* Dynamic sizing fixes */
             max-width: 90%;
-            padding: 20px 24px; /* Bigger */
+            width: auto; /* Allows expansion */
+            padding: 16px 20px; /* Slightly smaller padding for tighter fit */
             border-radius: 20px;
-            margin-bottom:16px;
-            font-size: 17px; /* Bigger text */
-            line-height: 1.6;
-            word-wrap: break-word;
+            margin-bottom: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+            word-wrap: break-word; /* Essential for long text */
+            white-space: pre-wrap; /* Essential for line breaks */
             position: relative;
         }
         .ai-message.user { 
@@ -1209,18 +1187,35 @@
             margin-bottom: 12px;
             align-self: flex-start;
         }
-        
-        /* Post Options Dropdown - Removed from UI via logic */
-        .post-options-btn {
-            display: none; /* Hidden as requested */
-        }
 
     </style>
 </head>
 <body class="">
     <div id="toast" class="toast"></div>
 
-    <!-- View: Chat (Now secondary view) -->
+    <!-- View: Feed (Swapped to First) -->
+    <div id="view-feed" class="view-container active">
+        <!-- Header: No back button as requested -->
+        <div class="app-header">
+            <div class="header-title-center">
+                <div class="app-title">Feed</div>
+            </div>
+            <!-- Toggle for My Posts -->
+            <button class="action-btn feed-header-btn" id="btn-feed-pen"><i class="material-icons-round">edit_note</i></button>
+        </div>
+        <!-- FABs at top -->
+        <div class="feed-fab">
+            <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
+            <div class="fab-btn" id="btn-post-img"><i class="material-icons-round">image</i></div>
+            <div class="fab-btn" id="btn-post-money"><i class="material-icons-round">paid</i></div>
+        </div>
+        
+        <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
+            <div id="feed-loader" class="feed-loader hidden">Loading <div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        </div>
+    </div>
+
+    <!-- View: Chat (Swapped to Second) -->
     <div id="view-chat" class="view-container">
         <div class="app-header">
             <!-- Back to Home (Feed) button -->
@@ -1265,28 +1260,6 @@
                     <button class="action-btn btn-send" id="btn-send-msg"><i class="material-icons-round">send</i></button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- View: Feed (Now Default Active) -->
-    <div id="view-feed" class="view-container active">
-        <!-- Header: No back button as requested -->
-        <div class="app-header">
-            <div class="header-title-center">
-                <div class="app-title">Feed</div>
-            </div>
-            <!-- Toggle for My Posts -->
-            <button class="action-btn feed-header-btn" id="btn-feed-pen"><i class="material-icons-round">edit_note</i></button>
-        </div>
-        <!-- FABs at top -->
-        <div class="feed-fab">
-            <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
-            <div class="fab-btn" id="btn-post-img"><i class="material-icons-round">image</i></div>
-            <div class="fab-btn" id="btn-post-money"><i class="material-icons-round">paid</i></div>
-        </div>
-        
-        <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
-            <div id="feed-loader" class="feed-loader hidden">Loading <div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
         </div>
     </div>
 
@@ -1357,14 +1330,14 @@
         </div>
     </div>
 
-    <!-- Bottom Nav -->
+    <!-- Bottom Nav: SWAPPED ORDER (Feed, Chat, AI, Profile) -->
     <div class="bottom-nav">
+        <div class="nav-item active" data-target="view-feed"><i class="material-icons-round">dynamic_feed</i><span>FEED</span></div>
         <div class="nav-item" data-target="view-chat" id="nav-chat">
             <i class="material-icons-round">chat_bubble</i>
             <span>CHATS</span>
             <div class="nav-badge" id="nav-chat-badge"></div>
         </div>
-        <div class="nav-item active" data-target="view-feed"><i class="material-icons-round">dynamic_feed</i><span>FEED</span></div>
         <div class="nav-item" data-target="view-ai"><i class="material-icons-round">psychology</i><span>AI</span></div>
         <div class="nav-item" data-target="view-profile"><i class="material-icons-round">account_circle</i><span>PROFILE</span></div>
     </div>
@@ -1392,31 +1365,21 @@
         </div>
     </div>
 
+    <!-- Share Modal: Only "To Feed" Option -->
     <div id="modal-share-select" class="modal-overlay">
         <div class="modal-content">
             <h3>Share Post</h3>
             <div class="share-options">
+                <!-- Removed "To Chat" -->
                 <div class="share-option-card" id="btn-share-feed">
                     <i class="material-icons-round">dynamic_feed</i>
-                    <span>In Feed</span>
-                </div>
-                <div class="share-option-card" id="btn-share-chat">
-                    <i class="material-icons-round">chat</i>
-                    <span>To Chat</span>
+                    <span>Share to Feed</span>
                 </div>
             </div>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
-
-    <div id="modal-share-chat-list" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Select Chat</h3>
-            <div id="share-chat-list-container" class="chat-list-select"></div>
-            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary); margin-top:15px;" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
-        </div>
-    </div>
-
+    
     <div id="modal-chat-deleted" class="modal-overlay">
         <div class="modal-content" style="text-align:center">
             <h3>Chat Deleted</h3>
@@ -1485,6 +1448,8 @@
             <div id="img-preview-container" class="hidden" style="margin-bottom: 20px; text-align: center;">
                 <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
             </div>
+            <!-- Caption Input -->
+            <textarea id="post-img-caption" class="input-field" rows="2" placeholder="Add a caption..."></textarea>
             <button class="btn-primary" id="btn-submit-post-img">Post</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
@@ -1592,10 +1557,10 @@
         
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
+        const k = "c2stb3ItdjEtNTllYWRhYWFiZTJlZDQ1ZjRkOGJkYjA4NDc0NjE3ZGVlNGJkMjYzOTZhYTk2NDhkM2YxNDJkM2FiM2Y0OWYyMA=="; 
         const aiKey = atob(k); 
         
-        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and the specific features of the Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
+        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and specific features of Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
 
         let user = null;
         let chatId = null;
@@ -1870,7 +1835,6 @@
 
             if(btnChatHome) {
                 btnChatHome.onclick = () => {
-                    // Navigate to Feed
                     navItems.forEach((i) => i.classList.remove("active"));
                     document.querySelector('[data-target="view-feed"]').classList.add("active");
                     document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
@@ -1881,7 +1845,6 @@
 
             if(btnAiHome) {
                 btnAiHome.onclick = () => {
-                    // Navigate to Feed
                     navItems.forEach((i) => i.classList.remove("active"));
                     document.querySelector('[data-target="view-feed"]').classList.add("active");
                     document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
@@ -2049,7 +2012,7 @@
                         const loader = document.getElementById("ai-loader");
                         if(loader) loader.remove();
                         if (e.name === 'AbortError') toast("Request Timed Out");
-                        else toast("Connection Failed");
+                        else toast("AI Connection Failed (Check API Key)");
                     }
                 };
             }
@@ -2293,6 +2256,7 @@
                 btnSubmitPostImg.onclick = async () => {
                     const fileInput = postImgFile;
                     const modal = document.getElementById("modal-post-img");
+                    const captionInput = document.getElementById("post-img-caption");
                     if(!fileInput) return;
                     const file = fileInput.files[0];
                     if(!file) return;
@@ -2319,6 +2283,7 @@
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
+                                caption: captionInput ? captionInput.value : "",
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
@@ -2326,6 +2291,7 @@
                                 if(modal) modal.classList.remove("open");
                                 if(fileInput) fileInput.value = "";
                                 if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
+                                if(captionInput) captionInput.value = "";
                                 toast("Posted");
                             }).catch(e => { console.error(e); toast("Upload Failed"); });
                         };
@@ -2565,7 +2531,6 @@
             // Share Options
             const shareModal = document.getElementById('modal-share-select');
             const btnShareFeed = document.getElementById('btn-share-feed');
-            const btnShareChat = document.getElementById('btn-share-chat');
             
             window.openShareSelect = (postId) => {
                 currentSharePostId = postId;
@@ -2593,37 +2558,6 @@
                     shareModal.classList.remove('open');
                     toast("Shared!");
                     loadFeed(false);
-                };
-            }
-
-            if(btnShareChat) {
-                btnShareChat.onclick = () => {
-                    if(!currentSharePostId) return;
-                    shareModal.classList.remove('open');
-                    const listContainer = document.getElementById('share-chat-list-container');
-                    listContainer.innerHTML = '';
-                    
-                    const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
-                    if(cachedChatsJSON) {
-                        try {
-                            const chats = JSON.parse(cachedChatsJSON);
-                            Object.values(chats).slice(0, 5).forEach(chat => {
-                                const uid = chat.otherUid;
-                                const ud = users[uid] || { username: 'Unknown', avatar: '' };
-                                const item = document.createElement('div');
-                                item.className = 'chat-select-item';
-                                item.innerHTML = `
-                                    <img src="${ud.avatar || 'https://ui-avatars.com/api/?name=User'}" class="chat-select-avatar">
-                                    <span class="chat-select-name">${ud.username}</span>
-                                `;
-                                item.onclick = () => {
-                                    sendSharedPost(chat.id, uid);
-                                };
-                                listContainer.appendChild(item);
-                            });
-                        } catch(e){}
-                    }
-                    document.getElementById('modal-share-chat-list').classList.add('open');
                 };
             }
 
@@ -3104,14 +3038,11 @@
             }
         }
 
-        // Function to start chat from feed (Message button)
         window.messageUser = async (targetUid) => {
              if(!user) return toast("Login required");
              const cid = [user.uid, targetUid].sort().join("_");
-             // Ensure chat exists
              await set(ref(db, `chats/${cid}`), { members: [user.uid, targetUid], timestamp: Date.now() });
              
-             // Switch to chat view
              const navItems = document.querySelectorAll(".nav-item");
              navItems.forEach((i) => i.classList.remove("active"));
              document.querySelector('[data-target="view-chat"]').classList.add("active");
@@ -3119,30 +3050,6 @@
              document.getElementById('view-chat').classList.add("active");
              
              openChat(cid, targetUid);
-        }
-
-        async function sendSharedPost(targetChatId, targetUid) {
-            const post = allPostsRaw.find(p => p.key === currentSharePostId);
-            if(!post) return;
-
-            const originalUser = users[post.authorId] || { username: 'User', avatar: '' };
-            const contentPayload = {
-                postId: currentSharePostId,
-                originalAuthor: originalUser.username,
-                img: post.type === 'img' ? post.content : null
-            };
-
-            const mRef = push(ref(db, `messages/${targetChatId}`));
-            await set(mRef, {
-                sender: user.uid,
-                text: JSON.stringify(contentPayload),
-                type: 'link_post',
-                time: Date.now(),
-                read: false
-            });
-
-            document.getElementById('modal-share-chat-list').classList.remove('open');
-            toast("Post sent");
         }
 
         // Handle clicking a post link in chat
@@ -3328,12 +3235,13 @@
                     allPostsRaw = activePosts;
                 }
                 
+                // RANDOMIZE ORDER
+                allPostsRaw.sort(() => Math.random() - 0.5);
+                
                 try {
                     localStorage.setItem('crypa_feed_cache_v3', JSON.stringify(allPostsRaw));
                     localStorage.setItem('crypa_feed_cache_time', now.toString());
                 } catch(e) {}
-                
-                allPostsRaw.sort((a,b) => b.timestamp - a.timestamp);
                 
                 feedOffset = 0;
                 if(container) container.innerHTML = '';
@@ -3358,6 +3266,7 @@
 
                     let uData = users[post.authorId];
                     if(!uData) uData = { username: 'Unknown', avatar: '', verified: false };
+                    
                     const el = document.createElement("div");
                     el.className = 'post-card';
 
@@ -3365,17 +3274,31 @@
                     
                     // NEW LOGIC: SHARED POSTS
                     if(post.type === 'shared') {
-                        const sharedByUser = users[post.sharedBy] || { username: 'User', avatar: '' };
+                        const sharedByUser = users[post.sharedBy] || { username: 'Unknown', avatar: '' };
+                        const sharedByBadge = sharedByUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                         
-                        // Render ONLY Avatar + Text (Big). No content preview.
+                        // Render Header, Avatar + Text (Normal Size), Actions.
                         const innerContent = `
                             <div class="shared-header">
                                 <img src="${sharedByUser.avatar || 'https://ui-avatars.com/api/?name=User'}" class="shared-avatar">
-                                <span class="shared-header-text">Shared from ${uData.username} ${vBadge}</span>
+                                <div>
+                                    <div class="post-username">
+                                        ${sharedByUser.username} ${sharedByBadge}
+                                    </div>
+                                    <div class="shared-header-text">Shared from ${uData.username} ${vBadge}</div>
+                                </div>
                             </div>
                             <div class="post-actions">
-                                <button class="action-icon-btn" onclick="window.messageUser('${post.sharedBy}')">
+                                <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
                                     <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
+                                    <span class="action-count" id="comment-count-${post.key}">0</span>
+                                </button>
+                                <button class="action-icon-btn" id="like-btn-wrapper-${post.key}" onclick="window.toggleLike('${post.key}', event)">
+                                    <span class="action-count" id="like-count-${post.key}">0</span>
+                                    <i class="material-icons-round like-btn" id="like-btn-${post.key}">favorite_border</i>
+                                </button>
+                                <button class="action-icon-btn" onclick="window.messageUser('${post.sharedBy}')">
+                                    <i class="material-icons-round" style="font-size:22px;">send</i>
                                     <span style="font-size:13px; color:var(--text-primary); margin-left:4px;">Message</span>
                                 </button>
                             </div>
@@ -3393,7 +3316,6 @@
                                     </div>
                                     <div class="post-time">${new Date(post.timestamp).toLocaleString([],{month:'short', day:'numeric'})}</div>
                                 </div>
-                                <!-- Removed Three Dots as requested -->
                             </div>
                         `;
                         
@@ -3440,8 +3362,6 @@
         }
 
         function renderOriginalPostContent(post, userData, isShared) {
-            // Note: Shared posts in this version do NOT call this function.
-            // But if they did in some other view, keep logic.
             const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
             
             let contentHTML = '';
@@ -3469,12 +3389,15 @@
                 `;
             }
             
+            // Caption below image
+            if(post.caption && post.caption.trim() !== "") {
+                contentHTML += `<div class="post-caption">${post.caption}</div>`;
+            }
+
             if(post.type !== 'img' && post.content) {
                 contentHTML += `<div class="post-content-text">${post.content}</div>`;
             }
             
-            // If shared (which we removed actions for in the prompt), we wouldn't return actions here.
-            // However, for standard rendering:
             return contentHTML;
         }
 
