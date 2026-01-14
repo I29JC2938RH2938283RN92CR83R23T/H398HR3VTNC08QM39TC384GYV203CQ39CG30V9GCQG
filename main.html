@@ -349,7 +349,7 @@
             opacity: 0.5;
         }
 
-        /* Emoji Logic: Use a wrapper class for the text to size it up without breaking layout */
+        /* Emoji Logic: Use a wrapper class for text to size it up without breaking layout */
         .emoji-large { font-size: 64px; }
 
         /* Reply Context Styling */
@@ -1482,6 +1482,15 @@
         </div>
     </div>
 
+    <div id="modal-receive-confirmation" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <h3>Receive File?</h3>
+            <p>Click receive to download this file.</p>
+            <button class="btn-primary" id="btn-confirm-receive">Receive</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
     <div id="modal-edit-profile" class="modal-overlay">
         <div class="modal-content">
             <h3>Edit Profile</h3>
@@ -1519,15 +1528,6 @@
             <h3>Privacy Settings</h3>
             <div id="privacy-list" style="margin-bottom:20px; margin-top:10px;"></div>
             <button class="btn-primary" onclick="this.closest('.modal-overlay').classList.remove('open')">Close</button>
-        </div>
-    </div>
-
-    <div id="modal-receive-confirmation" class="modal-overlay">
-        <div class="modal-content" style="text-align: center;">
-            <h3>Receive File?</h3>
-            <p>Click receive to download this file.</p>
-            <button class="btn-primary" id="btn-confirm-receive">Receive</button>
-            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
@@ -1602,6 +1602,11 @@
                 e.classList.add("show");
                 setTimeout(() => e.classList.remove("show"), 3000);
             }
+        }
+
+        // Fix: Renamed function to avoid "close" reserved word syntax error
+        window.hideImageActionMenu = () => {
+             document.getElementById('image-action-menu').style.display = 'none';
         }
 
         window.toggleDropdown = function(id) {
@@ -1689,18 +1694,6 @@
             }
         };
 
-        window.confirmDeletePost = function(postKey) {
-            document.getElementById("modal-confirm").classList.add("open");
-            const yesBtn = document.getElementById("btn-confirm-yes");
-            if(yesBtn) {
-                yesBtn.onclick = function() {
-                     remove(ref(db, `posts/${postKey}`));
-                     toast("Post deleted");
-                     loadFeed(false);
-                }
-            }
-        };
-
         // Handle Image Single Tap / Double Tap
         window.handleImageTap = function(key, src, event) {
             const now = Date.now();
@@ -1721,14 +1714,6 @@
                 document.getElementById('image-action-menu').style.display = 'none';
             }
             lastImageTapTime = now;
-        }
-
-        window.closeImageActionMenu = () => {
-             document.getElementById('image-action-menu').style.display = 'none';
-        }
-
-        window.closeFullImage = () => {
-             document.getElementById('full-image-viewer').classList.remove('open');
         }
 
         window.scrollToMessage = function(msgKey) {
@@ -1821,7 +1806,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-cancel-reply').onclick = window.cancelReply;
-            document.getElementById('full-image-viewer').onclick = window.closeFullImage;
+            document.getElementById('full-image-viewer').onclick = window.hideImageActionMenu; // Fixed reference
             document.getElementById('btn-img-share').onclick = window.openShareSelect; // Just use existing share flow logic
             document.getElementById('btn-img-delete').onclick = async () => {
                 if(currentImageActionMsgId) window.confirmDeleteMsg(currentImageActionMsgId);
@@ -2661,14 +2646,7 @@
 
         function updateVerifiedUI(verified) {
             const vBtn = document.getElementById('btn-verify-account');
-            const currBadge = document.getElementById('curr-chat-badge');
-            
-            if (vBtn) vBtn.classList.toggle('hidden', verified);
-            
-            if(currBadge) {
-                const ud = users[otherUid];
-                if(ud) currBadge.classList.toggle('hidden', !ud.verified);
-            }
+            if(vBtn) vBtn.classList.toggle('hidden', verified);
         }
 
         async function setupWallet() {
@@ -2703,7 +2681,7 @@
                 }
             }
             const pWalletBal = document.getElementById("p-wallet-bal");
-            const pWalletAddr = document.getElementById('p-wallet-addr');
+            const pWalletAddr = document.getElementById("p-wallet-addr");
             const rAddr = document.getElementById('r-addr');
             if(pWalletBal) pWalletBal.innerText = `${wallet.balance} ETH`;
             if(pWalletAddr) pWalletAddr.innerText = wallet.address;
@@ -2938,18 +2916,6 @@
             typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
             if(a) a.appendChild(typingEl);
 
-            // Add touch listener to message area to handle "tapped" state for actions
-            a.addEventListener('touchstart', (e) => {
-                 // If target is inside buttons (like delete/reply), ignore
-                 if(e.target.closest('.delete-msg-icon') || e.target.closest('.reply-msg-icon')) return;
-                 
-                 const bubble = e.target.closest('.message-bubble');
-                 if(bubble) {
-                     // Toggle class
-                     bubble.classList.toggle('my-msg');
-                 }
-            }, { passive: true });
-
             a.onscroll = () => {
                 const btn = document.getElementById('scroll-bottom-btn');
                 if(a.scrollTop < a.scrollHeight - a.clientHeight - 200) {
@@ -2989,6 +2955,7 @@
                 window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 window.currentMsgsRaw.sort((a, b) => a.time - b.time);
                 renderCachedMessages();
+                update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
             });
 
             onValue(ref(db, `chats/${id}/typing/${otherUid}`), (s) => {
@@ -3025,7 +2992,6 @@
                 const isMe = m.sender === user.uid;
                 let typeClass = isMe ? "sent" : "received";
                 
-                // Emoji Logic: Inject font-size for big emojis
                 let isEmoji = false;
                 if (m.type === 'text' && isOnlyEmojis(m.text)) {
                     isEmoji = true;
@@ -3070,23 +3036,19 @@
                             </div>
                         </div>
                     `;
-                } else if (m.type === 'receive_request') {
-                    // Receive Request: Sender sends "I would like to receive a file."
-                    contentHtml = `<div><i class="material-icons-round" style="font-size:16px; vertical-align:middle;">cloud_download</i> &nbsp; You sent a file request.</div>`;
-                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', 'User', 'I would like to receive a file.', 'text')"></i>`;
                 } else if (m.type === 'img') {
                     // Image with actions
-                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)">`;
-                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', 'User', 'Photo', 'img')"></i>`;
+                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)" onclick="window.handleImageTap('${m.key}', '${m.text}', event)">`;
                 } else if (m.text) {
                     contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
-                    // Only show reply icon if not big emoji
-                    if(!isEmoji) {
-                        const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
-                        const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        // Allow replying to self
-                        replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
-                    }
+                }
+                
+                // Add Reply Icon (Only show if NOT big emoji)
+                if (!isEmoji) {
+                    const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
+                    const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    // Allow replying to self
+                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
                 }
                 
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
@@ -3123,57 +3085,6 @@
             }
         }
         
-        async function sendMsg(txt, type = "text") {
-            if (!txt || !chatId) return;
-            
-            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
-                toast("You are blocked by this user");
-                return;
-            }
-
-            const i = document.getElementById("msg-input");
-            
-            let replyPayload = null;
-            if (replyingTo) {
-                replyPayload = {
-                    key: replyingTo.key,
-                    sender: replyingTo.sender,
-                    text: replyingTo.text,
-                    type: replyingTo.type
-                };
-                window.cancelReply();
-            }
-
-            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-
-            // "Receiving" state for the sender
-            if (type === 'receive_request') {
-                 const bubble = document.createElement('div');
-                 bubble.className = "message-bubble sent sent-blocked";
-                 bubble.style.alignSelf = "flex-end";
-                 bubble.innerHTML = `<div>${txt}</div><div class="msg-meta"><span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div>`;
-                 const area = document.getElementById("messages-area");
-                 area.appendChild(bubble);
-                 if(area) area.scrollTop = area.scrollHeight;
-            } else {
-                const mRef = push(ref(db, `messages/${chatId}`));
-                const payload = { 
-                    sender: user.uid, 
-                    text: txt, 
-                    type: type, 
-                    time: Date.now(), 
-                    read: false 
-                };
-                if(replyPayload) payload.reply = replyPayload;
-            
-                await set(mRef, payload);
-                
-                const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
-                update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
-                update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
-            }
-        }
-
         // Function to send shared post link
         async function sendSharedPost(targetChatId, targetUid) {
             const post = allPostsRaw.find(p => p.key === currentSharePostId);
@@ -3225,6 +3136,71 @@
                 }, 1000);
             }, 300);
         };
+
+        async function sendMsg(txt, type = "text") {
+            if (!txt || !chatId) return;
+            
+            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
+                toast("You are blocked by this user");
+                return;
+            }
+
+            const i = document.getElementById("msg-input");
+            
+            let replyPayload = null;
+            if (replyingTo) {
+                replyPayload = {
+                    key: replyingTo.key,
+                    sender: replyingTo.sender,
+                    text: replyingTo.text,
+                    type: replyingTo.type
+                };
+                window.cancelReply();
+            }
+
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+
+            // "Receiving" state for sender
+            if (type === 'receive_request') {
+                 const bubble = document.createElement("div");
+                 bubble.className = "message-bubble sent sent-blocked";
+                 bubble.style.alignSelf = "flex-end";
+                 bubble.innerHTML = `<div>${txt}</div><div class="msg-meta"><span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div>`;
+                 const area = document.getElementById("messages-area");
+                 area.appendChild(bubble);
+                 if(area) area.scrollTop = area.scrollHeight;
+            } else {
+                const mRef = push(ref(db, `messages/${chatId}`));
+                const payload = { 
+                    sender: user.uid, 
+                    text: txt, 
+                    type: type, 
+                    time: Date.now(), 
+                    read: false 
+                };
+                if(replyPayload) payload.reply = replyPayload;
+            
+                await set(mRef, payload);
+                
+                const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
+                update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
+                update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
+            }
+        }
+
+        const msgInput = document.getElementById("msg-input");
+        if(msgInput) {
+            msgInput.addEventListener("input", () => {
+                if (!chatId) return;
+                if(msgInput.value !== "[Image Attachment]") {
+                    set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+                    }, 2000);
+                }
+            });
+        }
 
         function loadComments(postKey) {
             const list = document.getElementById('comments-list');
@@ -3352,41 +3328,15 @@
                     const isShared = post.type === 'shared';
 
                     // Handle Shared Posts
-                    if(isShared) {
+                    if(post.type === 'shared') {
                         const sharedByUser = users[post.sharedBy] || { username: 'User', avatar: '' };
                         const originalPost = allPostsRaw.find(p => p.key === post.originalPostId);
                         if(!originalPost) return; // Skip if original deleted
 
                         const origUser = users[originalPost.authorId] || { username: 'Unknown', verified: false };
                         const origBadge = origUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
-                        
-                        // Fix: Go to original logic
-                        window.goToOriginalPost = (postId) => {
-                            if(showMyPostsOnly) {
-                                showMyPostsOnly = false;
-                                document.getElementById('btn-feed-pen').classList.remove('active');
-                                loadFeed(true);
-                            }
-                            // Scroll to post (Simulate)
-                            const container = document.getElementById('feed-content');
-                            const el = document.getElementById(`post-item-${postId}`);
-                            if(el) {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                el.style.transition = "background 0.5s";
-                                const originalBg = el.style.backgroundColor;
-                                el.style.backgroundColor = "rgba(91, 107, 242, 0.3)";
-                                setTimeout(() => {
-                                    el.style.backgroundColor = originalBg;
-                                }, 1000);
-                            } else {
-                                toast("Original post not loaded");
-                            }
-                        };
 
-                        // "Go to Original" button text
-                        const btnText = el.querySelector('.action-icon-btn span') ? el.querySelector('.action-icon-btn span').innerText : "Go to Original";
-
-                        innerContent = '';
+                        let innerContent = '';
                         
                         // Shared Header
                         innerContent += `
@@ -3402,7 +3352,7 @@
                         // "Go to Original" button
                         innerContent += `
                              <div class="post-actions">
-                                <button class="action-icon-btn" onclick="window.goToOriginalPost('${originalPost.key}')">
+                                <button class="action-icon-btn" onclick="window.goToOriginalPost('${originalPost.key}')" style="color:var(--primary-color); font-weight:600;">
                                     <i class="material-icons-round" style="font-size:22px;">visibility</i>
                                     <span style="font-size:13px; color:var(--text-primary); margin-left:4px;">Go to Original</span>
                                 </button>
@@ -3414,7 +3364,7 @@
                         // Normal Post
                         let innerContent = `
                             <div class="post-header">
-                                <img src="${uData.avatar || "https://ui-avatars.com/api/?name=User"}" class="post-avatar">
+                                <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="post-avatar">
                                 <div class="post-meta-text">
                                     <div class="post-username">
                                         ${uData.username} ${vBadge}
@@ -3458,37 +3408,80 @@
                  toast("Original post restored");
                  loadFeed(false);
             } else {
-                // It's an original post or text post
-                // Just scroll simulation
+                // Scroll simulation
                 const container = document.getElementById('feed-content');
-                const el = document.getElementById(`post-item-${postId}`);
-                if(el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.style.transition = "background 0.5s";
-                    const originalBg = el.style.backgroundColor;
-                    el.style.backgroundColor = "rgba(91, 107, 242, 0.3)";
-                    setTimeout(() => {
-                        el.style.backgroundColor = originalBg;
-                    }, 1000);
-                } else {
-                    toast("Original message not loaded");
-                }
+                container.style.transition = "transform 1s ease-out";
+                container.style.transform = "translateY(20px)";
+                setTimeout(() => {
+                    container.style.transform = "translateY(0)";
+                    container.style.transition = "none";
+                }, 1000);
             }
-        };
+        }
 
         window.openPostOptions = (postKey) => {
-            const menu = document.getElementById(`post-options-menu-${postKey}`);
-            const el = document.getElementById(`post-options-btn`);
-            
-            if(menu) {
-                const isVisible = menu.style.display === 'flex';
-                menu.style.display = 'none'; // Toggle
-                el.style.top = '50px'; // Default position if not near clicked element
-            } else {
-                const rect = el.getBoundingClientRect();
-                menu.style.top = `${rect.bottom + 5}px`; // Position below button
-                menu.style.display = 'flex';
+            const el = document.getElementById(`post-options-menu-${postKey}`);
+            if(!el) return;
+            // Simple prompt logic for this demo
+            if(confirm("Delete this post?")) {
+                 remove(ref(db, `posts/${postKey}`));
+                 toast("Post deleted");
+                 loadFeed(false);
             }
+        }
+
+        function renderOriginalPostContent(post, userData, isShared) {
+            const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+            
+            let contentHTML = '';
+            if(post.type === 'money') {
+                return `
+                    <div class="money-post-card">
+                        <div style="z-index:2">
+                            <div style="font-size:12px; opacity:0.8">Crypto Giveaway!</div>
+                            <div class="money-amount">${post.amount} ETH</div>
+                            <div style="margin-bottom:10px; font-size:14px;">By ${userData.username} ${vBadge}</div>
+                            <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
+                        </div>
+                        <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
+                    </div>
+                `;
+            }
+            
+            // Media
+            if(post.type === 'img') {
+                contentHTML += `
+                    <div class="post-media-container">
+                        <img src="${post.content}" class="post-img" loading="lazy">
+                    </div>
+                `;
+            }
+            
+            // Text
+            if(post.type !== 'img' && post.content) {
+                contentHTML += `<div class="post-content-text">${post.content}</div>`;
+            }
+            
+            // Actions (Hide if shared)
+            if(!isShared) {
+                const actionsHTML = `
+                    <div class="post-actions">
+                        <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
+                            <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
+                            <span class="action-count" id="comment-count-${post.key}">0</span>
+                        </button>
+                        <button class="action-icon-btn" id="like-btn-wrapper-${post.key}" onclick="window.toggleLike('${post.key}', event)">
+                            <span class="action-count" id="like-count-${post.key}">0</span>
+                            <i class="material-icons-round like-btn" id="like-btn-${post.key}">favorite_border</i>
+                        </button>
+                        <button class="action-icon-btn" onclick="window.openShareSelect('${post.key}')">
+                            <i class="material-icons-round" style="font-size:22px;">share</i>
+                        </button>
+                    </div>
+                `;
+                return contentHTML + actionsHTML;
+            }
+            return contentHTML;
         }
 
         function updateLikeUI(postKey) {
