@@ -349,57 +349,6 @@
             opacity: 0.5;
         }
 
-        /* Emoji Logic: Use a wrapper class for text to size it up without breaking layout */
-        .emoji-large { font-size: 64px; }
-
-        /* Reply Context Styling */
-        .msg-reply-context {
-            padding: 6px 10px;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            font-size: 11px;
-            opacity: 0.9;
-            border-left: 3px solid rgba(255,255,255,0.4);
-            background: rgba(0,0,0,0.15);
-            max-width: 100%;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .msg-reply-context:active { opacity: 0.7; }
-        .received .msg-reply-context {
-            background: rgba(255,255,255,0.05);
-            border-left-color: rgba(0,0,0,0.3);
-            color: var(--text-secondary);
-        }
-        .sent .msg-reply-context {
-            background: rgba(255,255,255,0.2);
-            border-left-color: rgba(255,255,255,0.8);
-            color: rgba(255,255,255,0.9);
-        }
-        .reply-meta-name {
-            font-weight: 700;
-            font-size: 10px;
-            margin-bottom: 2px;
-            display: block;
-        }
-        .reply-content-img {
-            height: 35px;
-            width: 35px;
-            object-fit: cover;
-            border-radius: 4px;
-            vertical-align: middle;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        .reply-content-text {
-            max-height: 4.5em; 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-        }
-
         /* Action Icons (Sent/Received) */
         /* Fix: Logic for showing actions on Touch */
         .delete-msg-icon, .reply-msg-icon {
@@ -452,182 +401,6 @@
             font-family: 'Material Icons Round';
             color: var(--success-color);
         }
-        
-        /* Receive Bubble Styles */
-        .msg-receive-bubble {
-            background: var(--surface-light);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 12px;
-            max-width: 85%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 5px;
-        }
-        .msg-receive-status {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-        .btn-receive {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-receive:disabled {
-            background: var(--text-secondary);
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        /* Link Post Bubble in Chat */
-        .msg-link-post {
-            background: var(--surface-light);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px;
-            max-width: 250px;
-            display: flex;
-            gap: 10px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-        .msg-link-post-img {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #333;
-        }
-        .msg-link-post-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .msg-link-post-title {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text-primary);
-        }
-        .msg-link-post-meta {
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        #scroll-bottom-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            cursor: pointer;
-            z-index: 50;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s, transform 0.2s;
-        }
-        #scroll-bottom-btn.show { opacity: 1; pointer-events: auto; }
-        #scroll-bottom-btn:active { transform: translateX(-50%) scale(0.9); }
-
-        .input-bar {
-            background: var(--surface-color);
-            padding: 8px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            border-top: 1px solid var(--border-color);
-            z-index: 9999;
-            position: relative;
-        }
-        .replying-bar {
-            display: none;
-            align-items: center;
-            background: rgba(91, 107, 242, 0.1);
-            border-left: 3px solid var(--primary-color);
-            border-radius: 8px;
-            padding: 8px 12px;
-            width: 100%;
-            font-size: 12px;
-            color: var(--text-primary);
-            justify-content: space-between;
-        }
-        .replying-bar.active { display: flex; }
-        .replying-content {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
-        .reply-thumb-input {
-            height: 30px;
-            width: 30px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 8px;
-            display: inline-block;
-        }
-        .cancel-reply-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 2px;
-        }
-        .input-actions { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
-        .text-input {
-            flex: 1;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-            resize: none;
-            max-height: 120px;
-            min-height: 44px;
-            font-family: "Inter", sans-serif;
-            line-height: 1.4;
-        }
-        .action-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: 0.1s;
-            background: transparent;
-            color: var(--text-secondary);
-        }
-        .action-btn:active { transform: scale(0.9); }
-        .btn-send { background: var(--primary-color); color: white; }
-        .btn-money { background: #fbbf24; color: #000; }
-        .btn-receive { background: var(--surface-light); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-receive:active { background: var(--surface-color); }
         
         /* --- Feed UI --- */
         .post-card {
@@ -706,11 +479,6 @@
             height: 100%;
             object-fit: cover;
             display: block;
-        }
-        .post-img.small-ratio {
-            width: auto;
-            height: 100%;
-            max-width: 100%;
         }
         
         .post-actions {
@@ -1289,7 +1057,7 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header ai-header">
-            <button class="action-btn" data-target="view-chat"><i class="material-icons-round">arrow_back_ios</i></button> <!-- Fixed back to chat -->
+            <button class="action-btn" id="btn-ai-back-chat"><i class="material-icons-round">arrow_back_ios</i></button> <!-- Fixed back to chat -->
             <div class="header-title-center" style="display:none;"> <!-- Removed for center alignment preference -->
             </div>
             <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
@@ -1531,6 +1299,14 @@
         </div>
     </div>
 
+    <!-- Image Action Menu -->
+    <div id="image-action-menu" class="modal-overlay" style="z-index: 10060;">
+        <div class="modal-content" style="text-align: left; width: auto; min-width: 150px; padding: 10px;">
+            <button class="btn-primary" style="background: var(--surface-light); color: var(--text-primary); margin-bottom: 10px;" id="btn-img-share">Share</button>
+            <button class="btn-primary" style="background: var(--danger-color); color: white;" id="btn-img-delete">Delete</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
@@ -1602,11 +1378,6 @@
                 e.classList.add("show");
                 setTimeout(() => e.classList.remove("show"), 3000);
             }
-        }
-
-        // Fix: Renamed function to avoid "close" reserved word syntax error
-        window.hideImageActionMenu = () => {
-             document.getElementById('image-action-menu').style.display = 'none';
         }
 
         window.toggleDropdown = function(id) {
@@ -1806,12 +1577,17 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-cancel-reply').onclick = window.cancelReply;
-            document.getElementById('full-image-viewer').onclick = window.hideImageActionMenu; // Fixed reference
+            document.getElementById('full-image-viewer').onclick = window.hideMenuImage;
             document.getElementById('btn-img-share').onclick = window.openShareSelect; // Just use existing share flow logic
             document.getElementById('btn-img-delete').onclick = async () => {
                 if(currentImageActionMsgId) window.confirmDeleteMsg(currentImageActionMsgId);
-                document.getElementById('image-action-menu').style.display = 'none';
+                window.hideMenuImage();
             };
+            document.getElementById('btn-img-share').onclick = () => {
+                 // Use selected post ID
+                 window.openShareSelect(currentImageActionMsgId);
+                 window.hideMenuImage();
+            }
 
             // Navigation
             const navItems = document.querySelectorAll(".nav-item");
@@ -2688,6 +2464,10 @@
             if(rAddr) rAddr.innerText = wallet.address;
         }
 
+        window.hideMenuImage = () => {
+             document.getElementById('image-action-menu').style.display = 'none';
+        }
+
         document.addEventListener('click', (e) => {
             // Close image action menu if clicked outside
             const menu = document.getElementById('image-action-menu');
@@ -2697,7 +2477,7 @@
             // Toggle Action Menu on Message Touch
             if(e.target.closest('.message-bubble') && user) {
                 const bubble = e.target.closest('.message-bubble');
-                bubble.classList.toggle('my-msg', true);
+                bubble.classList.toggle('my-msg');
                 setTimeout(() => {
                     bubble.classList.remove('my-msg');
                 }, 3000);
@@ -2849,9 +2629,8 @@
             chatId = id;
             otherUid = uid;
             
-            // Clear Image Action Menu
-            document.getElementById('image-action-menu').style.display = 'none';
-            // Clear post-options-menu
+            window.hideMenuImage();
+            // Close post-options-menu
             const allMenus = document.querySelectorAll('.post-options-menu');
             allMenus.forEach(m => m.style.display = 'none');
 
@@ -2866,7 +2645,6 @@
             const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
-            const currBadge = document.getElementById('curr-chat-badge');
             
             if(currName) {
                 const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
@@ -2915,6 +2693,18 @@
             typingEl.className = "message-bubble received hidden";
             typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
             if(a) a.appendChild(typingEl);
+
+            // Add touch listener to message area to handle "tapped" state for actions
+            a.addEventListener('touchstart', (e) => {
+                 // If target is inside buttons (like delete/reply), ignore
+                 if(e.target.closest('.delete-msg-icon') || e.target.closest('.reply-msg-icon')) return;
+                 
+                 const bubble = e.target.closest('.message-bubble');
+                 if(bubble) {
+                     // Toggle class
+                     bubble.classList.toggle('my-msg');
+                 }
+            }, { passive: true });
 
             a.onscroll = () => {
                 const btn = document.getElementById('scroll-bottom-btn');
@@ -3036,19 +2826,23 @@
                             </div>
                         </div>
                     `;
+                } else if (m.type === 'receive_request') {
+                    // Receive Request: Sender sends "I would like to receive a file."
+                    contentHtml = `<div><i class="material-icons-round" style="font-size:16px; vertical-align:middle;">cloud_download</i> &nbsp; You sent a file request.</div>`;
+                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', 'User', 'I would like to receive a file.', 'text')"></i>`;
                 } else if (m.type === 'img') {
                     // Image with actions
-                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)" onclick="window.handleImageTap('${m.key}', '${m.text}', event)">`;
+                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)">`;
+                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', 'User', 'Photo', 'img')"></i>`;
                 } else if (m.text) {
                     contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
-                }
-                
-                // Add Reply Icon (Only show if NOT big emoji)
-                if (!isEmoji) {
-                    const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
-                    const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    // Allow replying to self
-                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
+                    // Only show reply icon if not big emoji
+                    if(!isEmoji) {
+                        const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
+                        const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        // Allow replying to self
+                        replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
+                    }
                 }
                 
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
@@ -3085,6 +2879,57 @@
             }
         }
         
+        async function sendMsg(txt, type = "text") {
+            if (!txt || !chatId) return;
+            
+            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
+                toast("You are blocked by this user");
+                return;
+            }
+
+            const i = document.getElementById("msg-input");
+            
+            let replyPayload = null;
+            if (replyingTo) {
+                replyPayload = {
+                    key: replyingTo.key,
+                    sender: replyingTo.sender,
+                    text: replyingTo.text,
+                    type: replyingTo.type
+                };
+                window.cancelReply();
+            }
+
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+
+            // "Receiving" state for sender
+            if (type === 'receive_request') {
+                 const bubble = document.createElement('div');
+                 bubble.className = "message-bubble sent sent-blocked";
+                 bubble.style.alignSelf = "flex-end";
+                 bubble.innerHTML = `<div>${txt}</div><div class="msg-meta"><span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div>`;
+                 const area = document.getElementById("messages-area");
+                 area.appendChild(bubble);
+                 if(area) area.scrollTop = area.scrollHeight;
+            } else {
+                const mRef = push(ref(db, `messages/${chatId}`));
+                const payload = { 
+                    sender: user.uid, 
+                    text: txt, 
+                    type: type, 
+                    time: Date.now(), 
+                    read: false 
+                };
+                if(replyPayload) payload.reply = replyPayload;
+            
+                await set(mRef, payload);
+                
+                const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
+                update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
+                update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
+            }
+        }
+
         // Function to send shared post link
         async function sendSharedPost(targetChatId, targetUid) {
             const post = allPostsRaw.find(p => p.key === currentSharePostId);
@@ -3136,71 +2981,6 @@
                 }, 1000);
             }, 300);
         };
-
-        async function sendMsg(txt, type = "text") {
-            if (!txt || !chatId) return;
-            
-            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
-                toast("You are blocked by this user");
-                return;
-            }
-
-            const i = document.getElementById("msg-input");
-            
-            let replyPayload = null;
-            if (replyingTo) {
-                replyPayload = {
-                    key: replyingTo.key,
-                    sender: replyingTo.sender,
-                    text: replyingTo.text,
-                    type: replyingTo.type
-                };
-                window.cancelReply();
-            }
-
-            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-
-            // "Receiving" state for sender
-            if (type === 'receive_request') {
-                 const bubble = document.createElement("div");
-                 bubble.className = "message-bubble sent sent-blocked";
-                 bubble.style.alignSelf = "flex-end";
-                 bubble.innerHTML = `<div>${txt}</div><div class="msg-meta"><span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div>`;
-                 const area = document.getElementById("messages-area");
-                 area.appendChild(bubble);
-                 if(area) area.scrollTop = area.scrollHeight;
-            } else {
-                const mRef = push(ref(db, `messages/${chatId}`));
-                const payload = { 
-                    sender: user.uid, 
-                    text: txt, 
-                    type: type, 
-                    time: Date.now(), 
-                    read: false 
-                };
-                if(replyPayload) payload.reply = replyPayload;
-            
-                await set(mRef, payload);
-                
-                const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
-                update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
-                update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
-            }
-        }
-
-        const msgInput = document.getElementById("msg-input");
-        if(msgInput) {
-            msgInput.addEventListener("input", () => {
-                if (!chatId) return;
-                if(msgInput.value !== "[Image Attachment]") {
-                    set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
-                    clearTimeout(typingTimeout);
-                    typingTimeout = setTimeout(() => {
-                        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-                    }, 2000);
-                }
-            });
-        }
 
         function loadComments(postKey) {
             const list = document.getElementById('comments-list');
@@ -3308,7 +3088,7 @@
             if (!container) return;
 
             let chunksLoaded = 0;
-            const MAX_CHUNKS_AT_ONCE = 5;
+            const MAX_CHUNKS_AT_ONCE =5;
 
             while (chunksLoaded < MAX_CHUNKS_AT_ONCE && feedOffset < allPostsRaw.length) {
                 const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
@@ -3328,14 +3108,14 @@
                     const isShared = post.type === 'shared';
 
                     // Handle Shared Posts
-                    if(post.type === 'shared') {
+                    if(isShared) {
                         const sharedByUser = users[post.sharedBy] || { username: 'User', avatar: '' };
                         const originalPost = allPostsRaw.find(p => p.key === post.originalPostId);
                         if(!originalPost) return; // Skip if original deleted
 
                         const origUser = users[originalPost.authorId] || { username: 'Unknown', verified: false };
                         const origBadge = origUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
-
+                        
                         let innerContent = '';
                         
                         // Shared Header
@@ -3349,10 +3129,10 @@
                         // Render Original Content inside card (just preview copy)
                         innerContent += renderOriginalPostContent(originalPost, origUser, true);
 
-                        // "Go to Original" button
+                        // "Go to Original" button (Logic Inline)
                         innerContent += `
                              <div class="post-actions">
-                                <button class="action-icon-btn" onclick="window.goToOriginalPost('${originalPost.key}')" style="color:var(--primary-color); font-weight:600;">
+                                <button class="action-icon-btn" onclick="alert('This is a post shared by someone. It exists in the feed.')">
                                     <i class="material-icons-round" style="font-size:22px;">visibility</i>
                                     <span style="font-size:13px; color:var(--text-primary); margin-left:4px;">Go to Original</span>
                                 </button>
@@ -3364,14 +3144,14 @@
                         // Normal Post
                         let innerContent = `
                             <div class="post-header">
-                                <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="post-avatar">
+                                <img src="${uData.avatar || "https://ui-avatars.com/api/?name=User"}" class="post-avatar">
                                 <div class="post-meta-text">
                                     <div class="post-username">
                                         ${uData.username} ${vBadge}
                                     </div>
                                     <div class="post-time">${new Date(post.timestamp).toLocaleString([],{month:'short', day:'numeric'})}</div>
                                 </div>
-                                ${isMyPost ? `<button class="post-options-btn" onclick="event.stopPropagation(); window.openPostOptions('${post.key}')"><i class="material-icons-round">more_horiz</i></button>` : ''}
+                                ${isMyPost ? `<button class="post-options-btn" onclick="event.stopPropagation(); window.deleteMyPost('${post.key}')"><i class="material-icons-round">more_horiz</i></button>` : ''}
                             </div>
                         `;
                         
@@ -3396,92 +3176,13 @@
             }
         }
 
-        window.goToOriginalPost = (postId) => {
-            const post = allPostsRaw.find(p => p.key === postId);
-            if(!post) return;
-
-            // Find parent shared post if exists
-            const sharedPost = allPostsRaw.find(p => p.originalPostId === postId);
-            if(sharedPost) {
-                 // Remove parent shared post
-                 remove(ref(db, `posts/${sharedPost.key}`));
-                 toast("Original post restored");
-                 loadFeed(false);
-            } else {
-                // Scroll simulation
-                const container = document.getElementById('feed-content');
-                container.style.transition = "transform 1s ease-out";
-                container.style.transform = "translateY(20px)";
-                setTimeout(() => {
-                    container.style.transform = "translateY(0)";
-                    container.style.transition = "none";
-                }, 1000);
-            }
-        }
-
-        window.openPostOptions = (postKey) => {
-            const el = document.getElementById(`post-options-menu-${postKey}`);
-            if(!el) return;
-            // Simple prompt logic for this demo
+        window.deleteMyPost = function(key) {
+            // Simple alert for this demo as requested by user prompt
             if(confirm("Delete this post?")) {
-                 remove(ref(db, `posts/${postKey}`));
+                 remove(ref(db, `posts/${key}`));
                  toast("Post deleted");
                  loadFeed(false);
             }
-        }
-
-        function renderOriginalPostContent(post, userData, isShared) {
-            const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
-            
-            let contentHTML = '';
-            if(post.type === 'money') {
-                return `
-                    <div class="money-post-card">
-                        <div style="z-index:2">
-                            <div style="font-size:12px; opacity:0.8">Crypto Giveaway!</div>
-                            <div class="money-amount">${post.amount} ETH</div>
-                            <div style="margin-bottom:10px; font-size:14px;">By ${userData.username} ${vBadge}</div>
-                            <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
-                        </div>
-                        <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
-                    </div>
-                `;
-            }
-            
-            // Media
-            if(post.type === 'img') {
-                contentHTML += `
-                    <div class="post-media-container">
-                        <img src="${post.content}" class="post-img" loading="lazy">
-                    </div>
-                `;
-            }
-            
-            // Text
-            if(post.type !== 'img' && post.content) {
-                contentHTML += `<div class="post-content-text">${post.content}</div>`;
-            }
-            
-            // Actions (Hide if shared)
-            if(!isShared) {
-                const actionsHTML = `
-                    <div class="post-actions">
-                        <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
-                            <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
-                            <span class="action-count" id="comment-count-${post.key}">0</span>
-                        </button>
-                        <button class="action-icon-btn" id="like-btn-wrapper-${post.key}" onclick="window.toggleLike('${post.key}', event)">
-                            <span class="action-count" id="like-count-${post.key}">0</span>
-                            <i class="material-icons-round like-btn" id="like-btn-${post.key}">favorite_border</i>
-                        </button>
-                        <button class="action-icon-btn" onclick="window.openShareSelect('${post.key}')">
-                            <i class="material-icons-round" style="font-size:22px;">share</i>
-                        </button>
-                    </div>
-                `;
-                return contentHTML + actionsHTML;
-            }
-            return contentHTML;
         }
 
         function updateLikeUI(postKey) {
@@ -3572,13 +3273,20 @@
                 aiHistory.forEach((m) => {
                     if (m.role === "system") return;
                     const d = document.createElement("div");
-                    // Fix: Use standard message classes instead of .ai-message
                     d.className = `message-bubble ${m.role === "user" ? "sent" : "received"}`;
                     d.innerHTML = m.role === 'assistant' ? parseAIContent(m.content) : m.content;
                     a.appendChild(d);
                 });
                 a.scrollTop = a.scrollHeight;
             }
+        }
+
+        const btnAiBackChat = document.getElementById('btn-ai-back-chat');
+        if(btnAiBackChat) {
+            btnAiBackChat.onclick = () => {
+                const chatBtn = document.querySelector('[data-target="view-chat"]');
+                if(chatBtn) chatBtn.click();
+            };
         }
 
     </script>
