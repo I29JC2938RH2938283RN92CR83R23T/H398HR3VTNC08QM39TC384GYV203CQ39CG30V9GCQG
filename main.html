@@ -67,22 +67,24 @@
         }
         .scrollable::-webkit-scrollbar { display: none; }
 
-        /* Layout Fixes (Issue 1) */
+        /* Layout Fixes */
         .view-container {
             flex: 1; /* Grow to fill space between Header and Nav */
             position: relative;
             width: 100%;
             display: none;
             flex-direction: column;
-            overflow: hidden; /* Prevent body scroll, let inner scrollable handle it */
+            overflow: hidden;
         }
         .view-container.active { display: flex; }
         
         /* Inner Scrollable Areas */
         .feed-scrollable {
-            height: 100%; /* Take full height of view-container */
+            height: 100%;
             overflow-y: auto;
             position: relative;
+            /* FIX 2: Add padding-bottom to ensure content is not covered by fixed Nav Bar */
+            padding-bottom: 90px; 
         }
 
         /* --- Skeleton Loaders --- */
@@ -368,10 +370,10 @@
             border-radius: 18px 18px 18px 4px;
             padding: 10px 14px; 
             max-width: 80%;
-            width: auto; /* Critical fix */
+            width: auto;
             word-wrap: break-word;
             overflow-wrap: break-word;
-            white-space: pre-wrap; /* Critical for text breaks */
+            white-space: pre-wrap;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -381,12 +383,12 @@
             background: var(--msg-sent-bg);
             color: white;
             border-radius: 18px 18px 4px 18px;
-            padding: 10px 14px; /* Adjusted padding */
+            padding: 10px 14px;
             max-width: 80%;
-            width: auto; /* Critical fix */
+            width: auto;
             word-wrap: break-word;
             overflow-wrap: break-word;
-            white-space: pre-wrap; /* Critical for text breaks */
+            white-space: pre-wrap;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
@@ -397,21 +399,18 @@
             opacity: 0.5;
         }
 
-        /* ISSUE 3 FIX: REMOVED BIG EMOJI LOGIC */
-        /* All messages are now just standard sent/received */
-
-        /* Reply Context Styling (Issue 4) */
+        /* Reply Context Styling (Compact) */
         .msg-reply-context {
-            padding: 4px 8px; /* Compact padding */
+            padding: 4px 8px;
             border-radius: 6px;
             margin-bottom: 6px;
-            font-size: 11px; /* Small font */
+            font-size: 11px;
             opacity: 0.9;
             border-left: 3px solid rgba(255,255,255,0.4);
             background: rgba(0,0,0,0.15);
             max-width: 100%;
-            max-height: 60px; /* Limit height */
-            overflow: hidden; /* Hide overflow */
+            max-height: 60px;
+            overflow: hidden;
             cursor: pointer;
             transition: opacity 0.2s;
             width: 100%;
@@ -453,7 +452,7 @@
             -webkit-box-orient: vertical;
         }
 
-        /* Action Icons (Sent/Received) */
+        /* Action Icons */
         .delete-msg-icon, .reply-msg-icon {
             position: absolute;
             top: 4px;
@@ -701,7 +700,6 @@
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
             margin-bottom: 0;
-            /* Issue 2 Fix: Remove overflow: hidden to allow controls visibility */
         }
         .post-header {
             display: flex;
@@ -736,7 +734,7 @@
             color: var(--text-secondary);
         }
         
-        /* Shared Header (Normal Size now) */
+        /* Shared Header */
         .shared-header {
             display: flex;
             align-items: center;
@@ -751,11 +749,11 @@
             border-radius: 50%;
         }
         .shared-header-text {
-            font-size: 14px; /* Normal size */
+            font-size: 14px;
             font-weight: 500;
             color: var(--text-secondary);
         }
-        
+
         /* Content */
         .post-content-text {
             padding: 4px 16px 12px;
@@ -793,14 +791,44 @@
             max-width: 100%;
         }
         
+        /* Shared Content Preview */
+        .shared-content-preview {
+            padding: 10px 16px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .shared-content-preview-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .shared-content-preview img {
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            max-height: 300px;
+        }
+        .shared-content-preview-money {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            padding: 10px;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 700;
+            text-align: center;
+        }
+
         .post-actions {
             display: flex;
             align-items: center;
             padding: 8px 16px;
             gap: 20px;
             margin-bottom: 12px;
-            position: relative; /* For z-index context */
-            z-index: 5; /* Issue 2 Fix: Ensure controls are above other elements */
+            position: relative;
+            z-index: 5;
         }
         .action-icon-btn {
             background: none;
@@ -853,7 +881,7 @@
             font-size: 16px;
         }
 
-        /* Show Tag - Higher Z-Index */
+        /* Show Tag */
         .show-tag {
             position: absolute;
             top: 10px;
@@ -1186,7 +1214,7 @@
         /* Share Options */
         .share-options {
             display: flex;
-            flex-direction: column; /* Stack vertically now since we removed one */
+            flex-direction: column; 
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -1215,21 +1243,19 @@
             padding: 0 10px;
         }
         .ai-message {
-            /* Dynamic sizing fixes */
             max-width: 90%;
-            width: auto; /* Allows expansion */
+            width: auto; 
             padding: 16px 20px; 
             border-radius: 20px;
             margin-bottom: 16px;
             font-size: 16px;
             line-height: 1.5;
-            word-wrap: break-word; /* Essential for long text */
-            white-space: pre-wrap; /* Essential for line breaks */
+            word-wrap: break-word;
+            white-space: pre-wrap;
             position: relative;
             display: flex;
             flex-direction: column;
         }
-        /* Fix for image in AI bubble */
         .ai-message img {
             max-width: 100%;
             display: block;
@@ -1267,17 +1293,14 @@
 <body class="">
     <div id="toast" class="toast"></div>
 
-    <!-- View: Feed (Swapped to First) -->
+    <!-- View: Feed -->
     <div id="view-feed" class="view-container active">
-        <!-- Header: No back button as requested -->
         <div class="app-header">
             <div class="header-title-center">
                 <div class="app-title">Feed</div>
             </div>
-            <!-- Toggle for My Posts -->
             <button class="action-btn feed-header-btn" id="btn-feed-pen"><i class="material-icons-round">edit_note</i></button>
         </div>
-        <!-- FABs at top -->
         <div class="feed-fab">
             <div class="fab-btn" id="btn-post-text"><i class="material-icons-round">title</i></div>
             <div class="fab-btn" id="btn-post-img"><i class="material-icons-round">image</i></div>
@@ -1292,10 +1315,9 @@
         </div>
     </div>
 
-    <!-- View: Chat (Swapped to Second) -->
+    <!-- View: Chat -->
     <div id="view-chat" class="view-container">
         <div class="app-header">
-            <!-- Back to Home (Feed) button -->
             <button class="action-btn" id="btn-chat-home" style="position:absolute; left:10px;" data-target="view-feed"><i class="material-icons-round">home</i></button>
             <button class="action-btn" id="btn-new-chat" style="position:absolute; left:55px;"><i class="material-icons-round">add_circle</i></button>
             <div class="header-title-center">
@@ -1304,7 +1326,6 @@
             <div style="width:44px;"></div> 
         </div>
         <div id="chat-list" class="scrollable" style="padding-top: 5px; position:relative;">
-            <!-- Skeletons -->
             <div class="skeleton-chat-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-msg"></div></div></div>
             <div class="skeleton-chat-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-msg"></div></div></div>
         </div>
@@ -1321,7 +1342,6 @@
                 </div>
             </div>
             <div id="messages-area" class="messages-container">
-                 <!-- Skeleton -->
                  <div class="skeleton-msg-bubble skeleton"></div>
                  <div class="skeleton-msg-bubble skeleton" style="align-self: flex-end; margin-left: auto;"></div>
             </div>
@@ -1351,7 +1371,6 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header ai-header">
-            <!-- Fixed Home Button (Target Feed) -->
             <button class="action-btn" id="btn-ai-home" data-target="view-feed"><i class="material-icons-round">home</i></button>
             <div class="header-title-center" style="display:none;"></div>
             <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
@@ -1450,12 +1469,11 @@
         </div>
     </div>
 
-    <!-- Share Modal: Only "To Feed" Option -->
+    <!-- Share Modal -->
     <div id="modal-share-select" class="modal-overlay">
         <div class="modal-content">
             <h3>Share Post</h3>
             <div class="share-options">
-                <!-- Removed "To Chat" -->
                 <div class="share-option-card" id="btn-share-feed">
                     <i class="material-icons-round">dynamic_feed</i>
                     <span>Share to Feed</span>
@@ -1533,7 +1551,6 @@
             <div id="img-preview-container" class="hidden" style="margin-bottom: 20px; text-align: center;">
                 <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
             </div>
-            <!-- Caption Input -->
             <textarea id="post-img-caption" class="input-field" rows="2" placeholder="Add a caption..."></textarea>
             <button class="btn-primary" id="btn-submit-post-img">Post</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
@@ -1642,7 +1659,7 @@
         
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const k = "c2stb3ItdjEtY2YzODA0Y2JiMWU2MTMxNjAyMGM0NTQzODRhMzBkZmMyZjcwMjFjOWM0ZjI1NmRlNGIzZjgzNDU0ZWZjNGIwOQ=="; 
+        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
         const aiKey = atob(k); 
         
         const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and specific features of Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
@@ -1775,7 +1792,6 @@
             }
         };
 
-        // Handle Image Single Tap / Double Tap
         window.handleImageTap = function(key, src, event) {
             const now = Date.now();
             if (now - lastImageTapTime < 300) {
@@ -1891,7 +1907,6 @@
                 document.getElementById('image-action-menu').style.display = 'none';
             };
 
-            // Navigation
             const navItems = document.querySelectorAll(".nav-item");
             navItems.forEach((n) => {
                 n.onclick = () => {
@@ -1903,12 +1918,11 @@
                     if(view) {
                         document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
                         view.classList.add("active");
-                        if (target === 'view-feed') loadFeed(false); // Don't force cache if switching tabs
+                        if (target === 'view-feed') loadFeed(false);
                     }
                 };
             });
 
-            // Home Buttons
             const btnChatHome = document.getElementById('btn-chat-home');
             const btnAiHome = document.getElementById('btn-ai-home');
 
@@ -1932,7 +1946,6 @@
                 };
             }
 
-            // ... (Other Event Listeners) ...
             const btnNewChat = document.getElementById('btn-new-chat');
             const btnFeedPen = document.getElementById('btn-feed-pen');
             const btnLogout = document.getElementById('btn-logout');
@@ -2041,7 +2054,7 @@
                     const l = document.createElement("div");
                     l.className = "ai-message bot";
                     l.id = "ai-loader";
-                    l.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+                    l.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
                     if(aiMessages) aiMessages.appendChild(l);
                     if(aiMessages) aiMessages.scrollTop = aiMessages.scrollHeight;
 
@@ -2121,9 +2134,14 @@
             if(btnNewChat) {
                 btnNewChat.onclick = () => {
                     const modal = document.getElementById("modal-new-chat");
+                    const searchInput = document.getElementById("search-input");
                     const searchResults = document.getElementById("search-results");
                     if(modal) modal.classList.add("open");
-                    if(searchResults) searchResults.innerHTML = "";
+                    if(searchInput) {
+                        searchInput.value = "";
+                        if(searchResults) searchResults.innerHTML = "";
+                        setTimeout(() => searchInput.focus(), 100);
+                    }
                 };
             }
             
@@ -2134,6 +2152,8 @@
                     r.innerHTML = "";
                     if (v.length < 2) return;
                     Object.keys(users).forEach((uid) => {
+                        // FIX: Check if users[uid] exists safely
+                        if (!users[uid]) return;
                         if (users[uid].username.toLowerCase().includes(v) && uid !== user.uid) {
                             const d = document.createElement("div");
                             d.className = "chat-item";
@@ -2165,7 +2185,6 @@
                 };
             }
             
-            // Chat Image Attachment
             if(btnAttach && fileInput) {
                 btnAttach.onclick = () => fileInput.click();
             }
@@ -2614,7 +2633,6 @@
                 };
             }
             
-            // Share Options
             const shareModal = document.getElementById('modal-share-select');
             const btnShareFeed = document.getElementById('btn-share-feed');
             
@@ -2698,9 +2716,8 @@
             buildPrivacyUI();
             renderAI();
             
-            // Fix for Feed Initial Load Bug:
-            // No delay. Load immediately.
-            loadFeed(true);
+            // Fix: Force scroll bottom on initial load
+            setTimeout(() => loadFeed(true), 100);
         }
 
         function updateVerifiedUI(verified) {
@@ -2771,7 +2788,9 @@
                 const id = chat.id; 
                 const ouid = chat.otherUid;
                 if(!ouid) return;
-                const ud = users[ouid] || { username: 'Loading...', avatar: '', verified: false };
+                const ud = users[ouid]; 
+                if(!ud) return; // Skip if no user data yet
+                
                 if(document.getElementById(`chat-item-${id}`)) return;
 
                 const item = document.createElement("div");
@@ -2847,7 +2866,7 @@
                 const l = document.getElementById("chat-list");
                 const d = s.val();
                 if (!d) {
-                    if(l) l.innerHTML = ""; // Empty list
+                    if(l) l.innerHTML = "";
                     localStorage.removeItem('crypa_chats_list_v3');
                     return;
                 }
@@ -2895,7 +2914,7 @@
         };
 
         function openChat(id, uid) {
-            // Fix: If we are opening a chat, ensure we stop listening to the old one.
+            // Fix: If we are opening a chat, ensure we stop listening to old one.
             if (currentMsgListener) currentMsgListener();
 
             chatId = id;
@@ -2911,24 +2930,28 @@
             if(room) room.classList.add("active");
             if(body) body.classList.add("chat-active");
 
-            const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
+            const ud = users[uid]; 
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
             const currStatus = document.getElementById('curr-chat-status');
             
             if(currName) {
                 const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
-                currName.innerHTML = `${ud.username} ${vBadge}`;
+                currName.innerHTML = `${ud ? ud.username : 'Unknown'} ${vBadge}`;
             }
-            if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
+            if(currAvatar) currAvatar.src = ud ? ud.avatar : "https://ui-avatars.com/api/?name=User";
             
             if (currStatus) {
-                if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
-                    currStatus.innerText = "Now";
-                } else if (ud.lastSeen) {
-                    currStatus.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                if (ud && ud.lastSeen) {
+                    if ((Date.now() - ud.lastSeen) < 300000) {
+                        currStatus.innerText = "Now";
+                    } else if (ud.lastSeen) {
+                        currStatus.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    } else {
+                        currStatus.innerText = "Unknown";
+                    }
                 } else {
-                    currStatus.innerText = "Unknown";
+                    currStatus.innerText = "Loading..."; // Graceful loading
                 }
             }
 
@@ -3005,9 +3028,8 @@
                 renderCachedMessages();
             }
 
-            // Issue 5 Fix: Ensure we only listen to one chat at a time.
             currentMsgListener = onValue(ref(db, `messages/${id}`), (s) => {
-                // Only update DOM if the view is active. This prevents cross-talk duplication.
+                // Only update DOM if view is active. This prevents cross-talk duplication.
                 if(document.getElementById("chat-room").classList.contains("active")) {
                     if(!s.exists()) return;
                     window.currentMsgsRaw = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
@@ -3044,13 +3066,11 @@
             const msgs = window.currentMsgsRaw || [];
 
             const html = msgs.map(m => {
-                // Issue 5 Fix: Check for duplicate elements.
-                if (document.getElementById(`msg-bubble-${m.key}`)) return '';
-
+                if (deletedMessages[m.key]) return '';
+                
                 const isMe = m.sender === user.uid;
                 let typeClass = isMe ? "sent" : "received";
                 
-                // Issue 3 FIX: Always standard text. No special big-emoji class.
                 let replyHtml = '';
                 if (m.reply) {
                     const r = m.reply;
@@ -3159,7 +3179,7 @@
                 }
                 toast(`Viewing post from ${originalAuthor}`);
                 // Visual feedback
-                container.style.transition = "transform 1s ease-out";
+                container.style.transition = "transform1s ease-out";
                 container.style.transform = "translateY(20px)";
                 setTimeout(() => {
                     container.style.transform = "translateY(0)";
@@ -3282,7 +3302,6 @@
             const container = document.getElementById('feed-content');
             if (!container) return;
 
-            // FIX: Force scroll to bottom initially
             const loader = document.getElementById('feed-loader');
             const skeletons = container.querySelectorAll('.skeleton-post');
             if(skeletons.length > 0) skeletons.forEach(el => el.remove());
@@ -3297,7 +3316,7 @@
                     feedOffset = 0;
                     container.innerHTML = '';
                     renderNextChunk();
-                    // FIX: Scroll to bottom
+                    // FIX: Force scroll bottom to ensure visibility
                     container.scrollTop = container.scrollHeight;
                     return; 
                 } catch(e) {}
@@ -3354,7 +3373,7 @@
                 if(container) container.innerHTML = '';
                 renderNextChunk();
                 
-                // FIX: Scroll to bottom
+                // FIX: Auto Scroll to bottom to ensure visibility
                 container.scrollTop = container.scrollHeight;
             });
         }
@@ -3382,24 +3401,30 @@
 
                     const vBadge = uData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                     
-                    // REWRITTEN SHARED POSTS LOGIC
+                    // FIX: SHARED POST LOGIC (Render Content)
                     if(post.type === 'shared') {
-                        const sharedByUser = users[post.sharedBy] || { username: 'Unknown', avatar: '' };
-                        const sharedByBadge = sharedByUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+                        const sharedByUser = users[post.sharedBy];
+                        const sharedByBadge = sharedByUser && sharedByUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                         
                         const originalPost = allPostsRaw.find(op => op.key === post.originalPostId);
                         if(!originalPost) return;
 
                         const innerContent = `
                             <div class="shared-header">
-                                <img src="${sharedByUser.avatar || 'https://ui-avatars.com/api/?name=User'}" class="shared-avatar">
+                                <img src="${sharedByUser ? sharedByUser.avatar : 'https://ui-avatars.com/api/?name=User'}" class="shared-avatar">
                                 <div>
                                     <div class="post-username">
-                                        ${sharedByUser.username} ${sharedByBadge}
+                                        ${sharedByUser ? sharedByUser.username : 'Unknown'} ${sharedByBadge}
                                     </div>
                                     <div class="shared-header-text">Shared from ${uData.username} ${vBadge}</div>
                                 </div>
                             </div>
+                            
+                            <!-- FIX: PREVIEW CONTENT -->
+                            <div class="shared-content-preview">
+                                ${renderSharedPreviewContent(originalPost, uData)}
+                            </div>
+                            
                             <div class="post-actions">
                                 <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
                                     <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
@@ -3421,10 +3446,10 @@
                         // Normal Post
                         let innerContent = `
                             <div class="post-header">
-                                <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="post-avatar">
+                                <img src="${uData ? uData.avatar : 'https://ui-avatars.com/api/?name=User'}" class="post-avatar">
                                 <div class="post-meta-text">
                                     <div class="post-username">
-                                        ${uData.username} ${vBadge}
+                                        ${uData ? uData.username : "Unknown"} ${vBadge}
                                     </div>
                                     <div class="post-time">${new Date(post.timestamp).toLocaleString([],{month:'short', day:'numeric'})}</div>
                                 </div>
@@ -3472,6 +3497,26 @@
             }
         }
 
+        function renderSharedPreviewContent(originalPost, userData) {
+            const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+            if(originalPost.type === 'money') {
+                return `
+                    <div class="shared-content-preview-money">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="material-icons-round" style="color:var(--verified-color);">monetization_on</i>
+                            <span>Crypto Post</span>
+                        </div>
+                `;
+            }
+            if(originalPost.type === 'img') {
+                return `
+                    <div class="shared-content-preview-text">Photo</div>
+                    <img src="${originalPost.content}" class="shared-content-preview-img" />
+                `;
+            }
+            return `<div class="shared-content-preview-text">${originalPost.content || '...'}</div>`;
+        }
+
         function renderOriginalPostContent(post, userData, isShared) {
             const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
             
@@ -3483,7 +3528,7 @@
                         <div style="z-index:2">
                             <div style="font-size:12px; opacity:0.8">Crypto Giveaway!</div>
                             <div class="money-amount">${post.amount} ETH</div>
-                            <div style="margin-bottom:10px; font-size:14px;">By ${userData.username} ${vBadge}</div>
+                            <div style="margin-bottom:10px; font-size:14px;">By ${userData ? userData.username : "User"} ${vBadge}</div>
                             <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
                         </div>
                         <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
@@ -3616,18 +3661,6 @@
                 setTimeout(() => { a.scrollTop = a.scrollHeight; }, 100);
             }
         }
-
-        // Hidden file input for AI attachment
-        document.body.insertAdjacentHTML('beforeend', '<input type="file" id="ai-file-input" accept="image/*" class="hidden">');
-
-        document.addEventListener('click', (e) => {
-            if(!e.target.closest('#image-action-menu') && !e.target.classList.contains('msg-img')) {
-                menu.style.display = 'none';
-            }
-            if(!e.target.closest('.chat-dots')) {
-                document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
-            }
-        });
 
     </script>
 </body>
