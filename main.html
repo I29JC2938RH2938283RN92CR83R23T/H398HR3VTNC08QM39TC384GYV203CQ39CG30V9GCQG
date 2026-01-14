@@ -339,9 +339,9 @@
             max-width: 80%;
             word-wrap: break-word;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Changed to column for vertical stack */
             align-items: flex-end;
-            position: relative; /* Added for icon positioning */
+            position: relative;
         }
         .sent-blocked {
             background-color: var(--text-secondary);
@@ -357,6 +357,7 @@
             font-size: 64px;
             line-height: 1;
             max-width: 300px;
+            /* No align-self here, relies on parent (container) alignment */
         }
         .received .big-emoji-msg { align-self: flex-start !important; } /* Force left for received */
         .sent .big-emoji-msg { align-self: flex-end !important; } /* Force right for sent */
@@ -1162,7 +1163,7 @@
             max-width: 90%;
             padding: 14px 18px;
             border-radius: 18px;
-            margin-bottom:16px;
+            margin-bottom: 16px;
             font-size: 15px;
             line-height: 1.5;
             word-wrap: break-word;
@@ -1229,7 +1230,6 @@
                 </div>
                 <div style="flex:1; margin-left:5px;">
                     <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 15px"></div>
-                    <div id="curr-chat-status" style="font-size:11px; color:var(--text-secondary)"></div>
                 </div>
             </div>
             <div id="messages-area" class="messages-container"></div>
@@ -1435,10 +1435,6 @@
                     <span id="c-username" style="font-size:18px; font-weight:700;">User</span>
                 </div>
             </div>
-            <div style="border-bottom:1px solid var(--border-color); padding:10px 0; display:flex; justify-content:space-between;">
-                <span style="color:var(--text-secondary); font-size:13px;">Last Seen</span>
-                <span id="c-last-seen" style="font-size:14px;">---</span>
-            </div>
         </div>
     </div>
 
@@ -1580,7 +1576,7 @@
         const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
         const aiKey = atob(k); 
         
-        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and the specific features of the Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
+        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and specific features of Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
 
         let user = null;
         let chatId = null;
@@ -2632,10 +2628,12 @@
                     const d = s.val();
                     const pUsername = document.getElementById("p-username");
                     const pAvatar = document.getElementById("p-avatar");
+                    const pBadge = document.getElementById("p-badge");
                     const vBtn = document.getElementById('btn-verify-account');
                     
                     if(pUsername) pUsername.innerText = d.username;
                     if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+                    if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
                     if(vBtn) vBtn.classList.toggle('hidden', !!d.verified);
                     
                     users[user.uid] = d;
@@ -2658,8 +2656,17 @@
         }
 
         function updateVerifiedUI(verified) {
+            const pBadge = document.getElementById("p-badge");
             const vBtn = document.getElementById('btn-verify-account');
-            if(vBtn) vBtn.classList.toggle('hidden', verified);
+            const currBadge = document.getElementById('curr-chat-badge');
+            
+            if (pBadge) pBadge.classList.toggle('hidden', !verified);
+            if (vBtn) vBtn.classList.toggle('hidden', verified);
+            
+            if(currBadge) {
+                const ud = users[otherUid];
+                if(ud) currBadge.classList.toggle('hidden', !ud.verified);
+            }
         }
 
         async function setupWallet() {
@@ -2736,7 +2743,7 @@
                     if(!e.target.closest('.chat-dots')) openChat(id, ouid);
                 };
 
-                const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+                const vBadge = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
                 const hasNewMsg = chat.timestamp && user.lastSeen && (chat.timestamp > user.lastSeen);
                 if(hasNewMsg) anyNewMsg = true;
 
@@ -2751,7 +2758,9 @@
                 }
 
                 let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
-                
+                if(ud.verified) avatarContent += vBadge;
+                if(hasNewMsg) avatarContent += `<div class="online-dot"></div>`;
+
                 const itemHTML = `
                     <div class="avatar-wrapper">
                         ${avatarContent}
@@ -2866,7 +2875,7 @@
             const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
-            const currStatus = document.getElementById('curr-chat-status');
+            const currBadge = document.getElementById('curr-chat-badge');
             
             if(currName) {
                 // Verified badge after username
@@ -2876,14 +2885,12 @@
             if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
             
             // Remove Online/Offline status, show Last Seen or Now
-            if (currStatus) {
-                if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
-                    currStatus.innerText = "Now";
-                } else if (ud.lastSeen) {
-                    currStatus.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                } else {
-                    currStatus.innerText = "Unknown";
-                }
+            if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
+                document.getElementById('curr-chat-status').innerText = "Now";
+            } else if (ud.lastSeen) {
+                document.getElementById('curr-chat-status').innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            } else {
+                document.getElementById('curr-chat-status').innerText = "Unknown";
             }
 
             const chatFooter = document.getElementById('chat-footer');
@@ -3012,6 +3019,7 @@
                 let replyHtml = '';
                 if (m.reply) {
                     const r = m.reply;
+                    // Safe string handling
                     const safeText = (r.text || '').replace(/"/g, '&quot;');
                     const safeSender = (r.sender || 'User').replace(/'/g, "\\'");
                     
@@ -3337,7 +3345,7 @@
             if (!container) return;
 
             let chunksLoaded = 0;
-            const MAX_CHUNKS_AT_ONCE =5;
+            const MAX_CHUNKS_AT_ONCE = 5;
 
             while (chunksLoaded < MAX_CHUNKS_AT_ONCE && feedOffset < allPostsRaw.length) {
                 const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
@@ -3569,7 +3577,7 @@
         function parseAIContent(text) {
             if (!text) return "";
             let cleanText = text.replace(/<[^>]*>/g, '');
-            cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            cleanText = cleanText.replace(/&/g, "&amp;").replace(/</g, "&gt;").replace(/>/g, "&gt;");
             cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
             cleanText = cleanText.replace(/`(.*?)`/g, '<code>$1</code>');
             return cleanText.replace(/\n/g, '<br>');
