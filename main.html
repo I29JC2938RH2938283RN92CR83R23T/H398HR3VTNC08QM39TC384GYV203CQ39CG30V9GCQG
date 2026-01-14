@@ -320,7 +320,6 @@
         }
 
         /* Messages */
-        /* Fix: Use shared .sent and .received for AI and Normal chat to ensure consistency */
         .received, .bot {
             position: relative;
             align-self: flex-start;
@@ -332,7 +331,6 @@
             word-wrap: break-word;
         }
         .sent, .user {
-            position: relative;
             align-self: flex-end;
             background: var(--msg-sent-bg);
             color: white;
@@ -343,14 +341,76 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            position: relative; /* Added for icon positioning */
         }
         .sent-blocked {
             background-color: var(--text-secondary);
             opacity: 0.5;
         }
 
+        /* Big Emoji Fix - Force alignment based on class */
+        .big-emoji-msg {
+            background: transparent !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            font-size: 64px;
+            line-height: 1;
+            max-width: 300px;
+        }
+        .received .big-emoji-msg { align-self: flex-start !important; } /* Force left for received */
+        .sent .big-emoji-msg { align-self: flex-end !important; } /* Force right for sent */
+        .big-emoji-msg .msg-meta { display: none; }
+
+        /* Reply Context Styling */
+        .msg-reply-context {
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            opacity: 0.9;
+            border-left: 3px solid rgba(255,255,255,0.4);
+            background: rgba(0,0,0,0.15);
+            max-width: 100%;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .msg-reply-context:active { opacity: 0.7; }
+        .received .msg-reply-context {
+            background: rgba(255,255,255,0.05);
+            border-left-color: rgba(0,0,0,0.3);
+            color: var(--text-secondary);
+        }
+        .sent .msg-reply-context {
+            background: rgba(255,255,255,0.2);
+            border-left-color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
+        }
+        .reply-meta-name {
+            font-weight: 700;
+            font-size: 10px;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .reply-content-img {
+            height: 35px;
+            width: 35px;
+            object-fit: cover;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-right: 5px;
+            display: inline-block;
+        }
+        .reply-content-text {
+            max-height: 4.5em; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
         /* Action Icons (Sent/Received) */
-        /* Fix: Logic for showing actions on Touch */
         .delete-msg-icon, .reply-msg-icon {
             position: absolute;
             top: 4px;
@@ -364,11 +424,11 @@
             border-radius: 50%;
             padding: 2px;
         }
-        .msg-bubble.my-msg.actions-visible .delete-msg-icon,
-        .msg-bubble.my-msg.actions-visible .reply-msg-icon {
-            opacity: 1;
-        }
+        /* Make them showable on touch via class */
+        .message-bubble.show-actions .delete-msg-icon,
+        .message-bubble.show-actions .reply-msg-icon { opacity: 1; }
 
+        /* Fix icon positions */
         .sent .delete-msg-icon { right: 4px; color: rgba(255,255,255,0.8); }
         .sent .reply-msg-icon { right: 28px; color: rgba(255,255,255,0.8); }
         .received .delete-msg-icon { right: 4px; color: rgba(255,255,255,0.6); }
@@ -401,6 +461,171 @@
             font-family: 'Material Icons Round';
             color: var(--success-color);
         }
+        
+        /* Image Action Menu */
+        #image-action-menu {
+            position: absolute;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 10px;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .img-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            padding: 5px;
+        }
+        .img-action-btn:hover { color: var(--primary-color); }
+
+        /* Link Post Bubble in Chat */
+        .msg-link-post {
+            background: var(--surface-light);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            max-width: 250px;
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .msg-link-post-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #333;
+        }
+        .msg-link-post-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .msg-link-post-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        .msg-link-post-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        #scroll-bottom-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+        #scroll-bottom-btn.show { opacity: 1; pointer-events: auto; }
+        #scroll-bottom-btn:active { transform: translateX(-50%) scale(0.9); }
+
+        .input-bar {
+            background: var(--surface-color);
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border-top: 1px solid var(--border-color);
+            z-index: 9999;
+            position: relative;
+        }
+        .replying-bar {
+            display: none;
+            align-items: center;
+            background: rgba(91, 107, 242, 0.1);
+            border-left: 3px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 100%;
+            font-size: 12px;
+            color: var(--text-primary);
+            justify-content: space-between;
+        }
+        .replying-bar.active { display: flex; }
+        .replying-content {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .reply-thumb-input {
+            height: 30px;
+            width: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 8px;
+            display: inline-block;
+        }
+        .cancel-reply-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 2px;
+        }
+        .input-actions { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
+        .text-input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            min-height: 44px;
+            font-family: "Inter", sans-serif;
+            line-height: 1.4;
+        }
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: 0.1s;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        .action-btn:active { transform: scale(0.9); }
+        .btn-send { background: var(--primary-color); color: white; }
+        .btn-money { background: #fbbf24; color: #000; }
         
         /* --- Feed UI --- */
         .post-card {
@@ -479,6 +704,11 @@
             height: 100%;
             object-fit: cover;
             display: block;
+        }
+        .post-img.small-ratio {
+            width: auto;
+            height: 100%;
+            max-width: 100%;
         }
         
         .post-actions {
@@ -929,14 +1159,28 @@
             padding: 0 10px;
         }
         .ai-message {
-            max-width: 85%;
+            max-width: 90%;
             padding: 14px 18px;
             border-radius: 18px;
-            margin-bottom: 12px;
+            margin-bottom:16px;
             font-size: 15px;
             line-height: 1.5;
             word-wrap: break-word;
             position: relative;
+        }
+        .ai-message.user { 
+            align-self: flex-end; 
+            background: var(--primary-color); 
+            color: white; 
+            border-bottom-right-radius: 4px;
+            margin-left: auto; /* Force right very */
+        }
+        .ai-message.bot { 
+            align-self: flex-start; 
+            background: var(--surface-light); 
+            color: var(--text-primary); 
+            border-bottom-left-radius: 4px;
+            margin-right: auto; /* Force left very */
         }
         .typing-bubble {
             background: var(--surface-light);
@@ -960,30 +1204,7 @@
             color: var(--text-secondary);
             padding: 5px;
             cursor: pointer;
-            z-index: 5;
         }
-        .post-options-menu {
-            position: absolute;
-            top: 50px;
-            right: 12px;
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            width: 150px;
-        }
-        .post-opt-item {
-            padding: 10px;
-            font-size: 13px;
-            color: var(--text-primary);
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .post-opt-item:last-child { border-bottom: none; }
-        .post-opt-item:hover { background: var(--surface-light); }
     </style>
 </head>
 <body class="">
@@ -1008,6 +1229,7 @@
                 </div>
                 <div style="flex:1; margin-left:5px;">
                     <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 15px"></div>
+                    <div id="curr-chat-status" style="font-size:11px; color:var(--text-secondary)"></div>
                 </div>
             </div>
             <div id="messages-area" class="messages-container"></div>
@@ -1025,7 +1247,6 @@
                 </div>
                 <div class="input-actions">
                     <button class="action-btn btn-money" id="btn-money-modal"><i class="material-icons-round">payments</i></button>
-                    <button class="action-btn btn-receive" id="btn-receive"><i class="material-icons-round">cloud_download</i></button>
                     <button class="action-btn" id="btn-attach"><i class="material-icons-round">add</i></button>
                     <input type="file" id="file-input" accept="image/*" class="hidden" />
                     <textarea id="msg-input" class="text-input" rows="1" placeholder="Type a message..."></textarea>
@@ -1057,8 +1278,8 @@
     <!-- View: AI -->
     <div id="view-ai" class="view-container">
         <div class="app-header ai-header">
-            <button class="action-btn" id="btn-ai-back-chat"><i class="material-icons-round">arrow_back_ios</i></button> <!-- Fixed back to chat -->
-            <div class="header-title-center" style="display:none;"> <!-- Removed for center alignment preference -->
+            <button class="action-btn" data-target="view-profile"><i class="material-icons-round">home</i></button>
+            <div class="header-title-center" style="display:none;"> <!-- Title removed for center alignment preference -->
             </div>
             <button class="action-btn" id="btn-ai-clear"><i class="material-icons-round">auto_fix_high</i></button>
         </div>
@@ -1123,7 +1344,7 @@
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" id="nav-chat" data-target="view-chat">
+        <div class="nav-item active" data-target="view-chat" id="nav-chat">
             <i class="material-icons-round">chat_bubble</i>
             <span>CHATS</span>
             <div class="nav-badge" id="nav-chat-badge"></div>
@@ -1230,6 +1451,40 @@
         </div>
     </div>
 
+    <div id="modal-post-text" class="modal-overlay">
+        <div class="modal-content">
+            <h3>New Text Post</h3>
+            <textarea id="post-text-content" class="input-field" rows="4" placeholder="Say something..."></textarea>
+            <button class="btn-primary" id="btn-submit-post-text">Post</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-post-img" class="modal-overlay">
+        <div class="modal-content">
+            <h3>New Image Post</h3>
+            <label style="display:block; width:100%; height:150px; border:2px dashed var(--border-color); border-radius:14px; background:var(--bg-color); display:flex; align-items:center; justify-content:center; color:var(--text-secondary); cursor:pointer;" for="post-img-file">
+                <i class="material-icons-round" style="margin-right:10px">cloud_upload</i> Tap to Select
+                <input type="file" id="post-img-file" accept="image/*" class="hidden" />
+            </label>
+            <div id="img-preview-container" class="hidden" style="margin-bottom: 20px; text-align: center;">
+                <img id="post-img-preview" src="" style="max-width: 100%; max-height: 250px; border-radius: 12px; display: block; margin: 0 auto; border: 1px solid var(--border-color);" />
+            </div>
+            <button class="btn-primary" id="btn-submit-post-img">Post</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
+    <div id="modal-post-money" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Post Crypto (Giveaway)</h3>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Post ETH. First person to click 'Get Now' receives it.</p>
+            <input type="number" id="post-money-amount" class="input-field" placeholder="Amount ETH" step="0.0001"/>
+            <button class="btn-primary" style="background: #fbbf24; color:#000" id="btn-submit-post-money">Publish</button>
+            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
+        </div>
+    </div>
+
     <div id="modal-withdraw" class="modal-overlay">
         <div class="modal-content">
             <h3>On-Chain Withdraw</h3>
@@ -1247,15 +1502,6 @@
             <div id="r-addr" style="background: var(--bg-color); padding: 20px; border-radius: 12px; word-break: break-all; font-family: monospace; font-size: 13px; margin: 20px 0; border: 1px dashed var(--primary-color); color: var(--primary-color);"></div>
             <button class="btn-primary" id="btn-copy">Copy Address</button>
             <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Done</button>
-        </div>
-    </div>
-
-    <div id="modal-receive-confirmation" class="modal-overlay">
-        <div class="modal-content" style="text-align: center;">
-            <h3>Receive File?</h3>
-            <p>Click receive to download this file.</p>
-            <button class="btn-primary" id="btn-confirm-receive">Receive</button>
-            <button class="btn-primary" style="background: transparent; border:none; color: var(--text-secondary);" onclick="this.closest('.modal-overlay').classList.remove('open')">Cancel</button>
         </div>
     </div>
 
@@ -1299,12 +1545,15 @@
         </div>
     </div>
 
+    <!-- Full Screen Image Viewer -->
+    <div id="full-image-viewer" class="modal-overlay" style="z-index: 10060;">
+        <img id="full-img-display" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+    </div>
+
     <!-- Image Action Menu -->
-    <div id="image-action-menu" class="modal-overlay" style="z-index: 10060;">
-        <div class="modal-content" style="text-align: left; width: auto; min-width: 150px; padding: 10px;">
-            <button class="btn-primary" style="background: var(--surface-light); color: var(--text-primary); margin-bottom: 10px;" id="btn-img-share">Share</button>
-            <button class="btn-primary" style="background: var(--danger-color); color: white;" id="btn-img-delete">Delete</button>
-        </div>
+    <div id="image-action-menu">
+        <button class="img-action-btn" id="btn-img-share">Share</button>
+        <button class="img-action-btn" id="btn-img-delete" style="color:var(--danger-color);">Delete</button>
     </div>
 
     <script type="module">
@@ -1328,10 +1577,10 @@
         
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        // Encoded Key: c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA==
-        const aiKey = atob("c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="); 
+        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
+        const aiKey = atob(k); 
         
-        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and specific features of the Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
+        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and the specific features of the Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
 
         let user = null;
         let chatId = null;
@@ -1398,11 +1647,12 @@
             
             if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
             if(cUsername) {
+                // Verified badge after username
                 const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                 cUsername.innerHTML = `${ud.username} ${vBadge}`;
             }
             
-            // Show last seen time (or now)
+            // Show last seen time or "Now"
             if (cLastSeen) {
                 if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
                     cLastSeen.innerText = "Now";
@@ -1454,9 +1704,9 @@
             document.getElementById("modal-confirm").classList.add("open");
             const yesBtn = document.getElementById("btn-confirm-yes");
             if(yesBtn) {
-                yesBtn.onclick = function() {
+                yesBtn.onclick = async function() {
                     // Delete from DB (Signals to receiver instantly)
-                    remove(ref(db, `messages/${chatId}/${mKey}`));
+                    await remove(ref(db, `messages/${chatId}/${mKey}`));
                     // Update local view
                     const el = document.getElementById(`msg-bubble-${mKey}`);
                     if(el) el.remove();
@@ -1485,6 +1735,14 @@
                 document.getElementById('image-action-menu').style.display = 'none';
             }
             lastImageTapTime = now;
+        }
+
+        window.closeImageActionMenu = () => {
+             document.getElementById('image-action-menu').style.display = 'none';
+        }
+
+        window.closeFullImage = () => {
+             document.getElementById('full-image-viewer').classList.remove('open');
         }
 
         window.scrollToMessage = function(msgKey) {
@@ -1577,17 +1835,12 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-cancel-reply').onclick = window.cancelReply;
-            document.getElementById('full-image-viewer').onclick = window.hideMenuImage;
+            document.getElementById('full-image-viewer').onclick = window.closeFullImage;
             document.getElementById('btn-img-share').onclick = window.openShareSelect; // Just use existing share flow logic
             document.getElementById('btn-img-delete').onclick = async () => {
                 if(currentImageActionMsgId) window.confirmDeleteMsg(currentImageActionMsgId);
-                window.hideMenuImage();
+                document.getElementById('image-action-menu').style.display = 'none';
             };
-            document.getElementById('btn-img-share').onclick = () => {
-                 // Use selected post ID
-                 window.openShareSelect(currentImageActionMsgId);
-                 window.hideMenuImage();
-            }
 
             // Navigation
             const navItems = document.querySelectorAll(".nav-item");
@@ -1615,7 +1868,6 @@
             const fileInput = document.getElementById('file-input');
             const btnMoneyModal = document.getElementById('btn-money-modal');
             const btnDoTransfer = document.getElementById('btn-do-transfer');
-            const btnReceive = document.getElementById('btn-receive'); // New Button
             const pWithdraw = document.getElementById('p-withdraw');
             const btnDoWithdraw = document.getElementById('btn-do-withdraw');
             const pReceive = document.getElementById('p-receive');
@@ -1658,16 +1910,6 @@
                 scrollBottomBtn.onclick = () => {
                     const area = document.getElementById('messages-area');
                     area.scrollTo({ top: area.scrollHeight, behavior: 'smooth' });
-                };
-            }
-
-            // Receive Feature Logic
-            if(btnReceive) {
-                btnReceive.onclick = () => {
-                    // Send a receive request message
-                    const msgInput = document.getElementById('msg-input');
-                    if(msgInput) msgInput.value = ""; 
-                    sendMsg("I would like to receive a file.", "receive_request");
                 };
             }
 
@@ -1716,25 +1958,22 @@
                 };
             }
 
-            // AI Logic - Reuse Chat Bubble Styles
+            // AI Logic
             if(btnAiSend) {
                 btnAiSend.onclick = async () => {
                     if (!aiInput) return;
                     const t = aiInput.value.trim();
                     if (!t) return;
-                    
-                    // Add loading bubble
-                    const l = document.createElement("div");
-                    l.className = "message-bubble received"; // Use chat bubble style
-                    l.id = "ai-loader";
-                    l.innerHTML = `<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-                    if(aiMessages) {
-                        aiMessages.appendChild(l);
-                        aiMessages.scrollTop = aiMessages.scrollHeight;
-                    }
-
                     aiHistory.push({ role: "user", content: t });
-                    // Don't clear input
+                    renderAI();
+                    aiInput.value = "";
+                    const l = document.createElement("div");
+                    l.className = "ai-message bot";
+                    l.id = "ai-loader";
+                    l.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+                    if(aiMessages) aiMessages.appendChild(l);
+                    if(aiMessages) aiMessages.scrollTop = aiMessages.scrollHeight;
+
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 20000);
 
@@ -1876,7 +2115,6 @@
                 };
             }
 
-            // Fix: Keyboard Persistence
             if(btnSendMsg) {
                 btnSendMsg.onclick = () => {
                     const msgInput = document.getElementById("msg-input");
@@ -1885,11 +2123,10 @@
                     if(pendingChatImage) {
                         sendMsg(pendingChatImage, "img");
                         pendingChatImage = null;
-                        // Keep focus, do not clear
+                        if(msgInput) msgInput.value = "";
                         setTimeout(() => msgInput.focus(), 50);
                     } else if (t && t !== "[Image Attachment]") {
                         sendMsg(t, "text");
-                        // Keep focus
                         setTimeout(() => msgInput.focus(), 50);
                     }
                 };
@@ -2464,27 +2701,14 @@
             if(rAddr) rAddr.innerText = wallet.address;
         }
 
-        window.hideMenuImage = () => {
-             document.getElementById('image-action-menu').style.display = 'none';
-        }
-
         document.addEventListener('click', (e) => {
             // Close image action menu if clicked outside
             const menu = document.getElementById('image-action-menu');
             if(!e.target.closest('#image-action-menu') && !e.target.classList.contains('msg-img')) {
                 menu.style.display = 'none';
             }
-            // Toggle Action Menu on Message Touch
-            if(e.target.closest('.message-bubble') && user) {
-                const bubble = e.target.closest('.message-bubble');
-                bubble.classList.toggle('my-msg');
-                setTimeout(() => {
-                    bubble.classList.remove('my-msg');
-                }, 3000);
-            }
             if(!e.target.closest('.chat-dots')) {
                 document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
-                document.querySelectorAll('.post-options-menu').forEach(d => d.style.display = 'none');
             }
         });
 
@@ -2518,7 +2742,7 @@
 
                 const badgeHTML = hasNewMsg ? `<div class="chat-item-badge show"></div>` : '';
                 
-                // Show last seen time (or now)
+                // Show last seen time (or Now)
                 let lastSeenTime = '';
                 if(ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
                     lastSeenTime = "Now";
@@ -2527,7 +2751,6 @@
                 }
 
                 let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
-                if(ud.verified) avatarContent += `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>`;
                 
                 const itemHTML = `
                     <div class="avatar-wrapper">
@@ -2536,7 +2759,7 @@
                     <div class="chat-info">
                         <div class="chat-name-row">
                             <div class="chat-name">
-                                ${ud.username}
+                                ${ud.username} ${vBadge}
                             </div>
                             <div class="chat-time">${lastSeenTime}</div>
                         </div>
@@ -2629,10 +2852,8 @@
             chatId = id;
             otherUid = uid;
             
-            window.hideMenuImage();
-            // Close post-options-menu
-            const allMenus = document.querySelectorAll('.post-options-menu');
-            allMenus.forEach(m => m.style.display = 'none');
+            // Clear Image Action Menu
+            document.getElementById('image-action-menu').style.display = 'none';
 
             window.currentMsgsRaw = [];
             document.getElementById("messages-area").innerHTML = "";
@@ -2645,12 +2866,25 @@
             const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
+            const currStatus = document.getElementById('curr-chat-status');
             
             if(currName) {
+                // Verified badge after username
                 const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                 currName.innerHTML = `${ud.username} ${vBadge}`;
             }
             if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
+            
+            // Remove Online/Offline status, show Last Seen or Now
+            if (currStatus) {
+                if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
+                    currStatus.innerText = "Now";
+                } else if (ud.lastSeen) {
+                    currStatus.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    currStatus.innerText = "Unknown";
+                }
+            }
 
             const chatFooter = document.getElementById('chat-footer');
             const inputBarWrapper = document.getElementById('input-bar-wrapper');
@@ -2660,10 +2894,8 @@
 
             window.cancelReply();
             
-            onValue(ref(db, `users/${user.uid}`), (s) => {
-                 // Update own last seen
-                if(s.exists()) update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
-            });
+            // Mark seen to remove dot
+            update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
 
             get(ref(db, `chats/${id}`)).then(s => {
                 if(!s.exists()) return; 
@@ -2691,20 +2923,8 @@
             const typingEl = document.createElement("div");
             typingEl.id = "typing-indicator";
             typingEl.className = "message-bubble received hidden";
-            typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+            typingEl.innerHTML = '<div class="typing-bubble"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
             if(a) a.appendChild(typingEl);
-
-            // Add touch listener to message area to handle "tapped" state for actions
-            a.addEventListener('touchstart', (e) => {
-                 // If target is inside buttons (like delete/reply), ignore
-                 if(e.target.closest('.delete-msg-icon') || e.target.closest('.reply-msg-icon')) return;
-                 
-                 const bubble = e.target.closest('.message-bubble');
-                 if(bubble) {
-                     // Toggle class
-                     bubble.classList.toggle('my-msg');
-                 }
-            }, { passive: true });
 
             a.onscroll = () => {
                 const btn = document.getElementById('scroll-bottom-btn');
@@ -2715,7 +2935,7 @@
                 }
             };
 
-            onValue(ref(db, `messages/${id}`), (s) => {
+            onValue(ref(db, `messages/${id}`), async (s) => {
                 if(s.exists()) {
                     const msgs = s.val();
                     let updates = {};
@@ -2784,6 +3004,7 @@
                 
                 let isEmoji = false;
                 if (m.type === 'text' && isOnlyEmojis(m.text)) {
+                    typeClass = "big-emoji-msg";
                     isEmoji = true;
                 }
 
@@ -2826,23 +3047,19 @@
                             </div>
                         </div>
                     `;
-                } else if (m.type === 'receive_request') {
-                    // Receive Request: Sender sends "I would like to receive a file."
-                    contentHtml = `<div><i class="material-icons-round" style="font-size:16px; vertical-align:middle;">cloud_download</i> &nbsp; You sent a file request.</div>`;
-                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', 'User', 'I would like to receive a file.', 'text')"></i>`;
                 } else if (m.type === 'img') {
-                    // Image with actions
-                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)">`;
-                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', 'User', 'Photo', 'img')"></i>`;
+                    // Single tap / Double tap logic in onclick
+                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)" onclick="window.handleImageTap('${m.key}', '${m.text}', event)">`;
                 } else if (m.text) {
                     contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
-                    // Only show reply icon if not big emoji
-                    if(!isEmoji) {
-                        const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
-                        const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                        // Allow replying to self
-                        replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
-                    }
+                }
+                
+                // Add Reply Icon (Only show if NOT big emoji)
+                if (!isEmoji) {
+                    const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
+                    const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    // Allow replying to self
+                    replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
                 }
                 
                 const deleteIconHtml = `<i class="material-icons-round delete-msg-icon" onclick="window.confirmDeleteMsg('${m.key}')">delete</i>`;
@@ -2854,8 +3071,8 @@
 
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
 
-                // Add class "my-msg" on tap
-                const tapHandler = !isEmoji ? `onclick="document.getElementById('msg-bubble-${m.key}').classList.toggle('my-msg')"` : '';
+                // Add class "show-actions" on tap
+                const tapHandler = !isEmoji ? `onclick="document.getElementById('msg-bubble-${m.key}').classList.toggle('show-actions')"` : '';
 
                 return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}" ${tapHandler}>
                     ${replyHtml}
@@ -2876,57 +3093,6 @@
                  a.scrollTop = a.scrollHeight;
             } else {
                  a.scrollTop = prevScrollTop;
-            }
-        }
-        
-        async function sendMsg(txt, type = "text") {
-            if (!txt || !chatId) return;
-            
-            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
-                toast("You are blocked by this user");
-                return;
-            }
-
-            const i = document.getElementById("msg-input");
-            
-            let replyPayload = null;
-            if (replyingTo) {
-                replyPayload = {
-                    key: replyingTo.key,
-                    sender: replyingTo.sender,
-                    text: replyingTo.text,
-                    type: replyingTo.type
-                };
-                window.cancelReply();
-            }
-
-            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
-
-            // "Receiving" state for sender
-            if (type === 'receive_request') {
-                 const bubble = document.createElement('div');
-                 bubble.className = "message-bubble sent sent-blocked";
-                 bubble.style.alignSelf = "flex-end";
-                 bubble.innerHTML = `<div>${txt}</div><div class="msg-meta"><span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span></div>`;
-                 const area = document.getElementById("messages-area");
-                 area.appendChild(bubble);
-                 if(area) area.scrollTop = area.scrollHeight;
-            } else {
-                const mRef = push(ref(db, `messages/${chatId}`));
-                const payload = { 
-                    sender: user.uid, 
-                    text: txt, 
-                    type: type, 
-                    time: Date.now(), 
-                    read: false 
-                };
-                if(replyPayload) payload.reply = replyPayload;
-            
-                await set(mRef, payload);
-                
-                const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
-                update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
-                update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
             }
         }
 
@@ -2971,6 +3137,9 @@
                     loadFeed(true); // Reload cache with all posts
                 }
 
+                // In a real app, we'd calculate offset. Here we simulate "find and scroll"
+                // Since we render chunks, we can't easily find DOM element until it's rendered.
+                // We'll scroll to bottom (assuming recent) or show toast.
                 toast(`Viewing post from ${originalAuthor}`);
                 // Simulate a scroll animation
                 container.style.transition = "transform 1s ease-out";
@@ -2981,6 +3150,86 @@
                 }, 1000);
             }, 300);
         };
+
+        async function sendMsg(txt, type = "text") {
+            if (!txt || !chatId) return;
+            
+            if(currentChatDetails && currentChatDetails.blockedBy === otherUid) {
+                toast("You are blocked by this user");
+                return;
+            }
+
+            const i = document.getElementById("msg-input");
+            
+            let replyPayload = null;
+            if (replyingTo) {
+                replyPayload = {
+                    key: replyingTo.key,
+                    sender: replyingTo.sender,
+                    text: replyingTo.text,
+                    type: replyingTo.type
+                };
+                window.cancelReply();
+            }
+
+            if(i) i.value = "";
+            
+            set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+
+            if (currentChatDetails && currentChatDetails.blockedBy === user.uid) {
+                const a = document.getElementById("messages-area");
+                const bubble = document.createElement("div");
+                bubble.className = "message-bubble sent sent-blocked";
+                bubble.style.alignSelf = "flex-end";
+                bubble.innerHTML = `
+                    <div>${type === 'img' ? '[Image]' : txt}</div>
+                    <div class="msg-meta">
+                        <span class="msg-time">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                    </div>`;
+                a.appendChild(bubble);
+                if(a) a.scrollTop = a.scrollHeight;
+                setTimeout(() => {
+                    bubble.style.opacity = '0';
+                    if(bubble) bubble.remove();
+                }, 1000);
+                return;
+            }
+
+            const mRef = push(ref(db, `messages/${chatId}`));
+            const payload = { 
+                sender: user.uid, 
+                text: txt, 
+                type: type, 
+                time: Date.now(), 
+                read: false 
+            };
+            if(replyPayload) payload.reply = replyPayload;
+            
+            await set(mRef, payload);
+            
+            const upd = { lastMessage: type === "img" ? "Photo" : txt, timestamp: Date.now() };
+            update(ref(db, `user_chats/${user.uid}/${chatId}`), upd);
+            update(ref(db, `user_chats/${otherUid}/${chatId}`), upd);
+            
+            // Restore focus if not blocked
+            setTimeout(() => {
+                if(i) i.focus();
+            }, 50);
+        }
+
+        const msgInput = document.getElementById("msg-input");
+        if(msgInput) {
+            msgInput.addEventListener("input", () => {
+                if (!chatId) return;
+                if(msgInput.value !== "[Image Attachment]") {
+                    set(ref(db, `chats/${chatId}/typing/${user.uid}`), true);
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
+                        set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
+                    }, 2000);
+                }
+            });
+        }
 
         function loadComments(postKey) {
             const list = document.getElementById('comments-list');
@@ -3105,17 +3354,16 @@
 
                     const vBadge = uData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                     const isMyPost = post.authorId === user.uid;
-                    const isShared = post.type === 'shared';
 
                     // Handle Shared Posts
-                    if(isShared) {
+                    if(post.type === 'shared') {
                         const sharedByUser = users[post.sharedBy] || { username: 'User', avatar: '' };
                         const originalPost = allPostsRaw.find(p => p.key === post.originalPostId);
                         if(!originalPost) return; // Skip if original deleted
 
                         const origUser = users[originalPost.authorId] || { username: 'Unknown', verified: false };
                         const origBadge = origUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
-                        
+
                         let innerContent = '';
                         
                         // Shared Header
@@ -3129,10 +3377,10 @@
                         // Render Original Content inside card (just preview copy)
                         innerContent += renderOriginalPostContent(originalPost, origUser, true);
 
-                        // "Go to Original" button (Logic Inline)
+                        // "Go to Original" button instead of Share
                         innerContent += `
                              <div class="post-actions">
-                                <button class="action-icon-btn" onclick="alert('This is a post shared by someone. It exists in the feed.')">
+                                <button class="action-icon-btn" onclick="window.goToOriginalPost('${originalPost.key}')" style="color:var(--primary-color); font-weight:600;">
                                     <i class="material-icons-round" style="font-size:22px;">visibility</i>
                                     <span style="font-size:13px; color:var(--text-primary); margin-left:4px;">Go to Original</span>
                                 </button>
@@ -3144,14 +3392,14 @@
                         // Normal Post
                         let innerContent = `
                             <div class="post-header">
-                                <img src="${uData.avatar || "https://ui-avatars.com/api/?name=User"}" class="post-avatar">
+                                <img src="${uData.avatar || 'https://ui-avatars.com/api/?name=User'}" class="post-avatar">
                                 <div class="post-meta-text">
                                     <div class="post-username">
                                         ${uData.username} ${vBadge}
                                     </div>
                                     <div class="post-time">${new Date(post.timestamp).toLocaleString([],{month:'short', day:'numeric'})}</div>
                                 </div>
-                                ${isMyPost ? `<button class="post-options-btn" onclick="event.stopPropagation(); window.deleteMyPost('${post.key}')"><i class="material-icons-round">more_horiz</i></button>` : ''}
+                                ${isMyPost ? `<button class="post-options-btn" onclick="event.stopPropagation(); window.openPostOptions('${post.key}')"><i class="material-icons-round">more_horiz</i></button>` : ''}
                             </div>
                         `;
                         
@@ -3176,13 +3424,88 @@
             }
         }
 
-        window.deleteMyPost = function(key) {
-            // Simple alert for this demo as requested by user prompt
+        window.goToOriginalPost = (postId) => {
+            // Reset filter if active
+            if(showMyPostsOnly) {
+                showMyPostsOnly = false;
+                document.getElementById('btn-feed-pen').classList.remove('active');
+                loadFeed(true);
+                toast("Original Post");
+            } else {
+                // Scroll simulation
+                const container = document.getElementById('feed-content');
+                container.style.transition = "transform 1s ease-out";
+                container.style.transform = "translateY(20px)";
+                setTimeout(() => {
+                    container.style.transform = "translateY(0)";
+                    container.style.transition = "none";
+                }, 1000);
+            }
+        }
+
+        window.openPostOptions = (postKey) => {
+            const el = document.getElementById(`post-options-${postKey}`);
+            if(!el) return;
+            // Simple prompt logic for this demo
             if(confirm("Delete this post?")) {
-                 remove(ref(db, `posts/${key}`));
+                 remove(ref(db, `posts/${postKey}`));
                  toast("Post deleted");
                  loadFeed(false);
             }
+        }
+
+        function renderOriginalPostContent(post, userData, isShared) {
+            const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+            
+            let contentHTML = '';
+            if(post.type === 'money') {
+                return `
+                    <div class="money-post-card">
+                        <div style="z-index:2">
+                            <div style="font-size:12px; opacity:0.8">Crypto Giveaway!</div>
+                            <div class="money-amount">${post.amount} ETH</div>
+                            <div style="margin-bottom:10px; font-size:14px;">By ${userData.username} ${vBadge}</div>
+                            <button class="money-claim-btn" onclick="window.claimMoney('${post.key}', '${post.amount}', '${post.authorId}')">Get Now!</button>
+                        </div>
+                        <i class="material-icons-round" style="position:absolute; bottom:-20px; right:-20px; font-size:150px; opacity:0.1; color:white">monetization_on</i>
+                    </div>
+                `;
+            }
+            
+            // Media
+            if(post.type === 'img') {
+                contentHTML += `
+                    <div class="post-media-container">
+                        <img src="${post.content}" class="post-img" loading="lazy">
+                    </div>
+                `;
+            }
+            
+            // Text
+            if(post.type !== 'img' && post.content) {
+                contentHTML += `<div class="post-content-text">${post.content}</div>`;
+            }
+            
+            // Actions (Hide if shared)
+            if(!isShared) {
+                const actionsHTML = `
+                    <div class="post-actions">
+                        <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
+                            <i class="material-icons-round" style="font-size:22px;">chat_bubble_outline</i>
+                            <span class="action-count" id="comment-count-${post.key}">0</span>
+                        </button>
+                        <button class="action-icon-btn" id="like-btn-wrapper-${post.key}" onclick="window.toggleLike('${post.key}', event)">
+                            <span class="action-count" id="like-count-${post.key}">0</span>
+                            <i class="material-icons-round like-btn" id="like-btn-${post.key}">favorite_border</i>
+                        </button>
+                        <button class="action-icon-btn" onclick="window.openShareSelect('${post.key}')">
+                            <i class="material-icons-round" style="font-size:22px;">share</i>
+                        </button>
+                    </div>
+                `;
+                return contentHTML + actionsHTML;
+            }
+            return contentHTML;
         }
 
         function updateLikeUI(postKey) {
@@ -3273,20 +3596,12 @@
                 aiHistory.forEach((m) => {
                     if (m.role === "system") return;
                     const d = document.createElement("div");
-                    d.className = `message-bubble ${m.role === "user" ? "sent" : "received"}`;
+                    d.className = `ai-message ${m.role === "user" ? "user" : "bot"}`;
                     d.innerHTML = m.role === 'assistant' ? parseAIContent(m.content) : m.content;
                     a.appendChild(d);
                 });
                 a.scrollTop = a.scrollHeight;
             }
-        }
-
-        const btnAiBackChat = document.getElementById('btn-ai-back-chat');
-        if(btnAiBackChat) {
-            btnAiBackChat.onclick = () => {
-                const chatBtn = document.querySelector('[data-target="view-chat"]');
-                if(chatBtn) chatBtn.click();
-            };
         }
 
     </script>
