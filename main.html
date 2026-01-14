@@ -77,6 +77,54 @@
         }
         .view-container.active { display: flex; }
 
+        /* --- Skeleton Loaders --- */
+        .skeleton {
+            background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface-color) 50%, var(--surface-light) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-chat-item {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .skeleton-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+        .skeleton-text {
+            height: 12px;
+            width: 60%;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+        .skeleton-msg {
+            height: 10px;
+            width: 40%;
+            border-radius: 4px;
+        }
+        .skeleton-post {
+            height: 350px;
+            margin: 15px;
+            border-radius: 12px;
+        }
+        .skeleton-msg-bubble {
+            height: 40px;
+            width: 120px;
+            border-radius: 18px;
+            margin: 10px 16px;
+        }
+
         /* --- Header --- */
         .app-header {
             height: 60px;
@@ -303,25 +351,34 @@
             position: relative;
         }
 
-        /* Messages */
+        /* Messages - Dynamic Sizing Fixes */
         .received, .bot {
             position: relative;
             align-self: flex-start;
             background: var(--msg-received-bg);
             color: var(--text-primary);
             border-radius: 18px 18px 18px 4px;
-            padding: 8px 14px;
+            padding: 10px 14px; /* Adjusted padding */
             max-width: 80%;
+            width: auto; /* Critical fix */
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap; /* Critical for text breaks */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
         .sent, .user {
             align-self: flex-end;
             background: var(--msg-sent-bg);
             color: white;
             border-radius: 18px 18px 4px 18px;
-            padding: 8px 14px;
+            padding: 10px 14px; /* Adjusted padding */
             max-width: 80%;
+            width: auto; /* Critical fix */
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap; /* Critical for text breaks */
             display: flex;
             flex-direction: column;
             align-items: flex-end;
@@ -341,6 +398,8 @@
             font-size: 64px;
             line-height: 1;
             max-width: 300px;
+            word-wrap: normal;
+            white-space: normal;
         }
         .received .big-emoji-msg { align-self: flex-start !important; }
         .sent .big-emoji-msg { align-self: flex-end !important; }
@@ -358,6 +417,7 @@
             max-width: 100%;
             cursor: pointer;
             transition: opacity 0.2s;
+            width: 100%;
         }
         .msg-reply-context:active { opacity: 0.7; }
         .received .msg-reply-context {
@@ -435,6 +495,7 @@
             gap: 4px;
             margin-top: 4px;
             padding-top: 4px;
+            width: 100%;
         }
         .msg-time { font-size: 10px; opacity: 0.7; }
         .msg-status {
@@ -697,14 +758,14 @@
         
         /* Content */
         .post-content-text {
-            padding: 4px 16px 12px;
+            padding:4px 16px 12px;
             font-size: 18px;
-            line-height: 1.4;
+            line-height:1.4;
             color: var(--text-primary);
             font-weight: 500;
         }
         .post-caption {
-            padding: 4px 16px 12px;
+            padding:4px 16px 12px;
             font-size: 15px;
             line-height: 1.4;
             color: var(--text-primary);
@@ -1211,6 +1272,9 @@
         </div>
         
         <div id="feed-content" class="scrollable" style="padding-bottom: 10px;">
+            <!-- Skeletons initially -->
+            <div class="skeleton-post skeleton"></div>
+            <div class="skeleton-post skeleton"></div>
             <div id="feed-loader" class="feed-loader hidden">Loading <div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
         </div>
     </div>
@@ -1226,7 +1290,11 @@
             </div>
             <div style="width:44px;"></div> 
         </div>
-        <div id="chat-list" class="scrollable" style="padding-top: 5px; position:relative;"></div>
+        <div id="chat-list" class="scrollable" style="padding-top: 5px; position:relative;">
+            <!-- Skeletons -->
+            <div class="skeleton-chat-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-msg"></div></div></div>
+            <div class="skeleton-chat-item"><div class="skeleton skeleton-avatar"></div><div style="flex:1"><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-msg"></div></div></div>
+        </div>
         
         <div id="chat-room">
             <div class="chat-room-header">
@@ -1239,7 +1307,11 @@
                     <div id="curr-chat-status" style="font-size:11px; color:var(--text-secondary)"></div>
                 </div>
             </div>
-            <div id="messages-area" class="messages-container"></div>
+            <div id="messages-area" class="messages-container">
+                 <!-- Skeleton -->
+                 <div class="skeleton-msg-bubble skeleton"></div>
+                 <div class="skeleton-msg-bubble skeleton" style="align-self: flex-end; margin-left: auto;"></div>
+            </div>
             <div id="scroll-bottom-btn"><i class="material-icons-round">keyboard_arrow_down</i></div>
             
             <div id="chat-footer" class="chat-footer-controls hidden" style="padding:10px; background:var(--surface-color); border-top:1px solid var(--border-color); display:flex; gap:10px;">
@@ -1557,7 +1629,7 @@
         
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const k = "c2stb3ItdjEtNTllYWRhYWFiZTJlZDQ1ZjRkOGJkYjA4NDc0NjE3ZGVlNGJkMjYzOTZhYTk2NDhkM2YxNDJkM2FiM2Y0OWYyMA=="; 
+        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
         const aiKey = atob(k); 
         
         const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and specific features of Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
@@ -1824,7 +1896,7 @@
                     if(view) {
                         document.querySelectorAll(".view-container").forEach((v) => v.classList.remove("active"));
                         view.classList.add("active");
-                        if (target === 'view-feed') loadFeed(true);
+                        if (target === 'view-feed') loadFeed(false); // Don't force cache if switching tabs
                     }
                 };
             });
@@ -2225,6 +2297,9 @@
                         .then(() => {
                             modal.classList.remove("open");
                             content.value = '';
+                            // FIX: Force refresh
+                            localStorage.removeItem('crypa_feed_cache_v3');
+                            loadFeed(false);
                             toast("Posted");
                         }).catch(e => { console.error(e); toast("Failed to post"); });
                     }
@@ -2280,10 +2355,11 @@
                                 res = canvas.toDataURL('image/jpeg', quality);
                             }
                             
+                            const caption = captionInput ? captionInput.value : "";
                             push(ref(db, 'posts'), {
                                 type: 'img',
                                 content: res,
-                                caption: captionInput ? captionInput.value : "",
+                                caption: caption,
                                 authorId: user.uid,
                                 timestamp: Date.now()
                             })
@@ -2292,6 +2368,9 @@
                                 if(fileInput) fileInput.value = "";
                                 if(imgPreviewContainer) imgPreviewContainer.classList.add('hidden');
                                 if(captionInput) captionInput.value = "";
+                                // FIX: Force refresh
+                                localStorage.removeItem('crypa_feed_cache_v3');
+                                loadFeed(false);
                                 toast("Posted");
                             }).catch(e => { console.error(e); toast("Upload Failed"); });
                         };
@@ -2321,6 +2400,9 @@
                     })
                     .then(() => {
                         if(modal) modal.classList.remove("open");
+                        // FIX: Force refresh
+                        localStorage.removeItem('crypa_feed_cache_v3');
+                        loadFeed(false);
                         toast('Crypto Posted!');
                     }).catch(e => { console.error(e); toast("Failed"); });
                 };
@@ -2535,7 +2617,7 @@
             window.openShareSelect = (postId) => {
                 currentSharePostId = postId;
                 const post = allPostsRaw.find(p => p.key === postId);
-                if(post && post.sharedFrom) {
+                if(post && post.type === 'shared') {
                     toast("Cannot share a shared post again");
                     return;
                 }
@@ -2556,8 +2638,10 @@
                         timestamp: Date.now()
                     });
                     shareModal.classList.remove('open');
-                    toast("Shared!");
+                    // FIX: Force refresh
+                    localStorage.removeItem('crypa_feed_cache_v3');
                     loadFeed(false);
+                    toast("Shared!");
                 };
             }
 
@@ -2610,6 +2694,10 @@
             loadChats();
             buildPrivacyUI();
             renderAI();
+            
+            // Fix for Feed Initial Load Bug:
+            // Delay loadFeed slightly to ensure DOM is ready and view has dimensions
+            setTimeout(() => loadFeed(true), 100);
         }
 
         function updateVerifiedUI(verified) {
@@ -2739,21 +2827,24 @@
         }
 
         function loadChats() {
-            if(!document.getElementById("view-chat").classList.contains("active")) return;
-            
+            // Optimization: Immediately try to render from cache
             const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
             if (cachedChatsJSON) {
                 try {
                     const cachedChats = JSON.parse(cachedChatsJSON);
                     renderChatList(cachedChats);
                 } catch(e) {}
+            } else {
+                 // Clear skeletons if no cache
+                 const l = document.getElementById("chat-list");
+                 // Keep skeletons briefly then clear
             }
 
             onValue(ref(db, `user_chats/${user.uid}`), async (s) => {
                 const l = document.getElementById("chat-list");
                 const d = s.val();
                 if (!d) {
-                    if(l) l.innerHTML = "";
+                    if(l) l.innerHTML = ""; // Empty list
                     localStorage.removeItem('crypa_chats_list_v3');
                     return;
                 }
@@ -2807,7 +2898,7 @@
             document.getElementById('image-action-menu').style.display = 'none';
 
             window.currentMsgsRaw = [];
-            document.getElementById("messages-area").innerHTML = "";
+            document.getElementById("messages-area").innerHTML = ""; // Clear old messages
             
             const room = document.getElementById("chat-room");
             const body = document.body;
@@ -2937,10 +3028,14 @@
             const typingEl = document.getElementById('typing-indicator');
             const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
             
+            // Don't clear innerHTML entirely if we want to maintain scroll position during updates
+            // But for "loads", we cleared it. For "updates", we just want to add new ones.
+            // For simplicity in this iteration, we rebuild.
             const prevScrollHeight = a.scrollHeight;
             const prevScrollTop = a.scrollTop;
             const wasAtBottom = a.scrollTop + a.clientHeight >= a.scrollHeight - 50;
-
+            
+            // Keep skeleton if loading first time? No, messages area cleared.
             if(a) a.innerHTML = ""; 
             
             const msgs = window.currentMsgsRaw || [];
@@ -3194,13 +3289,21 @@
                 try {
                     allPostsRaw = JSON.parse(cachedFeed);
                     feedOffset = 0;
-                    container.innerHTML = '';
+                    // Remove skeletons
+                    const skeletons = container.querySelectorAll('.skeleton-post');
+                    skeletons.forEach(el => el.remove());
+                    
+                    container.innerHTML = ''; 
                     renderNextChunk();
                     return; 
                 } catch(e) {}
             }
 
+            // DB Listener
             onValue(ref(db, 'posts'), (s) => {
+                const skeletons = container.querySelectorAll('.skeleton-post');
+                skeletons.forEach(el => el.remove());
+                
                 if(!s.exists()) {
                     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-secondary)">No posts yet.</div>';
                     return;
@@ -3208,13 +3311,14 @@
 
                 const posts = Object.entries(s.val()).map(([key, val]) => ({ key, ...val }));
                 
+                // Filtering Logic
                 const activePosts = posts.filter(p => {
                     const isOld = (now - p.timestamp) >= THREE_DAYS_MS;
                     const isMoney = p.type === 'money';
                     const isShared = p.type === 'shared';
                     if (isShared) {
                          const original = posts.find(op => op.key === p.originalPostId);
-                         if (!original) return false;
+                         if (!original) return false; // Hide if original deleted
                          const isOriginalOld = (now - original.timestamp) >= THREE_DAYS_MS;
                          if (isOriginalOld) return false;
                     }
@@ -3272,12 +3376,15 @@
 
                     const vBadge = uData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                     
-                    // NEW LOGIC: SHARED POSTS
+                    // REWRITTEN SHARED POSTS LOGIC
                     if(post.type === 'shared') {
                         const sharedByUser = users[post.sharedBy] || { username: 'Unknown', avatar: '' };
                         const sharedByBadge = sharedByUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                         
-                        // Render Header, Avatar + Text (Normal Size), Actions.
+                        // Check if original still exists
+                        const originalPost = allPostsRaw.find(op => op.key === post.originalPostId);
+                        if(!originalPost) return; // Skip rendering if original gone
+
                         const innerContent = `
                             <div class="shared-header">
                                 <img src="${sharedByUser.avatar || 'https://ui-avatars.com/api/?name=User'}" class="shared-avatar">
@@ -3321,7 +3428,6 @@
                         
                         innerContent += renderOriginalPostContent(post, uData, false);
                         
-                        // Action buttons (Comment, Like, Message, Share)
                         innerContent += `
                              <div class="post-actions">
                                 <button class="action-icon-btn" onclick="window.openComments('${post.key}')">
@@ -3414,7 +3520,7 @@
 
                 if(snapshot.exists()) {
                     const likes = snapshot.val();
-                    const count = likes ? Object.keys(likes).length : 0;
+                    const count = likes ? Object.keys(likes).length :0;
                     cEl.innerText = formatLikes(count);
 
                     if (likes && likes[user.uid]) {
@@ -3442,7 +3548,7 @@
 
                 if(snapshot.exists()) {
                     const comments = snapshot.val();
-                    const count = comments ? Object.keys(comments).length : 0;
+                    const count = comments ? Object.keys(comments).length :0;
                     currentEl.innerText = count;
                 } else {
                     currentEl.innerText = "0";
