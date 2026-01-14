@@ -104,6 +104,21 @@
             font-weight: 700;
             letter-spacing: -0.5px;
         }
+        /* Nav Badge */
+        .nav-badge {
+            position: absolute;
+            top: 8px;
+            right: 25%;
+            width: 10px;
+            height: 10px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            border: 2px solid var(--surface-color);
+            z-index: 10;
+            display: none;
+        }
+        .nav-badge.show { display: block; }
+
         /* Feed specific header buttons */
         .feed-header-btn.active { color: var(--primary-color); background: rgba(91, 107, 242, 0.1); border-radius: 50%; }
 
@@ -136,9 +151,27 @@
             transition: 0.2s;
             background: transparent;
             border: none;
+            position: relative; /* For badge positioning */
         }
         .nav-item.active { color: var(--primary-color); }
         .nav-item span { font-size: 10px; margin-top: 4px; font-weight: 500; }
+
+        /* --- Verified Badge Styling (Bigger & After Text) --- */
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--verified-color);
+            font-size: 18px; /* Bigger */
+            margin-left: 4px;
+            vertical-align: middle;
+            line-height: 0;
+        }
+        .chat-name, .post-username, .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
         /* --- Chat List --- */
         .chat-item {
@@ -165,34 +198,6 @@
             background: #333;
             display: block;
             border: 1px solid var(--border-color);
-        }
-        .verified-badge {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 18px;
-            height: 18px;
-            background: var(--verified-color);
-            border: 2px solid var(--surface-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            z-index: 2;
-        }
-        .verified-pill {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--verified-color);
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-            font-weight: 600;
-            white-space: nowrap;
         }
         .online-dot {
             position: absolute;
@@ -235,6 +240,20 @@
             display: flex;
             align-items: center;
         }
+        
+        /* Chat Item New Message Dot */
+        .chat-item-badge {
+            position: absolute;
+            top: 12px;
+            right: 45px;
+            width: 10px;
+            height: 10px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            display: none;
+        }
+        .chat-item-badge.show { display: block; }
+
         .chat-dots {
             color: var(--text-secondary);
             padding: 8px;
@@ -319,17 +338,17 @@
             padding: 8px 14px;
             max-width: 80%;
             word-wrap: break-word;
-            /* Ensure big emojis align right */
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            position: relative; /* Added for icon positioning */
         }
         .sent-blocked {
             background-color: var(--text-secondary);
             opacity: 0.5;
         }
 
-        /* Big Emoji Fix */
+        /* Big Emoji Fix - Force alignment based on class */
         .big-emoji-msg {
             background: transparent !important;
             padding: 0 !important;
@@ -338,8 +357,9 @@
             font-size: 64px;
             line-height: 1;
             max-width: 300px;
-            align-self: flex-end; /* Force right align for sent big emojis */
         }
+        .received .big-emoji-msg { align-self: flex-start !important; } /* Force left for received */
+        .sent .big-emoji-msg { align-self: flex-end !important; } /* Force right for sent */
         .big-emoji-msg .msg-meta { display: none; }
 
         /* Reply Context Styling */
@@ -390,6 +410,7 @@
             -webkit-box-orient: vertical;
         }
 
+        /* Action Icons (Sent/Received) */
         .delete-msg-icon, .reply-msg-icon {
             position: absolute;
             top: 4px;
@@ -403,7 +424,11 @@
             border-radius: 50%;
             padding: 2px;
         }
-        /* Fix icon positions for sent messages */
+        /* Make them showable on touch via class */
+        .message-bubble.show-actions .delete-msg-icon,
+        .message-bubble.show-actions .reply-msg-icon { opacity: 1; }
+
+        /* Fix icon positions */
         .sent .delete-msg-icon { right: 4px; color: rgba(255,255,255,0.8); }
         .sent .reply-msg-icon { right: 28px; color: rgba(255,255,255,0.8); }
         .received .delete-msg-icon { right: 4px; color: rgba(255,255,255,0.6); }
@@ -437,6 +462,31 @@
             color: var(--success-color);
         }
         
+        /* Image Action Menu */
+        #image-action-menu {
+            position: absolute;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 10px;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .img-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            padding: 5px;
+        }
+        .img-action-btn:hover { color: var(--primary-color); }
+
         /* Link Post Bubble in Chat */
         .msg-link-post {
             background: var(--surface-light);
@@ -1112,7 +1162,7 @@
             max-width: 90%;
             padding: 14px 18px;
             border-radius: 18px;
-            margin-bottom: 16px;
+            margin-bottom:16px;
             font-size: 15px;
             line-height: 1.5;
             word-wrap: break-word;
@@ -1176,7 +1226,6 @@
                 <button class="action-btn" id="btn-back-chat"><i class="material-icons-round">arrow_back_ios</i></button>
                 <div class="avatar-wrapper" style="margin-right:10px; margin-left:5px;">
                     <img src="" id="curr-chat-avatar" class="chat-avatar" style="width:36px;height:36px;" />
-                    <div id="curr-chat-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
                 </div>
                 <div style="flex:1; margin-left:5px;">
                     <div id="curr-chat-name" style="margin-bottom:2px; font-weight: 600; font-size: 15px"></div>
@@ -1254,7 +1303,6 @@
             <div class="profile-card" style="background: var(--surface-light); border-radius: 20px; padding: 20px; display: flex; align-items: center; position: relative; margin-bottom: 20px;">
                 <div class="avatar-wrapper" style="margin-right: 15px;">
                     <img src="" id="p-avatar" class="chat-avatar" style="width: 70px; height: 70px" />
-                    <div id="p-badge" class="verified-badge hidden"><i class="material-icons-round" style="font-size:12px">check</i></div>
                 </div>
                 <div>
                     <div id="p-username" style="font-size: 20px; font-weight: 700">User</div>
@@ -1296,7 +1344,11 @@
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" data-target="view-chat"><i class="material-icons-round">chat_bubble</i><span>CHATS</span></div>
+        <div class="nav-item active" data-target="view-chat" id="nav-chat">
+            <i class="material-icons-round">chat_bubble</i>
+            <span>CHATS</span>
+            <div class="nav-badge" id="nav-chat-badge"></div>
+        </div>
         <div class="nav-item" data-target="view-feed"><i class="material-icons-round">dynamic_feed</i><span>FEED</span></div>
         <div class="nav-item" data-target="view-ai"><i class="material-icons-round">psychology</i><span>AI</span></div>
         <div class="nav-item" data-target="view-profile"><i class="material-icons-round">account_circle</i><span>PROFILE</span></div>
@@ -1381,14 +1433,9 @@
                 <img src="" id="c-avatar" class="chat-avatar" style="width:80px; height:80px; margin-bottom:10px;">
                 <div class="contact-name">
                     <span id="c-username" style="font-size:18px; font-weight:700;">User</span>
-                    <i class="material-icons-round" id="c-badge" style="font-size: 16px; color: var(--verified-color); display:none;">check_circle</i>
                 </div>
             </div>
             <div style="border-bottom:1px solid var(--border-color); padding:10px 0; display:flex; justify-content:space-between;">
-                <span style="color:var(--text-secondary); font-size:13px;">Status</span>
-                <span id="c-status" style="font-size:14px;">Offline</span>
-            </div>
-            <div style="padding:10px 0; display:flex; justify-content:space-between;">
                 <span style="color:var(--text-secondary); font-size:13px;">Last Seen</span>
                 <span id="c-last-seen" style="font-size:14px;">---</span>
             </div>
@@ -1498,6 +1545,17 @@
         </div>
     </div>
 
+    <!-- Full Screen Image Viewer -->
+    <div id="full-image-viewer" class="modal-overlay" style="z-index: 10060;">
+        <img id="full-img-display" src="" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Image Action Menu -->
+    <div id="image-action-menu">
+        <button class="img-action-btn" id="btn-img-share">Share</button>
+        <button class="img-action-btn" id="btn-img-delete" style="color:var(--danger-color);">Delete</button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, update, remove, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
@@ -1519,10 +1577,10 @@
         
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; // Base64 Encoded Key
+        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
         const aiKey = atob(k); 
         
-        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and the specific features of the Crypa App (Chat, Feed, Wallet). If the question is about anything else (general knowledge, weather, sports, etc), refuse politely. Keep answers short, technical, and use bold for key terms.";
+        const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and the specific features of the Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
 
         let user = null;
         let chatId = null;
@@ -1553,6 +1611,10 @@
             { role: "system", content: systemPrompt }
         ];
 
+        // Double tap detection
+        let lastImageTapTime = 0;
+        let currentImageActionMsgId = null;
+
         function formatLikes(count) {
             if(count < 1000) return count;
             return (count / 1000).toFixed(count > 10000 ? 0 : 1) + 'k';
@@ -1581,23 +1643,24 @@
             if(!ud) return;
             const cAvatar = document.getElementById('c-avatar');
             const cUsername = document.getElementById('c-username');
-            const cBadge = document.getElementById('c-badge');
+            const cLastSeen = document.getElementById('c-last-seen');
             
             if(cAvatar) cAvatar.src = ud.avatar || `https://ui-avatars.com/api/?name=${ud.username}`;
-            if(cUsername) cUsername.innerText = ud.username;
-            if(cBadge) cBadge.style.display = ud.verified ? 'inline-block' : 'none';
-
-            const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
-            const cStatus = document.getElementById('c-status');
-            if(cStatus) {
-                cStatus.innerText = isOnline ? "Online" : "Offline";
-                cStatus.style.color = isOnline ? "var(--success-color)" : "var(--text-secondary)";
+            if(cUsername) {
+                // Verified badge after username
+                const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+                cUsername.innerHTML = `${ud.username} ${vBadge}`;
             }
-            const cLastSeen = document.getElementById('c-last-seen');
+            
+            // Show last seen time or "Now"
             if (cLastSeen) {
-                if (isOnline) cLastSeen.innerText = "Now";
-                else if (ud.lastSeen) cLastSeen.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                else cLastSeen.innerText = "Unknown";
+                if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
+                    cLastSeen.innerText = "Now";
+                } else if (ud.lastSeen) {
+                    cLastSeen.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    cLastSeen.innerText = "Unknown";
+                }
             }
             const modal = document.getElementById('modal-contact-info');
             if(modal) modal.classList.add('open');
@@ -1641,14 +1704,46 @@
             document.getElementById("modal-confirm").classList.add("open");
             const yesBtn = document.getElementById("btn-confirm-yes");
             if(yesBtn) {
-                yesBtn.onclick = function() {
-                    set(ref(db, `users/${user.uid}/deletedMessages/${mKey}`), true);
+                yesBtn.onclick = async function() {
+                    // Delete from DB (Signals to receiver instantly)
+                    await remove(ref(db, `messages/${chatId}/${mKey}`));
+                    // Update local view
                     const el = document.getElementById(`msg-bubble-${mKey}`);
                     if(el) el.remove();
                     document.getElementById("modal-confirm").classList.remove("open");
                 };
             }
         };
+
+        // Handle Image Single Tap / Double Tap
+        window.handleImageTap = function(key, src, event) {
+            const now = Date.now();
+            if (now - lastImageTapTime < 300) {
+                // Double Tap: Show Share/Delete
+                const menu = document.getElementById('image-action-menu');
+                currentImageActionMsgId = key;
+                
+                // Position menu near tap
+                const rect = event.target.getBoundingClientRect();
+                menu.style.top = `${rect.bottom + 5}px`;
+                menu.style.left = `${rect.left}px`;
+                menu.style.display = 'flex';
+            } else {
+                // Single Tap: Open Full Screen
+                document.getElementById('full-img-display').src = src;
+                document.getElementById('full-image-viewer').classList.add('open');
+                document.getElementById('image-action-menu').style.display = 'none';
+            }
+            lastImageTapTime = now;
+        }
+
+        window.closeImageActionMenu = () => {
+             document.getElementById('image-action-menu').style.display = 'none';
+        }
+
+        window.closeFullImage = () => {
+             document.getElementById('full-image-viewer').classList.remove('open');
+        }
 
         window.scrollToMessage = function(msgKey) {
             const el = document.getElementById(`msg-bubble-${msgKey}`);
@@ -1740,6 +1835,12 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-cancel-reply').onclick = window.cancelReply;
+            document.getElementById('full-image-viewer').onclick = window.closeFullImage;
+            document.getElementById('btn-img-share').onclick = window.openShareSelect; // Just use existing share flow logic
+            document.getElementById('btn-img-delete').onclick = async () => {
+                if(currentImageActionMsgId) window.confirmDeleteMsg(currentImageActionMsgId);
+                document.getElementById('image-action-menu').style.display = 'none';
+            };
 
             // Navigation
             const navItems = document.querySelectorAll(".nav-item");
@@ -1760,7 +1861,6 @@
 
             const btnNewChat = document.getElementById('btn-new-chat');
             const btnFeedPen = document.getElementById('btn-feed-pen');
-            const btnRefreshFeed = document.getElementById('btn-refresh-feed');
             const btnLogout = document.getElementById('btn-logout');
             const btnBackChat = document.getElementById('btn-back-chat');
             const btnSendMsg = document.getElementById('btn-send-msg');
@@ -2024,11 +2124,9 @@
                         sendMsg(pendingChatImage, "img");
                         pendingChatImage = null;
                         if(msgInput) msgInput.value = "";
-                        // Keep focus
                         setTimeout(() => msgInput.focus(), 50);
                     } else if (t && t !== "[Image Attachment]") {
                         sendMsg(t, "text");
-                        // Keep focus
                         setTimeout(() => msgInput.focus(), 50);
                     }
                 };
@@ -2482,7 +2580,7 @@
                     listContainer.innerHTML = '';
                     
                     const enrichedChats = {};
-                    // We need the recent chats, using cached or fetching
+                    // We need to recent chats, using cached or fetching
                     const cachedChatsJSON = localStorage.getItem('crypa_chats_list_v3');
                     if(cachedChatsJSON) {
                         try {
@@ -2534,12 +2632,10 @@
                     const d = s.val();
                     const pUsername = document.getElementById("p-username");
                     const pAvatar = document.getElementById("p-avatar");
-                    const pBadge = document.getElementById("p-badge");
                     const vBtn = document.getElementById('btn-verify-account');
                     
                     if(pUsername) pUsername.innerText = d.username;
                     if(pAvatar) pAvatar.src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
-                    if(pBadge) pBadge.classList.toggle('hidden', !d.verified);
                     if(vBtn) vBtn.classList.toggle('hidden', !!d.verified);
                     
                     users[user.uid] = d;
@@ -2562,17 +2658,8 @@
         }
 
         function updateVerifiedUI(verified) {
-            const pBadge = document.getElementById("p-badge");
             const vBtn = document.getElementById('btn-verify-account');
-            const currBadge = document.getElementById('curr-chat-badge');
-            
-            if (pBadge) pBadge.classList.toggle('hidden', !verified);
-            if (vBtn) vBtn.classList.toggle('hidden', verified);
-            
-            if(currBadge) {
-                const ud = users[otherUid];
-                if(ud) currBadge.classList.toggle('hidden', !ud.verified);
-            }
+            if(vBtn) vBtn.classList.toggle('hidden', verified);
         }
 
         async function setupWallet() {
@@ -2615,6 +2702,11 @@
         }
 
         document.addEventListener('click', (e) => {
+            // Close image action menu if clicked outside
+            const menu = document.getElementById('image-action-menu');
+            if(!e.target.closest('#image-action-menu') && !e.target.classList.contains('msg-img')) {
+                menu.style.display = 'none';
+            }
             if(!e.target.closest('.chat-dots')) {
                 document.querySelectorAll('.dropdown-menu').forEach(d => d.style.display = 'none');
             }
@@ -2622,10 +2714,13 @@
 
         function renderChatList(enrichedChats) {
             const l = document.getElementById("chat-list");
+            const navBadge = document.getElementById("nav-chat-badge");
             if(l) l.innerHTML = "";
             if (!enrichedChats) return;
 
             const sortedChats = Object.values(enrichedChats).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            let anyNewMsg = false;
 
             sortedChats.forEach(chat => {
                 const id = chat.id; 
@@ -2641,34 +2736,32 @@
                     if(!e.target.closest('.chat-dots')) openChat(id, ouid);
                 };
 
-                const verifiedHTML = ud.verified ? `<div class="verified-badge"><i class="material-icons-round" style="font-size:12px">check</i></div>` : '';
-                const pillHTML = ud.verified ? `<span class="verified-pill">Verified</span>` : '';
-                const isUserOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
-                const onlineHTML = isUserOnline ? `<div class="online-dot"></div>` : '';
+                const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                 const hasNewMsg = chat.timestamp && user.lastSeen && (chat.timestamp > user.lastSeen);
-                const badgeHTML = hasNewMsg ? `<div style="width:10px; height:10px; background:var(--primary-color); border-radius:50%; position:absolute; top:10px; right:45px;"></div>` : '';
+                if(hasNewMsg) anyNewMsg = true;
 
-                const isBlockedByMe = chat.blockedBy === user.uid;
-                const blockBtnHtml = isBlockedByMe
-                    ? `<div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', true)"><i class="material-icons-round">lock_open</i> Unblock</div>`
-                    : `<div class="dropdown-item delete" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', false)"><i class="material-icons-round">block</i> Block</div>`;
+                const badgeHTML = hasNewMsg ? `<div class="chat-item-badge show"></div>` : '';
+                
+                // Show last seen time (or Now)
+                let lastSeenTime = '';
+                if(ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
+                    lastSeenTime = "Now";
+                } else if (ud.lastSeen) {
+                    lastSeenTime = new Date(ud.lastSeen).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                }
 
                 let avatarContent = `<img src="${ud.avatar || "https://ui-avatars.com/api/?name=User"}" class="chat-avatar">`;
-                if(ud.verified) avatarContent += verifiedHTML;
-                if(isUserOnline) avatarContent += onlineHTML;
-
-                const timeStr = chat.timestamp ? new Date(chat.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-
-                item.innerHTML = `
+                
+                const itemHTML = `
                     <div class="avatar-wrapper">
                         ${avatarContent}
                     </div>
                     <div class="chat-info">
                         <div class="chat-name-row">
                             <div class="chat-name">
-                                ${ud.username} ${pillHTML}
+                                ${ud.username} ${vBadge}
                             </div>
-                            <div class="chat-time">${timeStr}</div>
+                            <div class="chat-time">${lastSeenTime}</div>
                         </div>
                         <div class="chat-msg">${chat.lastMessage}</div>
                     </div>
@@ -2678,12 +2771,19 @@
                     </div>
                     <div class="dropdown-menu" id="dropdown-${id}">
                         <div class="dropdown-item" onclick="event.stopPropagation(); window.openContactInfoDropdown('${ouid}')"><i class="material-icons-round">info</i> About Profile</div>
-                        <div class="dropdown-item" onclick="event.stopPropagation(); window.deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
-                        ${blockBtnHtml}
+                        <div class="dropdown-item delete" onclick="event.stopPropagation(); window.deleteMyChat('${id}', '${ouid}')"><i class="material-icons-round">delete</i> Delete Chat</div>
+                        <div class="dropdown-item" onclick="event.stopPropagation(); window.blockUser('${id}', '${ouid}', false)"><i class="material-icons-round">block</i> Block</div>
                     </div>
                 `;
+                item.innerHTML = itemHTML;
                 l.appendChild(item);
             });
+
+            // Update Nav Badge
+            if(navBadge) {
+                if(anyNewMsg) navBadge.classList.add('show');
+                else navBadge.classList.remove('show');
+            }
         }
 
         function loadChats() {
@@ -2752,6 +2852,9 @@
             chatId = id;
             otherUid = uid;
             
+            // Clear Image Action Menu
+            document.getElementById('image-action-menu').style.display = 'none';
+
             window.currentMsgsRaw = [];
             document.getElementById("messages-area").innerHTML = "";
             
@@ -2763,15 +2866,25 @@
             const ud = users[uid] || { username: 'Unknown', avatar: '', verified: false };
             const currName = document.getElementById("curr-chat-name");
             const currAvatar = document.getElementById("curr-chat-avatar");
-            const currBadge = document.getElementById('curr-chat-badge');
             const currStatus = document.getElementById('curr-chat-status');
             
-            if(currName) currName.innerText = ud.username;
+            if(currName) {
+                // Verified badge after username
+                const vBadge = ud.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
+                currName.innerHTML = `${ud.username} ${vBadge}`;
+            }
             if(currAvatar) currAvatar.src = ud.avatar || "https://ui-avatars.com/api/?name=User";
-            if(currBadge) currBadge.classList.toggle('hidden', !ud.verified);
             
-            const isOnline = ud.lastSeen && (Date.now() - ud.lastSeen) < 300000;
-            if(currStatus) currStatus.innerText = isOnline ? "Online" : "Offline";
+            // Remove Online/Offline status, show Last Seen or Now
+            if (currStatus) {
+                if (ud.lastSeen && (Date.now() - ud.lastSeen) < 300000) {
+                    currStatus.innerText = "Now";
+                } else if (ud.lastSeen) {
+                    currStatus.innerText = new Date(ud.lastSeen).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    currStatus.innerText = "Unknown";
+                }
+            }
 
             const chatFooter = document.getElementById('chat-footer');
             const inputBarWrapper = document.getElementById('input-bar-wrapper');
@@ -2780,6 +2893,9 @@
             if(inputBarWrapper) inputBarWrapper.classList.remove('hidden');
 
             window.cancelReply();
+            
+            // Mark seen to remove dot
+            update(ref(db, `users/${user.uid}`), { lastSeen: Date.now() });
 
             get(ref(db, `chats/${id}`)).then(s => {
                 if(!s.exists()) return; 
@@ -2896,12 +3012,9 @@
                 let replyHtml = '';
                 if (m.reply) {
                     const r = m.reply;
-                    // Safe string handling
                     const safeText = (r.text || '').replace(/"/g, '&quot;');
                     const safeSender = (r.sender || 'User').replace(/'/g, "\\'");
                     
-                    // Use the direct reference (text) which contains the Base64
-                    // This avoids duplicating the file in a new upload, just references the existing string
                     if (r.type === 'img') {
                         replyHtml = `
                             <div class="msg-reply-context" onclick="window.scrollToMessage('${r.key}')">
@@ -2935,16 +3048,17 @@
                         </div>
                     `;
                 } else if (m.type === 'img') {
-                    contentHtml = `<img src="${m.text}" class="msg-img" onclick="window.confirmDeleteMsg('${m.key}')">`;
+                    // Single tap / Double tap logic in onclick
+                    contentHtml = `<img src="${m.text}" class="msg-img" ontouchstart="window.handleImageTap('${m.key}', '${m.text}', event)" onclick="window.handleImageTap('${m.key}', '${m.text}', event)">`;
                 } else if (m.text) {
                     contentHtml = `<div>${parseMessageLinks(m.text)}</div>`;
                 }
                 
-                // Add Reply Icon
+                // Add Reply Icon (Only show if NOT big emoji)
                 if (!isEmoji) {
                     const senderName = isMe ? "yourself" : users[m.sender]?.username || "User";
                     const safeText = (m.text || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    // Fixed reply logic: allow replying to self
+                    // Allow replying to self
                     replyIconHtml = `<i class="material-icons-round reply-msg-icon" onclick="event.stopPropagation(); window.startReply('${m.key}', '${senderName}', '${safeText}', '${m.type}')">reply</i>`;
                 }
                 
@@ -2957,7 +3071,10 @@
 
                 const timeHtml = `<span class="msg-time">${new Date(m.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>`;
 
-                return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}">
+                // Add class "show-actions" on tap
+                const tapHandler = !isEmoji ? `onclick="document.getElementById('msg-bubble-${m.key}').classList.toggle('show-actions')"` : '';
+
+                return `<div class="message-bubble ${typeClass}" id="msg-bubble-${m.key}" ${tapHandler}>
                     ${replyHtml}
                     ${contentHtml}
                     ${replyIconHtml}
@@ -3046,7 +3163,6 @@
             
             let replyPayload = null;
             if (replyingTo) {
-                // Direct copy of the reference, no re-processing
                 replyPayload = {
                     key: replyingTo.key,
                     sender: replyingTo.sender,
@@ -3056,8 +3172,7 @@
                 window.cancelReply();
             }
 
-            // Keep input value or focus
-            if(i) i.value = ""; // Clearing text usually keeps focus
+            if(i) i.value = "";
             
             set(ref(db, `chats/${chatId}/typing/${user.uid}`), false);
 
@@ -3132,9 +3247,11 @@
                     const u = users[c.senderId] || { username: 'Unknown' };
                     const isMe = c.senderId === user.uid;
                     const bubbleClass = isMe ? 'me' : 'them';
+                    // Badge after username
+                    const vBadge = u.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                     html += `
                         <div class="comment-bubble ${bubbleClass}">
-                            <span class="comment-author">${u.username}</span>
+                            <span class="comment-author">${u.username} ${vBadge}</span>
                             ${c.text}
                         </div>
                     `;
@@ -3220,7 +3337,7 @@
             if (!container) return;
 
             let chunksLoaded = 0;
-            const MAX_CHUNKS_AT_ONCE = 5;
+            const MAX_CHUNKS_AT_ONCE =5;
 
             while (chunksLoaded < MAX_CHUNKS_AT_ONCE && feedOffset < allPostsRaw.length) {
                 const chunk = allPostsRaw.slice(feedOffset, feedOffset + POST_CHUNK_SIZE);
@@ -3232,11 +3349,10 @@
 
                     let uData = users[post.authorId];
                     if(!uData) uData = { username: 'Unknown', avatar: '', verified: false };
-
                     const el = document.createElement("div");
                     el.className = 'post-card';
 
-                    const vBadge = uData.verified ? `<i class="material-icons-round" style="font-size:14px; color:var(--verified-color);">check_circle</i>` : '';
+                    const vBadge = uData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
                     const isMyPost = post.authorId === user.uid;
 
                     // Handle Shared Posts
@@ -3246,7 +3362,7 @@
                         if(!originalPost) return; // Skip if original deleted
 
                         const origUser = users[originalPost.authorId] || { username: 'Unknown', verified: false };
-                        const origBadge = origUser.verified ? `<i class="material-icons-round" style="font-size:12px; color:var(--verified-color);">check_circle</i>` : '';
+                        const origBadge = origUser.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
 
                         let innerContent = '';
                         
@@ -3339,7 +3455,7 @@
         }
 
         function renderOriginalPostContent(post, userData, isShared) {
-            const vBadge = userData.verified ? `<i class="material-icons-round" style="font-size:12px; color:var(--verified-color);">check_circle</i>` : '';
+            const vBadge = userData.verified ? `<i class="material-icons-round verified-badge">check_circle</i>` : '';
             
             let contentHTML = '';
             if(post.type === 'money') {
