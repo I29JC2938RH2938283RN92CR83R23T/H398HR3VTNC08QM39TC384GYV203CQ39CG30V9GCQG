@@ -1659,7 +1659,7 @@
         
         const rpc = new ethers.JsonRpcProvider("https://ethereum-rpc.publicnode.com");
 
-        const k = "c2stLW9yLXYxLWViNmQ0ZDAwZTk3N2QzZjMwOTkxNDkyOGY3ZjZhZTVkZGQ3ZTM5MTExM2ZhMmI5ZDk0YTA1MWIwNjFhODMxNA=="; 
+        const k = "c2stb3ItdjEtNzY1NGU0NTFlODVlNTM1ODM4NTI0NTQ4OTU3Y2U4ZDQzNDZiYWZiYjMyNWU3MDE2MTBlYzU1NzMyN2NjNDVkZg=="; 
         const aiKey = atob(k); 
         
         const systemPrompt = "You are Crypa AI, developed by Itumo Longinus ILC. You strictly answer questions related to Cryptocurrency, Blockchain Technology, DeFi, and specific features of Crypa App (Chat, Feed, Wallet). If a question is about anything else (general knowledge, weather, sports, etc), you must refuse politely. Keep answers short, technical, and use bold for key terms.";
@@ -2071,7 +2071,7 @@
                                 "X-Title": "Crypa Pro"
                             },
                             body: JSON.stringify({
-                                model: "mistralai/devstral-2512:free",
+                                model: "openai/gpt-oss-120b:free",
                                 messages: aiHistory
                             }),
                             signal: controller.signal
